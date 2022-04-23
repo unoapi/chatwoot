@@ -32,6 +32,7 @@ deploy_sidekiq:
   stage: deploy
   image: alpine:latest
   script:
+    - apk add --update --no-cache wget 
     - export IMAGE_ID=`cat image.txt`
     - export PAYLOAD='{"updates":[{"type":"worker","docker_image":"'"$IMAGE_ID"'"}]}'
     - export URL=https://api.heroku.com/apps/chatwoot-sidekiq/formation
@@ -76,6 +77,7 @@ deploy_rails:
   stage: deploy
   image: alpine:latest
   script:
+    - apk add --update --no-cache wget 
     - export IMAGE_ID=`cat image.txt`
     - export PAYLOAD='{"updates":[{"type":"web","docker_image":"'"$IMAGE_ID"'"}]}'
     - export URL=https://api.heroku.com/apps/chatwoot-rails/formation

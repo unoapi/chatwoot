@@ -2,7 +2,7 @@
 
 set -e
 
-if [ "$CHATWOOT_MIGRATE" == "true" ] ; then
+if [ "$CHATWOOT_PREPARE" == "true" ] ; then
   echo "Chatwoot prepare database..."
   bundle exec rails db:chatwoot_prepare
 fi

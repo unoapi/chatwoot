@@ -11,7 +11,7 @@ build_sidekiq:
     DOCKER_DRIVER: overlay2
   artifacts:
     paths:
-      - image.txt
+      - image_sidekiq.txt
   script:
     - export TAG_NAME="$(git describe --abbrev=0 --tags | cut -d"v" -f2)"
     - export BASE_CONTAINER_IMAGE="registry.gitlab.com/clairton/chatwoot/sidekiq"
@@ -24,7 +24,7 @@ build_sidekiq:
     - docker tag $CONTAINER_IMAGE $HEROKU_IMAGE
     - docker push $HEROKU_IMAGE
     - export IMAGE_ID=`docker inspect $HEROKU_IMAGE --format={{.Id}}`
-    - echo $IMAGE_ID > ./image.txt
+    - echo $IMAGE_ID > ./image_sidekiq.txt
   only:
     - tags
 
@@ -33,7 +33,7 @@ deploy_sidekiq:
   image: alpine:latest
   script:
     - apk add --update --no-cache wget 
-    - export IMAGE_ID=`cat image.txt`
+    - export IMAGE_ID=`cat image_sidekiq.txt`
     - export PAYLOAD='{"updates":[{"type":"worker","docker_image":"'"$IMAGE_ID"'"}]}'
     - export URL=https://api.heroku.com/apps/chatwoot-sidekiq/formation
     - >
@@ -56,7 +56,7 @@ build_rails:
     DOCKER_DRIVER: overlay2
   artifacts:
     paths:
-      - image.txt
+      - image_rails.txt
   script:
     - export TAG_NAME="$(git describe --abbrev=0 --tags | cut -d"v" -f2)"
     - export BASE_CONTAINER_IMAGE="registry.gitlab.com/clairton/chatwoot/rails"
@@ -69,7 +69,7 @@ build_rails:
     - docker tag $CONTAINER_IMAGE $HEROKU_IMAGE
     - docker push $HEROKU_IMAGE
     - export IMAGE_ID=`docker inspect $HEROKU_IMAGE --format={{.Id}}`
-    - echo $IMAGE_ID > ./image.txt
+    - echo $IMAGE_ID > ./image_rails.txt
   only:
     - tags
 
@@ -78,7 +78,7 @@ deploy_rails:
   image: alpine:latest
   script:
     - apk add --update --no-cache wget 
-    - export IMAGE_ID=`cat image.txt`
+    - export IMAGE_ID=`cat image_rails.txt`
     - export PAYLOAD='{"updates":[{"type":"web","docker_image":"'"$IMAGE_ID"'"}]}'
     - export URL=https://api.heroku.com/apps/chatwoot-rails/formation
     - >

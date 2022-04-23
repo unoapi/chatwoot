@@ -7,7 +7,9 @@ ENV INSTALLATION_ENV docker
 ENV ACTIVE_STORAGE_SERVICE amazon
 ENV RAILS_MAX_THREADS 5
 ENV PORT 3000
+ADD bin /bin
 
-ENTRYPOINT [ "docker/entrypoints/rails.sh" ]
+EXPOSE 80
+EXPOSE 3000
 
-CMD ["bundle", "exec", "rails", "s", "-p", "$PORT", "-b", "0.0.0.0"]
+CMD ["sh", "/bin/start.sh"]

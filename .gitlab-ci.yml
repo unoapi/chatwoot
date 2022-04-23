@@ -14,7 +14,7 @@ build_sidekiq:
       - image.txt
   script:
     - export TAG_NAME="$(git describe --abbrev=0 --tags | cut -d"v" -f2)"
-    - export BASE_CONTAINER_IMAGE="registry.gitlab.com/clairton/chatwoot-sidekiq"
+    - export BASE_CONTAINER_IMAGE="registry.gitlab.com/clairton/chatwoot/sidekiq"
     - export CONTAINER_IMAGE="${BASE_CONTAINER_IMAGE}:${TAG_NAME}"
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
     - docker build -f sidekiq.Dockerfile -t $CONTAINER_IMAGE .
@@ -33,7 +33,7 @@ deploy_sidekiq:
   image: alpine:latest
   script:
     - export IMAGE_ID=`cat image.txt`
-    - export PAYLOAD='{"updates":[{"type":"web","docker_image":"'"$IMAGE_ID"'"}]}'
+    - export PAYLOAD='{"updates":[{"type":"worker","docker_image":"'"$IMAGE_ID"'"}]}'
     - export URL=https://api.heroku.com/apps/chatwoot-sidekiq/formation
     - >
       wget $URL
@@ -58,7 +58,7 @@ build_rails:
       - image.txt
   script:
     - export TAG_NAME="$(git describe --abbrev=0 --tags | cut -d"v" -f2)"
-    - export BASE_CONTAINER_IMAGE="registry.gitlab.com/clairton/chatwoot-rails"
+    - export BASE_CONTAINER_IMAGE="registry.gitlab.com/clairton/chatwoot/rails"
     - export CONTAINER_IMAGE="${BASE_CONTAINER_IMAGE}:${TAG_NAME}"
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
     - docker build -f rails.Dockerfile -t $CONTAINER_IMAGE .

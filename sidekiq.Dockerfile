@@ -6,4 +6,8 @@ ENV INSTALLATION_ENV docker
 ENV ACTIVE_STORAGE_SERVICE amazon
 ENV RAILS_MAX_THREADS 5
 
-CMD ["bundle", "exec", "sidekiq", "-C", "config/sidekiq.yml"]
+ENV CHATWOOT_PREPARE false
+
+ADD bin /bin
+
+CMD ["sh", "/bin/sidekiq.sh"]

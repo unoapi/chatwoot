@@ -1,4 +1,4 @@
-FROM chatwoot/chatwoot:v2.4.1
+FROM chatwoot/chatwoot:hotfix-v2.4.1
 
 
 ENV NODE_ENV production

@@ -3,7 +3,7 @@
 set -e
 
 if [ "$CHATWOOT_PREPARE" == "true" ] ; then
-  echo "Chatwoot prepare database..."
+  echo "Chatwoot prepare app..."
   bundle exec rails db:chatwoot_prepare
 fi
 

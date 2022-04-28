@@ -19,7 +19,7 @@ build_sidekiq:
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
     - docker build -f sidekiq.Dockerfile -t $CONTAINER_IMAGE .
     - docker push $CONTAINER_IMAGE
-    - docker login --username=_ --password=$HEROKU_TOKEN_CHATWOOT_SIDEKIQ registry.heroku.com
+    - docker login --username=_ --password=$HEROKU_TOKEN registry.heroku.com
     - export HEROKU_IMAGE="registry.heroku.com/chatwoot-sidekiq:${TAG_NAME}"
     - docker tag $CONTAINER_IMAGE $HEROKU_IMAGE
     - docker push $HEROKU_IMAGE
@@ -43,7 +43,7 @@ deploy_sidekiq:
       --body-data=$PAYLOAD
       --header 'Content-Type: application/json'
       --header 'Accept: application/vnd.heroku+json; version=3.docker-releases'
-      --header "Authorization: Bearer $HEROKU_TOKEN_CHATWOOT_SIDEKIQ"
+      --header "Authorization: Bearer $HEROKU_TOKEN"
   only:
     - tags
 
@@ -64,7 +64,7 @@ build_rails:
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
     - docker build -f rails.Dockerfile -t $CONTAINER_IMAGE .
     - docker push $CONTAINER_IMAGE
-    - docker login --username=_ --password=$HEROKU_TOKEN_CHATWOOT_RAILS registry.heroku.com
+    - docker login --username=_ --password=$HEROKU_TOKEN registry.heroku.com
     - export HEROKU_IMAGE="registry.heroku.com/chatwoot-rails:${TAG_NAME}"
     - docker tag $CONTAINER_IMAGE $HEROKU_IMAGE
     - docker push $HEROKU_IMAGE
@@ -88,6 +88,51 @@ deploy_rails:
       --body-data=$PAYLOAD
       --header 'Content-Type: application/json'
       --header 'Accept: application/vnd.heroku+json; version=3.docker-releases'
-      --header "Authorization: Bearer $HEROKU_TOKEN_CHATWOOT_RAILS"
+      --header "Authorization: Bearer $HEROKU_TOKEN"
+  only:
+    - tags
+
+build_getmail:
+  stage: build
+  image: docker:stable-git
+  services:
+    - docker:dind
+  variables:
+    DOCKER_DRIVER: overlay2
+  artifacts:
+    paths:
+      - image_getmail.txt
+  script:
+    - export TAG_NAME="$(git describe --abbrev=0 --tags | cut -d"v" -f2)"
+    - export BASE_CONTAINER_IMAGE="registry.gitlab.com/clairton/chatwoot/getmail"
+    - export CONTAINER_IMAGE="${BASE_CONTAINER_IMAGE}:${TAG_NAME}"
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
+    - docker build -f getmail.Dockerfile -t $CONTAINER_IMAGE .
+    - docker push $CONTAINER_IMAGE
+    - docker login --username=_ --password=$HEROKU_TOKEN registry.heroku.com
+    - export HEROKU_IMAGE="registry.heroku.com/chatwoot-getmail:${TAG_NAME}"
+    - docker tag $CONTAINER_IMAGE $HEROKU_IMAGE
+    - docker push $HEROKU_IMAGE
+    - export IMAGE_ID=`docker inspect $HEROKU_IMAGE --format={{.Id}}`
+    - echo $IMAGE_ID > ./image_getmail.txt
+  only:
+    - tags
+
+deploy_getmail:
+  stage: deploy
+  image: alpine:latest
+  script:
+    - apk add --update --no-cache wget 
+    - export IMAGE_ID=`cat image_getmail.txt`
+    - export PAYLOAD='{"updates":[{"type":"worker","docker_image":"'"$IMAGE_ID"'"}]}'
+    - export URL=https://api.heroku.com/apps/chatwoot-getmail/formation
+    - >
+      wget $URL
+      --server-response
+      --method=PATCH
+      --body-data=$PAYLOAD
+      --header 'Content-Type: application/json'
+      --header 'Accept: application/vnd.heroku+json; version=3.docker-releases'
+      --header "Authorization: Bearer $HEROKU_TOKEN"
   only:
     - tags

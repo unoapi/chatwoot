@@ -9,7 +9,7 @@ ENV RAILS_MAX_THREADS 2
 ENV PORT 3000
 ENV CHATWOOT_PREPARE false
 
-ADD bin /bin
+ADD bin/rails.sh /bin/rails.sh
 
 EXPOSE 80
 EXPOSE 3000

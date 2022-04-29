@@ -13,3 +13,4 @@
       :delivery_url: "<%= ENV['CHATWOOT_URL'] %>/rails/action_mailbox/relay/inbound_emails"
       :delivery_username: "actionmailbox"
       :delivery_password: "<%= ENV['INGRESS_PASSWORD'] %>"
+      :log_path: "STDOUT"

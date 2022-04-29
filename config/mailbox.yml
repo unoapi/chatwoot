@@ -1,16 +1,13 @@
 ---
 :mailboxes:
   -
-    :email: "<%= ENV['IMAP_USER'] %>"
-    :password: "<%= ENV['IMAP_PASSWORD'] %>"
-    :name: "inbox"
-    :host: "<%= ENV['IMAP_SERVER'] %>"
-    :port: "<%= ENV['IMAP_PORT'] %>"
-    :inbox_method: "IMAP"
-    :search_command: "NEW"
-    :delivery_method: "postback"
+    :email: <%= ENV['IMAP_USER'] %>
+    :password: <%= ENV['IMAP_PASSWORD'] %>
+    :name: inbox
+    :logger:
+      :log_path: :stdout
     :delivery_options:
-      :delivery_url: "<%= ENV['CHATWOOT_URL'] %>/rails/action_mailbox/relay/inbound_emails"
-      :delivery_username: "actionmailbox"
-      :delivery_password: "<%= ENV['INGRESS_PASSWORD'] %>"
-      :log_path: "STDOUT"
+      :delivery_url:  <%= ENV['CHATWOOT_URL'] %>
+      :username: <%= ENV['INGRESS_USER'] %>
+      :password: <%= ENV['INGRESS_PASSWORD'] %>
+      :content_type: message/rfc822

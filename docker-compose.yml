@@ -17,6 +17,8 @@ services:
       POSTGRES_PASSWORD: postgres
       RAILS_ENV: development
       RAILS_MAX_THREADS: 1
+      REDIS_URL: redis://redis:6379
+      REDIS_PASSWORD: 123456
 
   sidekiq:
     build:
@@ -31,10 +33,14 @@ services:
       POSTGRES_PASSWORD: postgres
       RAILS_ENV: development
       RAILS_MAX_THREADS: 1
+      REDIS_URL: redis://redis:6379
+      REDIS_PASSWORD: 123456
 
   getmail:
     build:
       dockerfile: getmail.Dockerfile
+    env_file:
+      - .env
 
   postgres:
     image: postgres:14-alpine
@@ -56,4 +62,6 @@ services:
     volumes:
       - ./data/redis:/data
     ports:
-      - '127.0.0.1:6379:6379'
+      - 6379:6379
+    environment:
+      REDIS_PASSWORD: 123456

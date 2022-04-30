@@ -1,12 +1,34 @@
 version: '3'
 
 services:
-  rails:
+  dns:
+    image: traefik:v2.6
+    container_name: traefik
+    command:
+      - --api.insecure=true
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+      - --entrypoints.imap.address=:3143
+      - --entrypoints.smtp.address=:3025
+    restart: always
+    ports:
+      - 80:80
+      - 8080:8080
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  web:
     build:
       dockerfile: rails.Dockerfile
+    command: bundle exec rails s -p ${PORT:-3000} -b 0.0.0.0
     depends_on:
       - postgres
       - redis
+      - worker
+      - relay
+      - mail
+      - dns
     ports:
       - 3000:3000
     entrypoint: docker/entrypoints/rails.sh
@@ -15,12 +37,28 @@ services:
       POSTGRES_USERNAME: postgres
       POSTGRES_DATABASE: postgres
       POSTGRES_PASSWORD: postgres
-      RAILS_ENV: development
+      RAILS_ENV: production
       RAILS_MAX_THREADS: 1
       REDIS_URL: redis://redis:6379
       REDIS_PASSWORD: 123456
+      FRONTEND_URL: http://chat.lvh.me
+      MAILER_SENDER_EMAIL: Odonto Excellence<atendimento@lvh.me>
+      SMTP_DOMAIN: lvh.me
+      SMTP_ADDRESS: mail.lvh.me
+      SMTP_PORT: 3025
+      SMTP_USERNAME: me@lvh.me
+      SMTP_PASSWORD: mnbvcx
+      MAILER_INBOUND_EMAIL_DOMAIN: atendimento@lvh.me
+      RAILS_INBOUND_EMAIL_SERVICE: relay
+      RAILS_INBOUND_EMAIL_PASSWORD: abcde
+      CHATWOOT_PREPARE: 'true'
+      SECRET_KEY_BASE: qdjwoqroiqwihqwoeqwokdnqwdncuneuf82183219381ob
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.server.rule=Host(`chat.lvh.me`)
+      - traefik.http.routers.server.entrypoints=web
 
-  sidekiq:
+  worker:
     build:
       dockerfile: sidekiq.Dockerfile
     depends_on:
@@ -31,16 +69,35 @@ services:
       POSTGRES_USERNAME: postgres
       POSTGRES_DATABASE: postgres
       POSTGRES_PASSWORD: postgres
-      RAILS_ENV: development
+      RAILS_ENV: production
       RAILS_MAX_THREADS: 1
       REDIS_URL: redis://redis:6379
       REDIS_PASSWORD: 123456
 
-  getmail:
+  relay:
     build:
-      dockerfile: getmail.Dockerfile
-    env_file:
-      - .env
+      dockerfile: relay.Dockerfile
+    volumes:
+      - ./relay:/app
+    depends_on:
+      - mail
+    environment:
+      IMAP_USER: atendimento@lvh.me
+      IMAP_PASSWORD: poiuyt
+      INGRESS_PASSWORD: abcde
+      INGRESS_USER: actionmailbox
+      CHATWOOT_URL: http://chat.lvh.me/rails/action_mailbox/relay/inbound_emails
+  
+
+  mail:
+    image: greenmail/standalone:1.6.8
+    ports:
+      - 3025:3025
+      - 3143:3143
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.server.rule=HostSNI(`mail.lvh.me`)
+      - traefik.http.routers.server.entrypoints=smtp,imap
 
   postgres:
     image: postgres:14-alpine
@@ -55,13 +112,11 @@ services:
       POSTGRES_HOST_AUTH_METHOD: md5
 
   redis:
-    image: redis:alpine
+    image: redis:7.0.0-alpine
     restart: always
-    command: ["sh", "-c", "redis-server --requirepass \"$REDIS_PASSWORD\""]
+    command: ["sh", "-c", "redis-server --requirepass 123456"]
     env_file: .env
     volumes:
       - ./data/redis:/data
     ports:
       - 6379:6379
-    environment:
-      REDIS_PASSWORD: 123456

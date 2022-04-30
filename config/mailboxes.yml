@@ -4,6 +4,7 @@
     :email: <%= ENV['IMAP_USER'] %>
     :password: <%= ENV['IMAP_PASSWORD'] %>
     :name: inbox
+    :delivery_method: postback
     :logger:
       :log_path: :stdout
     :delivery_options:

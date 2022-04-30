@@ -1,6 +1,6 @@
 FROM chatwoot/chatwoot:hotfix-v2.4.1
 
-
+RUN gem install bundler
 ENV NODE_ENV production
 ENV RAILS_ENV production
 ENV INSTALLATION_ENV docker

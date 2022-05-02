@@ -8,7 +8,7 @@
     :name: inbox
     :delivery_method: postback
     :logger:
-      :log_path: /tmp/relay.log
+      :log_path: /app/relay/log
     :delivery_options:
       :delivery_url:  <%= ENV['CHATWOOT_URL'] %>
       :username: <%= ENV['INGRESS_USER'] %>

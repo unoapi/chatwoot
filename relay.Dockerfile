@@ -1,5 +1,7 @@
 FROM ruby:3-alpine3.15
 
+ENV CHATWOOT_LOG_PATH stdout
+
 WORKDIR /app/relay
 
 RUN gem install mail_room -s https://github.com/tpitale/mail_room/tree/v0.10.1

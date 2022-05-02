@@ -6,7 +6,7 @@
     :name: inbox
     :delivery_method: postback
     :logger:
-      :log_path: :stdout
+      :log_path: <%= ENV['CHATWOOT_LOG_PATH'].to_sym %>
     :delivery_options:
       :delivery_url:  <%= ENV['CHATWOOT_URL'] %>
       :username: <%= ENV['INGRESS_USER'] %>

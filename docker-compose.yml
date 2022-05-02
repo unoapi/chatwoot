@@ -96,7 +96,8 @@ services:
     depends_on:
       - mail
     environment:
-      IMAP_HOST: mail.lvh.me
+      IMAP_HOST: mail
+      IMAP_SSL: 'false'
       IMAP_PORT: 3143
       IMAP_USER: atendimento@lvh.me
       IMAP_PASSWORD: poiuyt
@@ -106,7 +107,9 @@ services:
 
   storage:
     image: quay.io/minio/minio:RELEASE.2022-04-29T01-27-09Z
-    command: server --console-address ":9001" http://minio{1...4}/data{1...2}
+    command: server /data --console-address ":9001" http://storage.lvh.me
+    volumes:
+      - /data/storage:/data
     ports:
       - 9000:9000
       - 9001:9001
@@ -124,10 +127,12 @@ services:
     ports:
       - 3025:3025
       - 3143:3143
+      - 8080:8080
     labels:
       - traefik.enable=true
       - traefik.http.routers.server.rule=HostSNI(`mail.lvh.me`)
-      - traefik.http.routers.server.entrypoints=smtp,imap
+      - traefik.http.routers.server.entrypoints=imap
+      - traefik.http.routers.server.entrypoints=smtp
 
   postgres:
     image: postgres:14-alpine

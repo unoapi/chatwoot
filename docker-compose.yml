@@ -96,6 +96,8 @@ services:
     depends_on:
       - mail
     environment:
+      IMAP_HOST: mail.lvh.me
+      IMAP_PORT: 3143
       IMAP_USER: atendimento@lvh.me
       IMAP_PASSWORD: poiuyt
       INGRESS_PASSWORD: abcde

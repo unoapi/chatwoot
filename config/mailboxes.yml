@@ -1,12 +1,14 @@
 ---
 :mailboxes:
   -
+    :host: <%= ENV['IMAP_HOST'] %>
+    :port: <%= ENV['IMAP_PORT'] %>
     :email: <%= ENV['IMAP_USER'] %>
     :password: <%= ENV['IMAP_PASSWORD'] %>
     :name: inbox
     :delivery_method: postback
     :logger:
-      :log_path: <%= ENV['CHATWOOT_LOG_PATH'].to_sym %>
+      :log_path: /tmp/relay.log
     :delivery_options:
       :delivery_url:  <%= ENV['CHATWOOT_URL'] %>
       :username: <%= ENV['INGRESS_USER'] %>

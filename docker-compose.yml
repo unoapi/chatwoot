@@ -29,6 +29,7 @@ services:
       - relay
       - mail
       - dns
+      - storage
     ports:
       - 3000:3000
     entrypoint: docker/entrypoints/rails.sh
@@ -53,6 +54,12 @@ services:
       RAILS_INBOUND_EMAIL_PASSWORD: abcde
       CHATWOOT_PREPARE: 'true'
       SECRET_KEY_BASE: qdjwoqroiqwihqwoeqwokdnqwdncuneuf82183219381ob
+      ACTIVE_STORAGE_SERVICE: amazon
+      S3_BUCKET_NAME: chatwoot
+      AWS_ACCESS_KEY_ID: minio
+      AWS_SECRET_ACCESS_KEY: '0987654321'
+      AWS_REGION: us-east-1
+      AWS_S3_ENDPOINT: http://storage.lvh.me:9000
     labels:
       - traefik.enable=true
       - traefik.http.routers.server.rule=Host(`chat.lvh.me`)
@@ -64,6 +71,7 @@ services:
     depends_on:
       - postgres
       - redis
+      - mail
     environment:
       POSTGRES_HOST: postgres
       POSTGRES_USERNAME: postgres
@@ -73,12 +81,18 @@ services:
       RAILS_MAX_THREADS: 1
       REDIS_URL: redis://redis:6379
       REDIS_PASSWORD: 123456
+      ACTIVE_STORAGE_SERVICE: amazon
+      S3_BUCKET_NAME: chatwoot
+      AWS_ACCESS_KEY_ID: minio
+      AWS_SECRET_ACCESS_KEY: 0987654321
+      AWS_REGION_NAME: us-east-1
+      AWS_S3_ENDPOINT: http://storage.lvh.me:9000
 
   relay:
     build:
       dockerfile: relay.Dockerfile
-    volumes:
-      - ./relay:/app
+    # volumes:
+    #   - ./:/app
     depends_on:
       - mail
     environment:
@@ -87,6 +101,20 @@ services:
       INGRESS_PASSWORD: abcde
       INGRESS_USER: actionmailbox
       CHATWOOT_URL: http://chat.lvh.me/rails/action_mailbox/relay/inbound_emails
+
+  storage:
+    image: quay.io/minio/minio:RELEASE.2022-04-29T01-27-09Z
+    command: server --console-address ":9001" http://minio{1...4}/data{1...2}
+    ports:
+      - 9000:9000
+      - 9001:9001
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: 0987654321
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.server.rule=Host(`storage.lvh.me`)
+      - traefik.http.routers.server.entrypoints=web
   
 
   mail:

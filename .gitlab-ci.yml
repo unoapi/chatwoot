@@ -92,7 +92,7 @@ deploy_rails:
   only:
     - tags
 
-build_getmail:
+build_relay:
   stage: build
   image: docker:stable-git
   services:
@@ -101,31 +101,31 @@ build_getmail:
     DOCKER_DRIVER: overlay2
   artifacts:
     paths:
-      - image_getmail.txt
+      - image_relay.txt
   script:
     - export TAG_NAME="$(git describe --abbrev=0 --tags | cut -d"v" -f2)"
-    - export BASE_CONTAINER_IMAGE="registry.gitlab.com/clairton/chatwoot/getmail"
+    - export BASE_CONTAINER_IMAGE="registry.gitlab.com/clairton/chatwoot/relay"
     - export CONTAINER_IMAGE="${BASE_CONTAINER_IMAGE}:${TAG_NAME}"
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
-    - docker build -f getmail.Dockerfile -t $CONTAINER_IMAGE .
+    - docker build -f relay.Dockerfile -t $CONTAINER_IMAGE .
     - docker push $CONTAINER_IMAGE
     - docker login --username=_ --password=$HEROKU_TOKEN registry.heroku.com
-    - export HEROKU_IMAGE="registry.heroku.com/chatwoot-getmail:${TAG_NAME}"
+    - export HEROKU_IMAGE="registry.heroku.com/chatwoot-relay:${TAG_NAME}"
     - docker tag $CONTAINER_IMAGE $HEROKU_IMAGE
     - docker push $HEROKU_IMAGE
     - export IMAGE_ID=`docker inspect $HEROKU_IMAGE --format={{.Id}}`
-    - echo $IMAGE_ID > ./image_getmail.txt
+    - echo $IMAGE_ID > ./image_relay.txt
   only:
     - tags
 
-deploy_getmail:
+deploy_relay:
   stage: deploy
   image: alpine:latest
   script:
     - apk add --update --no-cache wget 
-    - export IMAGE_ID=`cat image_getmail.txt`
+    - export IMAGE_ID=`cat image_relay.txt`
     - export PAYLOAD='{"updates":[{"type":"worker","docker_image":"'"$IMAGE_ID"'"}]}'
-    - export URL=https://api.heroku.com/apps/chatwoot-getmail/formation
+    - export URL=https://api.heroku.com/apps/chatwoot-relay/formation
     - >
       wget $URL
       --server-response

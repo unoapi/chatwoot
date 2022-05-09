@@ -1,3 +1,4 @@
 data/*
 .env
 .DS_Store
+mail_room/*

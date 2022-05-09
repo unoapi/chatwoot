@@ -7,11 +7,9 @@
     :password: <%= ENV['IMAP_PASSWORD'] %>
     :ssl:  <%= ENV['IMAP_SSL'] %>
     :name: inbox
-    :delivery_method: postback
+    :delivery_method: sidekiq
     :logger:
       :log_path: /app/relay/log
     :delivery_options:
-      :delivery_url:  <%= ENV['CHATWOOT_URL'] %>
-      :username: <%= ENV['INGRESS_USER'] %>
-      :password: <%= ENV['INGRESS_PASSWORD'] %>
-      :content_type: message/rfc822
+      :redis_url:  <%= ENV['REDIS_URL'] %>
+      :worker: EmailRelayJob

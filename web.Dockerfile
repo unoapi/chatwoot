@@ -9,9 +9,9 @@ ENV RAILS_MAX_THREADS 2
 ENV PORT 3000
 ENV CHATWOOT_PREPARE false
 
-ADD bin/rails.sh /bin/rails.sh
+ADD bin/web.sh /bin/web.sh
 
 EXPOSE 80
 EXPOSE 3000
 
-CMD ["sh", "/bin/rails.sh"]
+CMD ["sh", "/bin/web.sh"]

@@ -2,7 +2,7 @@ stages:
   - build
   - deploy
 
-build_sidekiq:
+build_worker:
   stage: build
   image: docker:stable-git
   services:
@@ -11,31 +11,31 @@ build_sidekiq:
     DOCKER_DRIVER: overlay2
   artifacts:
     paths:
-      - image_sidekiq.txt
+      - image_worker.txt
   script:
     - export TAG_NAME="$(git describe --abbrev=0 --tags | cut -d"v" -f2)"
-    - export BASE_CONTAINER_IMAGE="registry.gitlab.com/clairton/chatwoot/sidekiq"
+    - export BASE_CONTAINER_IMAGE="registry.gitlab.com/clairton/chatwoot/worker"
     - export CONTAINER_IMAGE="${BASE_CONTAINER_IMAGE}:${TAG_NAME}"
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
-    - docker build -f sidekiq.Dockerfile -t $CONTAINER_IMAGE .
+    - docker build -f worker.Dockerfile -t $CONTAINER_IMAGE .
     - docker push $CONTAINER_IMAGE
     - docker login --username=_ --password=$HEROKU_TOKEN registry.heroku.com
-    - export HEROKU_IMAGE="registry.heroku.com/chatwoot-sidekiq:${TAG_NAME}"
+    - export HEROKU_IMAGE="registry.heroku.com/chatwoot-worker:${TAG_NAME}"
     - docker tag $CONTAINER_IMAGE $HEROKU_IMAGE
     - docker push $HEROKU_IMAGE
     - export IMAGE_ID=`docker inspect $HEROKU_IMAGE --format={{.Id}}`
-    - echo $IMAGE_ID > ./image_sidekiq.txt
+    - echo $IMAGE_ID > ./image_worker.txt
   only:
     - tags
 
-deploy_sidekiq:
+deploy_worker:
   stage: deploy
   image: alpine:latest
   script:
     - apk add --update --no-cache wget 
-    - export IMAGE_ID=`cat image_sidekiq.txt`
+    - export IMAGE_ID=`cat image_worker.txt`
     - export PAYLOAD='{"updates":[{"type":"worker","docker_image":"'"$IMAGE_ID"'"}]}'
-    - export URL=https://api.heroku.com/apps/chatwoot-sidekiq/formation
+    - export URL=https://api.heroku.com/apps/chatwoot-worker/formation
     - >
       wget $URL
       --server-response
@@ -47,7 +47,7 @@ deploy_sidekiq:
   only:
     - tags
 
-build_rails:
+build_web:
   stage: build
   image: docker:stable-git
   services:
@@ -56,31 +56,31 @@ build_rails:
     DOCKER_DRIVER: overlay2
   artifacts:
     paths:
-      - image_rails.txt
+      - image_web.txt
   script:
     - export TAG_NAME="$(git describe --abbrev=0 --tags | cut -d"v" -f2)"
-    - export BASE_CONTAINER_IMAGE="registry.gitlab.com/clairton/chatwoot/rails"
+    - export BASE_CONTAINER_IMAGE="registry.gitlab.com/clairton/chatwoot/web"
     - export CONTAINER_IMAGE="${BASE_CONTAINER_IMAGE}:${TAG_NAME}"
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
-    - docker build -f rails.Dockerfile -t $CONTAINER_IMAGE .
+    - docker build -f web.Dockerfile -t $CONTAINER_IMAGE .
     - docker push $CONTAINER_IMAGE
     - docker login --username=_ --password=$HEROKU_TOKEN registry.heroku.com
-    - export HEROKU_IMAGE="registry.heroku.com/chatwoot-rails:${TAG_NAME}"
+    - export HEROKU_IMAGE="registry.heroku.com/chatwoot-w3b:${TAG_NAME}"
     - docker tag $CONTAINER_IMAGE $HEROKU_IMAGE
     - docker push $HEROKU_IMAGE
     - export IMAGE_ID=`docker inspect $HEROKU_IMAGE --format={{.Id}}`
-    - echo $IMAGE_ID > ./image_rails.txt
+    - echo $IMAGE_ID > ./image_web.txt
   only:
     - tags
 
-deploy_rails:
+deploy_web:
   stage: deploy
   image: alpine:latest
   script:
     - apk add --update --no-cache wget 
-    - export IMAGE_ID=`cat image_rails.txt`
+    - export IMAGE_ID=`cat image_web.txt`
     - export PAYLOAD='{"updates":[{"type":"web","docker_image":"'"$IMAGE_ID"'"}]}'
-    - export URL=https://api.heroku.com/apps/chatwoot-rails/formation
+    - export URL=https://api.heroku.com/apps/chatwoot-w3b/formation
     - >
       wget $URL
       --server-response

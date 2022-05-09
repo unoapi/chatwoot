@@ -20,7 +20,7 @@ services:
 
   web:
     build:
-      dockerfile: rails.Dockerfile
+      dockerfile: web.Dockerfile
     command: bundle exec rails s -p ${PORT:-3000} -b 0.0.0.0
     depends_on:
       - postgres
@@ -36,12 +36,11 @@ services:
     environment:
       POSTGRES_HOST: postgres
       POSTGRES_USERNAME: postgres
-      POSTGRES_DATABASE: postgres
+      POSTGRES_DATABASE: chatwoot
       POSTGRES_PASSWORD: postgres
       RAILS_ENV: production
       RAILS_MAX_THREADS: 1
       REDIS_URL: redis://redis:6379
-      REDIS_PASSWORD: 123456
       FRONTEND_URL: http://chat.lvh.me
       MAILER_SENDER_EMAIL: Odonto Excellence<atendimento@lvh.me>
       SMTP_DOMAIN: lvh.me
@@ -67,55 +66,61 @@ services:
 
   worker:
     build:
-      dockerfile: sidekiq.Dockerfile
+      dockerfile: worker.Dockerfile
     depends_on:
       - postgres
       - redis
+      - storage
       - mail
+    volumes:
+      - ./bin/email_relay_job.rb:/app/app/jobs/email_relay_job.rb
     environment:
       POSTGRES_HOST: postgres
       POSTGRES_USERNAME: postgres
-      POSTGRES_DATABASE: postgres
+      POSTGRES_DATABASE: chatwoot
       POSTGRES_PASSWORD: postgres
+      CHATWOOT_PREPARE: 'true'
       RAILS_ENV: production
       RAILS_MAX_THREADS: 1
       REDIS_URL: redis://redis:6379
-      REDIS_PASSWORD: 123456
+      SECRET_KEY_BASE: qdjwoqroiqwihqwoeqwokdnqwdncuneuf82183219381ob
       ACTIVE_STORAGE_SERVICE: amazon
       S3_BUCKET_NAME: chatwoot
       AWS_ACCESS_KEY_ID: minio
-      AWS_SECRET_ACCESS_KEY: 0987654321
-      AWS_REGION_NAME: us-east-1
+      AWS_SECRET_ACCESS_KEY: '0987654321'
+      AWS_REGION: us-east-1
       AWS_S3_ENDPOINT: http://storage.lvh.me:9000
+      INGRESS_PASSWORD: abcde
+      INGRESS_USER: actionmailbox
+      CHATWOOT_URL: http://chat.lvh.me/rails/action_mailbox/relay/inbound_emails
 
   relay:
     build:
       dockerfile: relay.Dockerfile
-    # volumes:
-    #   - ./:/app
+    volumes:
+      - ./config/mailboxes.yml:/app/mailboxes.yml
+      - ./bin/relay.sh:/bin/relay.sh
     depends_on:
       - mail
+      - worker
     environment:
       IMAP_HOST: mail
       IMAP_SSL: 'false'
       IMAP_PORT: 3143
       IMAP_USER: atendimento@lvh.me
       IMAP_PASSWORD: poiuyt
-      INGRESS_PASSWORD: abcde
-      INGRESS_USER: actionmailbox
-      CHATWOOT_URL: http://chat.lvh.me/rails/action_mailbox/relay/inbound_emails
 
   storage:
     image: quay.io/minio/minio:RELEASE.2022-04-29T01-27-09Z
     command: server /data --console-address ":9001" http://storage.lvh.me
     volumes:
-      - /data/storage:/data
+      - ./data/storage:/data
     ports:
       - 9000:9000
       - 9001:9001
     environment:
       MINIO_ROOT_USER: minio
-      MINIO_ROOT_PASSWORD: 0987654321
+      MINIO_ROOT_PASSWORD: '0987654321'
     labels:
       - traefik.enable=true
       - traefik.http.routers.server.rule=Host(`storage.lvh.me`)
@@ -147,10 +152,8 @@ services:
       POSTGRES_HOST_AUTH_METHOD: md5
 
   redis:
-    image: redis:7.0.0-alpine
+    image: redis:5-alpine
     restart: always
-    command: ["sh", "-c", "redis-server --requirepass 123456"]
-    env_file: .env
     volumes:
       - ./data/redis:/data
     ports:

@@ -1,7 +1,7 @@
 Deploy on heroku
-  sidekiq with chatwoot.sidekiq@excellence.odo.br
-  rails with chatwoot.rails@excellence.odo.br
-  getmail with chatwoot.getmail@excellence.odo.br
+  sidekiq with chatwoot.worker@excellence.odo.br
+  rails with chatwoot.web@excellence.odo.br
+  mail_room with chatwoot.relay@excellence.odo.br
 
 DataBase on elephantsql.com with clairton.rodrigo@gmail.com
   postgres://isilo.db.elephantsql.com/iiekibjq

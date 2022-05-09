@@ -9,8 +9,8 @@ services:
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
       - --entrypoints.web.address=:80
-      - --entrypoints.imap.address=:3143
-      - --entrypoints.smtp.address=:3025
+      - --entrypoints.imap.address=:993
+      - --entrypoints.smtp.address=:25
     restart: always
     ports:
       - 80:80
@@ -45,8 +45,8 @@ services:
       MAILER_SENDER_EMAIL: Odonto Excellence<atendimento@lvh.me>
       SMTP_DOMAIN: lvh.me
       SMTP_ADDRESS: mail.lvh.me
-      SMTP_PORT: 3025
-      SMTP_USERNAME: me@lvh.me
+      SMTP_PORT: 25
+      SMTP_USERNAME: atendimento@lvh.me
       SMTP_PASSWORD: mnbvcx
       MAILER_INBOUND_EMAIL_DOMAIN: atendimento@lvh.me
       RAILS_INBOUND_EMAIL_SERVICE: relay
@@ -93,6 +93,11 @@ services:
       INGRESS_PASSWORD: abcde
       INGRESS_USER: actionmailbox
       CHATWOOT_URL: http://chat.lvh.me/rails/action_mailbox/relay/inbound_emails
+      SMTP_DOMAIN: lvh.me
+      SMTP_ADDRESS: mail.lvh.me
+      SMTP_PORT: 25
+      SMTP_USERNAME: atendimento@lvh.me
+      SMTP_PASSWORD: mnbvcxz
 
   relay:
     build:
@@ -104,11 +109,11 @@ services:
       - mail
       - worker
     environment:
-      IMAP_HOST: mail
-      IMAP_SSL: 'false'
-      IMAP_PORT: 3143
+      IMAP_HOST: mail.lvh.me
+      IMAP_SSL: 'true'
+      IMAP_PORT: 993
       IMAP_USER: atendimento@lvh.me
-      IMAP_PASSWORD: poiuyt
+      IMAP_PASSWORD: mnbvcxz
 
   storage:
     image: quay.io/minio/minio:RELEASE.2022-04-29T01-27-09Z
@@ -125,14 +130,17 @@ services:
       - traefik.enable=true
       - traefik.http.routers.server.rule=Host(`storage.lvh.me`)
       - traefik.http.routers.server.entrypoints=web
-  
 
   mail:
-    image: greenmail/standalone:1.6.8
+    image: antespi/docker-imap-devel:latest
     ports:
-      - 3025:3025
-      - 3143:3143
-      - 8080:8080
+      - 25:25
+      - 143:143
+      - 993:993
+    environment:
+      MAILNAME: lvh.me
+      MAIL_ADDRESS: atendimento@lvh.me
+      MAIL_PASS: mnbvcxz
     labels:
       - traefik.enable=true
       - traefik.http.routers.server.rule=HostSNI(`mail.lvh.me`)

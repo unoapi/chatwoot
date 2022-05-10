@@ -10,8 +10,8 @@ services:
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
       - --entrypoints.web.address=:80
-      # - --entrypoints.imap.address=:993
-      # - --entrypoints.smtp.address=:25
+      - --entrypoints.imap.address=:3993
+      - --entrypoints.smtp.address=:3465
     restart: always
     ports:
       - 80:80
@@ -32,7 +32,6 @@ services:
       - redis
       - worker
       - relay
-      # - mail
       - storage
       - traefik
     entrypoint: docker/entrypoints/rails.sh
@@ -46,12 +45,7 @@ services:
       REDIS_URL: redis://redis:6379
       FRONTEND_URL: http://chat.lvh.me
       MAILER_SENDER_EMAIL: Odonto Excellence<atendimento@lvh.me>
-      SMTP_DOMAIN: lvh.me
-      SMTP_ADDRESS: mail
-      SMTP_PORT: 25
       ENABLE_ACCOUNT_SIGNUP:  'true'
-      SMTP_USERNAME: atendimento@lvh.me
-      SMTP_PASSWORD: mnbvcx
       MAILER_INBOUND_EMAIL_DOMAIN: lvh.me
       RAILS_INBOUND_EMAIL_SERVICE: relay
       RAILS_INBOUND_EMAIL_PASSWORD: abcde
@@ -99,9 +93,10 @@ services:
       CHATWOOT_URL: http://chat.lvh.me/rails/action_mailbox/relay/inbound_emails
       SMTP_DOMAIN: lvh.me
       SMTP_ADDRESS: mail
-      SMTP_PORT: 25
+      SMTP_PORT: 3465
       SMTP_USERNAME: atendimento@lvh.me
       SMTP_PASSWORD: mnbvcxz
+      SMTP_OPENSSL_VERIFY_MODE: none
 
   relay:
     build:
@@ -110,13 +105,12 @@ services:
       - ./config/mailboxes.yml:/app/mailboxes.yml
       - ./bin/relay.sh:/bin/relay.sh
     depends_on:
-      - worker
+      - mail
     environment:
       IMAP_HOST: mail
-      IMAP_SSL: 'false'
+      IMAP_SSL: 'true'
       IMAP_SSL_VERIFY_MODE: none
-      IMAP_START_TLS: 'false'
-      IMAP_PORT: 993
+      IMAP_PORT: 3993
       IMAP_USER: atendimento@lvh.me
       IMAP_PASSWORD: mnbvcxz
 
@@ -134,20 +128,23 @@ services:
       - traefik.enable=true
       - traefik.http.routers.storage.rule=Host(`storage.lvh.me`)
       - traefik.http.routers.storage.entrypoints=web
-      # - traefik.http.routers.storage.tls.certresolver=letsencrypt
 
   mail:
-    image: antespi/docker-imap-devel:latest
+    hostname: mail
+    container_name: mail
+    image: greenmail/standalone:1.6.9
     ports:
-      - 25:25
-      - 143:143
-      - 993:993
-    environment:
-      MAILNAME: lvh.me
-      MAIL_ADDRESS: atendimento@lvh.me
-      MAIL_PASS: mnbvcxz
+      - 3465:3465
+      - 3993:3993
+    # environment:
+      # GREENMAIL_OPTS: -Dgreenmail.hostname=0.0.0.0
+        # -Dgreenmail.api.port=80
+        # -Dgreenmail.users=atendimento:mnbvcxz@lvh.me,client@company.com
+        # -Dgreenmail.users.login=atendimento@lvh.me
     labels:
-      - traefik.enable=false
+      - traefik.enable=true
+      - traefik.http.routers.mail.rule=Host(`mail.lvh.me`)
+      - traefik.http.routers.mail.entrypoints=web
 
   postgres:
     image: postgres:14-alpine

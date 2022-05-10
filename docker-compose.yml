@@ -99,7 +99,6 @@ services:
       SMTP_PORT: 25
       SMTP_USERNAME: atendimento
       SMTP_PASSWORD: mnbvcxz
-      SMTP_OPENSSL_VERIFY_MODE: none
 
   relay:
     # image: registry.gitlab.com/clairton/chatwoot/relay:0.3.3

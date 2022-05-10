@@ -113,6 +113,7 @@ services:
       IMAP_PORT: 3993
       IMAP_USER: atendimento@lvh.me
       IMAP_PASSWORD: mnbvcxz
+      REDIS_URL: redis://redis:6379
 
   storage:
     hostname: storage

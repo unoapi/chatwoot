@@ -10,7 +10,7 @@
     :name: inbox
     :delivery_method: sidekiq
     :logger:
-      :log_path: /app/relay/log
+      :log_path: /dev/stdout
     :delivery_options:
       :redis_url:  <%= ENV['REDIS_URL'] %>
       :worker: EmailRelayJob

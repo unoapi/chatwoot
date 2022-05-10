@@ -1,37 +1,40 @@
 version: '3'
 
 services:
-  dns:
+  traefik:
     image: traefik:v2.6
+    hostname: traefik
     container_name: traefik
     command:
       - --api.insecure=true
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
-      - --entrypoints.web.address=:80
-      - --entrypoints.imap.address=:993
-      - --entrypoints.smtp.address=:25
+      # - --entrypoints.web.address=:80
+      # - --entrypoints.imap.address=:993
+      # - --entrypoints.smtp.address=:25
     restart: always
     ports:
       - 80:80
       - 8080:8080
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      - traefik.enable=false
 
   web:
+    hostname: web
+    container_name: web
     build:
       dockerfile: web.Dockerfile
-    command: bundle exec rails s -p ${PORT:-3000} -b 0.0.0.0
+    command: bundle exec rails s -p 80 -b 0.0.0.0
     depends_on:
       - postgres
       - redis
       - worker
       - relay
-      - mail
-      - dns
+      # - mail
       - storage
-    ports:
-      - 3000:3000
+      - traefik
     entrypoint: docker/entrypoints/rails.sh
     environment:
       POSTGRES_HOST: postgres
@@ -44,11 +47,12 @@ services:
       FRONTEND_URL: http://chat.lvh.me
       MAILER_SENDER_EMAIL: Odonto Excellence<atendimento@lvh.me>
       SMTP_DOMAIN: lvh.me
-      SMTP_ADDRESS: mail.lvh.me
+      SMTP_ADDRESS: mail
       SMTP_PORT: 25
+      ENABLE_ACCOUNT_SIGNUP:  'true'
       SMTP_USERNAME: atendimento@lvh.me
       SMTP_PASSWORD: mnbvcx
-      MAILER_INBOUND_EMAIL_DOMAIN: atendimento@lvh.me
+      MAILER_INBOUND_EMAIL_DOMAIN: lvh.me
       RAILS_INBOUND_EMAIL_SERVICE: relay
       RAILS_INBOUND_EMAIL_PASSWORD: abcde
       CHATWOOT_PREPARE: 'true'
@@ -58,11 +62,10 @@ services:
       AWS_ACCESS_KEY_ID: minio
       AWS_SECRET_ACCESS_KEY: '0987654321'
       AWS_REGION: us-east-1
-      AWS_S3_ENDPOINT: http://storage.lvh.me:9000
+      AWS_S3_ENDPOINT: http://storage.lvh.me
     labels:
       - traefik.enable=true
-      - traefik.http.routers.server.rule=Host(`chat.lvh.me`)
-      - traefik.http.routers.server.entrypoints=web
+      - traefik.http.routers.web.rule=Host(`chat.lvh.me`)
 
   worker:
     build:
@@ -94,7 +97,7 @@ services:
       INGRESS_USER: actionmailbox
       CHATWOOT_URL: http://chat.lvh.me/rails/action_mailbox/relay/inbound_emails
       SMTP_DOMAIN: lvh.me
-      SMTP_ADDRESS: mail.lvh.me
+      SMTP_ADDRESS: mail
       SMTP_PORT: 25
       SMTP_USERNAME: atendimento@lvh.me
       SMTP_PASSWORD: mnbvcxz
@@ -106,30 +109,28 @@ services:
       - ./config/mailboxes.yml:/app/mailboxes.yml
       - ./bin/relay.sh:/bin/relay.sh
     depends_on:
-      - mail
       - worker
     environment:
-      IMAP_HOST: mail.lvh.me
+      IMAP_HOST: mail
       IMAP_SSL: 'true'
       IMAP_PORT: 993
       IMAP_USER: atendimento@lvh.me
       IMAP_PASSWORD: mnbvcxz
 
   storage:
+    hostname: storage
+    container_name: storage
     image: quay.io/minio/minio:RELEASE.2022-04-29T01-27-09Z
-    command: server /data --console-address ":9001" http://storage.lvh.me
+    command: server /data --console-address ":9001" --address :80
     volumes:
       - ./data/storage:/data
-    ports:
-      - 9000:9000
-      - 9001:9001
     environment:
       MINIO_ROOT_USER: minio
       MINIO_ROOT_PASSWORD: '0987654321'
     labels:
       - traefik.enable=true
-      - traefik.http.routers.server.rule=Host(`storage.lvh.me`)
-      - traefik.http.routers.server.entrypoints=web
+      - traefik.http.routers.storage.rule=Host(`storage.lvh.me`)
+      # - traefik.http.routers.storage.tls.certresolver=letsencrypt
 
   mail:
     image: antespi/docker-imap-devel:latest
@@ -142,10 +143,7 @@ services:
       MAIL_ADDRESS: atendimento@lvh.me
       MAIL_PASS: mnbvcxz
     labels:
-      - traefik.enable=true
-      - traefik.http.routers.server.rule=HostSNI(`mail.lvh.me`)
-      - traefik.http.routers.server.entrypoints=imap
-      - traefik.http.routers.server.entrypoints=smtp
+      - traefik.enable=false
 
   postgres:
     image: postgres:14-alpine

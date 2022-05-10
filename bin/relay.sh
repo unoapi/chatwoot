@@ -1,9 +1,7 @@
 #!/bin/bash
 
-set -e
-
 tail -f /app/relay/log &
 
 echo "Starting app..."
 
-mail_room -c /app/mailboxes.yml
+/usr/local/bundle/gems/gitlab-mail_room-0.0.20/bin/mail_room -c /app/mailboxes.yml

@@ -36,6 +36,7 @@ services:
       - relay
       - storage
       - traefik
+      - webmail
     entrypoint: docker/entrypoints/rails.sh
     environment:
       POSTGRES_HOST: postgres
@@ -111,8 +112,8 @@ services:
       - mail
     environment:
       IMAP_HOST: mail
-      IMAP_SSL_VERIFY_MODE: none
       IMAP_PORT: 143
+      IMAP_SSL: 'false'
       IMAP_USER: atendimento
       IMAP_PASSWORD: mnbvcxz
       REDIS_URL: redis://redis:6379
@@ -146,13 +147,32 @@ services:
         -Dgreenmail.hostname=0.0.0.0
         -Dgreenmail.api.port=8081
         -Dgreenmail.users=atendimento:mnbvcxz@lvh.me
-        -Dgreenmail.users.login=atendimento
+        -Dgreenmail.users.login=atendimento@lvh.me
         # -Dgreenmail.tls.keystore.file=/home/greenmail/greenmail.p12
         # -Dgreenmail.tls.keystore.password=changeit
     labels:
       - traefik.enable=true
       - traefik.http.routers.mail.rule=Host(`mail.lvh.me`)
       - traefik.http.routers.mail.entrypoints=web,imap,smtp
+
+  webmail:
+    hostname: webmail
+    container_name: webmail
+    image: roundcube/roundcubemail:latest
+    depends_on:
+      - mail
+    environment:
+      ROUNDCUBEMAIL_DB_TYPE: sqlite
+      ROUNDCUBEMAIL_SKIN: elastic
+      ROUNDCUBEMAIL_DB_PASSWORD: postgres
+      ROUNDCUBEMAIL_DEFAULT_HOST: mail
+      ROUNDCUBEMAIL_DEFAULT_PORT: 143
+      ROUNDCUBEMAIL_SMTP_SERVER: mail
+      ROUNDCUBEMAIL_SMTP_PORT: 25
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.webmail.rule=Host(`webmail.lvh.me`)
+      - traefik.http.routers.webmail.entrypoints=web
 
   postgres:
     image: postgres:14-alpine

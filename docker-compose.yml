@@ -10,8 +10,8 @@ services:
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
       - --entrypoints.web.address=:80
-      - --entrypoints.imap.address=:3993
-      - --entrypoints.smtp.address=:3465
+      - --entrypoints.imap.address=:143
+      - --entrypoints.smtp.address=:25
     restart: always
     ports:
       - 80:80
@@ -19,7 +19,9 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     labels:
-      - traefik.enable=false
+      - traefik.enable=true
+      - traefik.http.routers.traefik.rule=Host(`traefik.lvh.me`)
+      - traefik.http.routers.traefik.entrypoints=web
 
   web:
     hostname: web
@@ -93,12 +95,13 @@ services:
       CHATWOOT_URL: http://chat.lvh.me/rails/action_mailbox/relay/inbound_emails
       SMTP_DOMAIN: lvh.me
       SMTP_ADDRESS: mail
-      SMTP_PORT: 3465
-      SMTP_USERNAME: atendimento@lvh.me
+      SMTP_PORT: 25
+      SMTP_USERNAME: atendimento
       SMTP_PASSWORD: mnbvcxz
       SMTP_OPENSSL_VERIFY_MODE: none
 
   relay:
+    # image: registry.gitlab.com/clairton/chatwoot/relay:0.3.3
     build:
       dockerfile: relay.Dockerfile
     volumes:
@@ -108,10 +111,9 @@ services:
       - mail
     environment:
       IMAP_HOST: mail
-      IMAP_SSL: 'true'
       IMAP_SSL_VERIFY_MODE: none
-      IMAP_PORT: 3993
-      IMAP_USER: atendimento@lvh.me
+      IMAP_PORT: 143
+      IMAP_USER: atendimento
       IMAP_PASSWORD: mnbvcxz
       REDIS_URL: redis://redis:6379
 
@@ -135,17 +137,22 @@ services:
     container_name: mail
     image: greenmail/standalone:1.6.9
     ports:
-      - 3465:3465
-      - 3993:3993
-    # environment:
-      # GREENMAIL_OPTS: -Dgreenmail.hostname=0.0.0.0
-        # -Dgreenmail.api.port=80
-        # -Dgreenmail.users=atendimento:mnbvcxz@lvh.me,client@company.com
-        # -Dgreenmail.users.login=atendimento@lvh.me
+      - 25:25
+      - 143:143
+      - 8081:8081
+    environment:
+      GREENMAIL_OPTS:
+        -Dgreenmail.setup.all
+        -Dgreenmail.hostname=0.0.0.0
+        -Dgreenmail.api.port=8081
+        -Dgreenmail.users=atendimento:mnbvcxz@lvh.me
+        -Dgreenmail.users.login=atendimento
+        # -Dgreenmail.tls.keystore.file=/home/greenmail/greenmail.p12
+        # -Dgreenmail.tls.keystore.password=changeit
     labels:
       - traefik.enable=true
       - traefik.http.routers.mail.rule=Host(`mail.lvh.me`)
-      - traefik.http.routers.mail.entrypoints=web
+      - traefik.http.routers.mail.entrypoints=web,imap,smtp
 
   postgres:
     image: postgres:14-alpine

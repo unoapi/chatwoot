@@ -12,8 +12,4 @@ RUN gem install gitlab-mail_room
 ADD config/mailboxes.yml /app/mailboxes.yml
 ADD bin/relay.sh /bin/relay.sh
 
-
-
-WORKDIR /app/relay/mail_room
-
 CMD ["sh", "/bin/relay.sh"]

@@ -2,6 +2,8 @@
 
 set -e
 
+tail -f /app/relay/log &
+
 echo "Starting app..."
 
-mail_room -c /app/mailboxes.yml & tail -f /app/relay/log
+mail_room -c /app/mailboxes.yml

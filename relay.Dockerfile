@@ -4,7 +4,7 @@ WORKDIR /app/relay
 
 ENV IMAP_SSL_VERIFY_MODE 'peer'
 
-RUN touch /app/relay/log
+RUN echo '...' > /app/relay/log
 
 RUN apk add --update --no-cache build-base
 RUN apk add --update --no-cache icu-dev

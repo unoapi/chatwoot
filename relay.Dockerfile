@@ -2,6 +2,8 @@ FROM ruby:3-alpine3.15
 
 WORKDIR /app/relay
 
+ENV IMAP_SSL_VERIFY_MODE 'peer'
+
 RUN touch /app/relay/log
 
 RUN apk add --update --no-cache build-base

@@ -9,7 +9,7 @@ services:
       - --api.insecure=true
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
-      # - --entrypoints.web.address=:80
+      - --entrypoints.web.address=:80
       # - --entrypoints.imap.address=:993
       # - --entrypoints.smtp.address=:25
     restart: always
@@ -66,6 +66,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.web.rule=Host(`chat.lvh.me`)
+      - traefik.http.routers.web.entrypoints=web
 
   worker:
     build:
@@ -112,7 +113,9 @@ services:
       - worker
     environment:
       IMAP_HOST: mail
-      IMAP_SSL: 'true'
+      IMAP_SSL: 'false'
+      IMAP_SSL_VERIFY_MODE: none
+      IMAP_START_TLS: 'false'
       IMAP_PORT: 993
       IMAP_USER: atendimento@lvh.me
       IMAP_PASSWORD: mnbvcxz
@@ -120,8 +123,8 @@ services:
   storage:
     hostname: storage
     container_name: storage
-    image: quay.io/minio/minio:RELEASE.2022-04-29T01-27-09Z
-    command: server /data --console-address ":9001" --address :80
+    image: quay.io/minio/minio:latest
+    command: server /data --console-address ":9001"
     volumes:
       - ./data/storage:/data
     environment:
@@ -130,6 +133,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.storage.rule=Host(`storage.lvh.me`)
+      - traefik.http.routers.storage.entrypoints=web
       # - traefik.http.routers.storage.tls.certresolver=letsencrypt
 
   mail:

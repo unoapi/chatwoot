@@ -5,7 +5,8 @@
     :port: <%= ENV['IMAP_PORT'] %>
     :email: <%= ENV['IMAP_USER'] %>
     :password: <%= ENV['IMAP_PASSWORD'] %>
-    :ssl:  <%= ENV['IMAP_SSL'] %>
+    :ssl:
+      :verify_mode: <%= ENV['IMAP_SSL_VERIFY_MODE'] %>
     :name: inbox
     :delivery_method: sidekiq
     :logger:

@@ -56,7 +56,7 @@
     },
     "db": {
         "redisHost": "$REDIS_HOST",
-        "redisPort": "$REDIS_POST",
-        "redisPassword": "REDIS_PASSWORD"
+        "redisPort": "$REDIS_PORT",
+        "redisPassword": "$REDIS_PASSWORD"
     }
 }

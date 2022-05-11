@@ -30,6 +30,6 @@ RUN apk add --no-cache --update  chromium
 
 COPY --from=builder /home/node/app/ .
 
-ADD bin/wppconnect.sh /bin/wppconnect.sh
+ADD bin/whatsapp.sh /bin/whatsapp.sh
 
-CMD ["sh", "/bin/wppconnect.sh" ]
+CMD ["sh", "/bin/whatsapp.sh" ]

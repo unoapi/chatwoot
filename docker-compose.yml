@@ -37,6 +37,7 @@ services:
       - storage
       - traefik
       - webmail
+      - whatsapp
     entrypoint: docker/entrypoints/rails.sh
     environment:
       POSTGRES_HOST: postgres
@@ -187,22 +188,25 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_HOST_AUTH_METHOD: md5
 
-  wppconnect:
-    hostname: wppconnect
-    container_name: wppconnect
+  whatsapp:
+    hostname: whatsapp
+    container_name: whatsapp
+    image: registry.heroku.com/chatwoot-whatsapp:0.4.1
     build:
-      dockerfile: wppconnect.Dockerfile
+      dockerfile: whatsapp.Dockerfile
+    depends_on:
+      - redis
     environment:
       SECRET_KEY: abcdef
-      HOST: wppconnect.lvh.me
+      HOST: whatsapp.lvh.me
       PORT: 21465
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: ''
     labels:
       - traefik.enable=true
-      - traefik.http.routers.wppconnect.rule=Host(`wppconnect.lvh.me`)
-      - traefik.http.routers.wppconnect.entrypoints=web
+      - traefik.http.routers.whatsapp.rule=Host(`whatsapp.lvh.me`)
+      - traefik.http.routers.whatsapp.entrypoints=web
 
   redis:
     image: redis:5-alpine

@@ -137,7 +137,7 @@ deploy_relay:
   only:
     - tags
 
-build_wppconnect:
+build_whatsapp:
   stage: build
   image: docker:stable-git
   services:
@@ -146,38 +146,38 @@ build_wppconnect:
     DOCKER_DRIVER: overlay2
   artifacts:
     paths:
-      - image_wppconnect.txt
+      - image_whatsapp.txt
   script:
     - export TAG_NAME="$(git describe --abbrev=0 --tags | cut -d"v" -f2)"
-    - export BASE_CONTAINER_IMAGE="registry.gitlab.com/clairton/chatwoot/wppconnect"
+    - export BASE_CONTAINER_IMAGE="registry.gitlab.com/clairton/chatwoot/whatsapp"
     - export CONTAINER_IMAGE="${BASE_CONTAINER_IMAGE}:${TAG_NAME}"
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
-    - docker build -f wppconnect.Dockerfile -t $CONTAINER_IMAGE .
+    - docker build -f whatsapp.Dockerfile -t $CONTAINER_IMAGE .
     - docker push $CONTAINER_IMAGE
     - docker login --username=_ --password=$HEROKU_TOKEN registry.heroku.com
-    - export HEROKU_IMAGE="registry.heroku.com/chatwoot-wppconnect:${TAG_NAME}"
+    - export HEROKU_IMAGE="registry.heroku.com/chatwoot-whatsapp:${TAG_NAME}"
     - docker tag $CONTAINER_IMAGE $HEROKU_IMAGE
     - docker push $HEROKU_IMAGE
     - export IMAGE_ID=`docker inspect $HEROKU_IMAGE --format={{.Id}}`
-    - echo $IMAGE_ID > ./image_wppconnect.txt
+    - echo $IMAGE_ID > ./image_whatsapp.txt
   only:
     - tags
 
-deploy_wppconnect:
+deploy_whatsapp:
   stage: deploy
   image: alpine:latest
   script:
     - apk add --update --no-cache wget 
-    - export IMAGE_ID=`cat image_wppconnect.txt`
-    - export PAYLOAD='{"updates":[{"type":"web","docker_image":"'"$IMAGE_ID"'"}]}'
-    - export URL=https://api.heroku.com/apps/chatwoot-wppconnect/formation
+    - export IMAGE_ID=`cat image_whatsapp.txt`
+    - export PAYLOAD='{"updates":[{"type":"web","docker_image":"'"8a6aeac3e364773c3b07c1c7e483ef02009d7f8cbdfd4e1487a31741ef3b7c5c"'"}]}'
+    - export URL=https://api.heroku.com/apps/chatwoot-whatsapp/formation
     - >
-      wget $URL
-      --server-response
-      --method=PATCH
-      --body-data=$PAYLOAD
-      --header 'Content-Type: application/json'
-      --header 'Accept: application/vnd.heroku+json; version=3.docker-releases'
+      wget https://api.heroku.com/apps/chatwoot-whatsapp/formation \
+      --server-response \
+      --method=PATCH \
+      --body-data=$PAYLOAD \
+      --header 'Content-Type: application/json' \
+      --header 'Accept: application/vnd.heroku+json; version=3.docker-releases' \
       --header "Authorization: Bearer $HEROKU_TOKEN"
   only:
     - tags

@@ -44,6 +44,7 @@ services:
       POSTGRES_DATABASE: chatwoot
       POSTGRES_PASSWORD: postgres
       RAILS_ENV: production
+      NODE_ENV: production
       RAILS_MAX_THREADS: 1
       REDIS_URL: redis://redis:6379
       FRONTEND_URL: http://chat.lvh.me
@@ -82,6 +83,7 @@ services:
       POSTGRES_PASSWORD: postgres
       CHATWOOT_PREPARE: 'true'
       RAILS_ENV: production
+      NODE_ENV: production
       RAILS_MAX_THREADS: 1
       REDIS_URL: redis://redis:6379
       SECRET_KEY_BASE: qdjwoqroiqwihqwoeqwokdnqwdncuneuf82183219381ob

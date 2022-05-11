@@ -62,6 +62,6 @@
         "redisPort": "$REDIS_PORT",
         "redisPassword": "$REDIS_PASSWORD",
         "redisDb": 0,
-        "redisPrefix": "whatsapp"
+        "redisPrefix": "whatsapp:"
     }
 }

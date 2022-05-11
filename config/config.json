@@ -4,6 +4,8 @@
     "port": "$PORT",
     "startAllSession": true,
     "tokenStoreType": "redis",
+    "debug": true,
+    "deviceName": "ChatWoot",
     "webhook": {
         "url": null,
         "autoDownload": true,
@@ -20,7 +22,7 @@
         "daysToArchive": 45
     },
     "log": {
-        "level": "error",
+        "level": "info",
         "logger": [
             "console"
         ]
@@ -57,6 +59,8 @@
     "db": {
         "redisHost": "$REDIS_HOST",
         "redisPort": "$REDIS_PORT",
-        "redisPassword": "$REDIS_PASSWORD"
+        "redisPassword": "$REDIS_PASSWORD",
+        "redisDb": 0,
+        "redisPrefix": "whatsapp"
     }
 }

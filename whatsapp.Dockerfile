@@ -16,6 +16,9 @@ RUN yarn build
 
 FROM node:14.17-alpine3.13
 
+RUN apk add --no-cache --update  chromium
+
+ENV NODE_ENV production
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
 ENV SECRET_KEY abcdef
 ENV HOST 'localhost'
@@ -26,9 +29,9 @@ ENV REDIS_PASSWORD ''
 
 WORKDIR /home/node/app
 
-RUN apk add --no-cache --update  chromium
-
 COPY --from=builder /home/node/app/ .
+# RUN rm -rf node_modules
+# RUN yarn install --prod
 
 ADD bin/whatsapp.sh /bin/whatsapp.sh
 

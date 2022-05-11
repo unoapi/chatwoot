@@ -48,6 +48,7 @@ services:
       NODE_ENV: production
       RAILS_MAX_THREADS: 1
       REDIS_URL: redis://redis:6379
+      REDIS_PASSWORD: 123456
       FRONTEND_URL: http://chat.lvh.me
       MAILER_SENDER_EMAIL: Odonto Excellence<atendimento@lvh.me>
       ENABLE_ACCOUNT_SIGNUP:  'true'
@@ -87,6 +88,7 @@ services:
       NODE_ENV: production
       RAILS_MAX_THREADS: 1
       REDIS_URL: redis://redis:6379
+      REDIS_PASSWORD: 123456
       SECRET_KEY_BASE: qdjwoqroiqwihqwoeqwokdnqwdncuneuf82183219381ob
       ACTIVE_STORAGE_SERVICE: amazon
       S3_BUCKET_NAME: chatwoot
@@ -119,6 +121,7 @@ services:
       IMAP_USER: atendimento
       IMAP_PASSWORD: mnbvcxz
       REDIS_URL: redis://redis:6379
+      REDIS_PASSWORD: 123456
 
   storage:
     hostname: storage
@@ -191,18 +194,18 @@ services:
   whatsapp:
     hostname: whatsapp
     container_name: whatsapp
-    image: registry.heroku.com/chatwoot-whatsapp:0.4.1
+    # image: registry.heroku.com/chatwoot-whatsapp:0.4.1
     build:
       dockerfile: whatsapp.Dockerfile
     depends_on:
       - redis
     environment:
       SECRET_KEY: abcdef
-      HOST: whatsapp.lvh.me
-      PORT: 21465
+      HOST: http://whatsapp.lvh.me
+      PORT: 80
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      REDIS_PASSWORD: ''
+      REDIS_PASSWORD: 123456
     labels:
       - traefik.enable=true
       - traefik.http.routers.whatsapp.rule=Host(`whatsapp.lvh.me`)
@@ -210,8 +213,10 @@ services:
 
   redis:
     image: redis:5-alpine
-    restart: always
+    environment:
+      REDIS_PASSWORD: 123456
     volumes:
       - ./data/redis:/data
+    command: redis-server --appendonly yes --requirepass $REDIS_PASSWORD
     ports:
       - 6379:6379

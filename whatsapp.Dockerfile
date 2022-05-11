@@ -11,6 +11,7 @@ WORKDIR /home/node/app
 RUN git checkout v1.3.1
 
 COPY ./config/config.json /home/node/app/src
+RUN yarn add redis@3.1.2
 RUN yarn install
 RUN yarn build
 

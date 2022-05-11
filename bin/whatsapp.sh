@@ -16,4 +16,5 @@ sed -i s/\$REDIS_PORT/$REDIS_PORT/g /home/node/app/dist/config.json
 echo "Update REDIS_PASSWORD -> $REDIS_PASSWORD"
 sed -i s/\$REDIS_PASSWORD/$REDIS_PASSWORD/g /home/node/app/dist/config.json
 
-node dist/server.js
+# node dist/server.js
+yarn start

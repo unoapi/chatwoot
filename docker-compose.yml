@@ -194,7 +194,6 @@ services:
   whatsapp:
     hostname: whatsapp
     container_name: whatsapp
-    # image: registry.heroku.com/chatwoot-whatsapp:0.4.1
     build:
       dockerfile: whatsapp.Dockerfile
     depends_on:
@@ -213,10 +212,8 @@ services:
 
   redis:
     image: redis:5-alpine
-    environment:
-      REDIS_PASSWORD: 123456
     volumes:
       - ./data/redis:/data
-    command: redis-server --appendonly yes --requirepass $REDIS_PASSWORD
+    command: redis-server --appendonly yes --requirepass 123456
     ports:
       - 6379:6379

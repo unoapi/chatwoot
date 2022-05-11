@@ -15,14 +15,12 @@ RUN yarn add redis@3.1.2
 RUN yarn install
 RUN yarn build
 
-FROM node:14.17-alpine3.13
-
-RUN apk add --no-cache --update  chromium
+FROM registry.gitlab.com/clairton/chromium:0.1.0
 
 ENV NODE_ENV production
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
 ENV SECRET_KEY abcdef
-ENV HOST 'localhost'
+ENV HOST 'http://localhost'
 ENV PORT 21465
 ENV REDIS_HOST 'localhost'
 ENV REDIS_PORT 6379

@@ -6,6 +6,7 @@
     "tokenStoreType": "redis",
     "debug": true,
     "deviceName": "ChatWoot",
+    "whatsappVersion": null,
     "webhook": {
         "url": null,
         "autoDownload": true,

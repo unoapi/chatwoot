@@ -136,3 +136,48 @@ deploy_relay:
       --header "Authorization: Bearer $HEROKU_TOKEN"
   only:
     - tags
+
+build_wppconnect:
+  stage: build
+  image: docker:stable-git
+  services:
+    - docker:dind
+  variables:
+    DOCKER_DRIVER: overlay2
+  artifacts:
+    paths:
+      - image_wppconnect.txt
+  script:
+    - export TAG_NAME="$(git describe --abbrev=0 --tags | cut -d"v" -f2)"
+    - export BASE_CONTAINER_IMAGE="registry.gitlab.com/clairton/chatwoot/wppconnect"
+    - export CONTAINER_IMAGE="${BASE_CONTAINER_IMAGE}:${TAG_NAME}"
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
+    - docker build -f wppconnect.Dockerfile -t $CONTAINER_IMAGE .
+    - docker push $CONTAINER_IMAGE
+    - docker login --username=_ --password=$HEROKU_TOKEN registry.heroku.com
+    - export HEROKU_IMAGE="registry.heroku.com/chatwoot-wppconnect:${TAG_NAME}"
+    - docker tag $CONTAINER_IMAGE $HEROKU_IMAGE
+    - docker push $HEROKU_IMAGE
+    - export IMAGE_ID=`docker inspect $HEROKU_IMAGE --format={{.Id}}`
+    - echo $IMAGE_ID > ./image_wppconnect.txt
+  only:
+    - tags
+
+deploy_wppconnect:
+  stage: deploy
+  image: alpine:latest
+  script:
+    - apk add --update --no-cache wget 
+    - export IMAGE_ID=`cat image_wppconnect.txt`
+    - export PAYLOAD='{"updates":[{"type":"web","docker_image":"'"$IMAGE_ID"'"}]}'
+    - export URL=https://api.heroku.com/apps/chatwoot-wppconnect/formation
+    - >
+      wget $URL
+      --server-response
+      --method=PATCH
+      --body-data=$PAYLOAD
+      --header 'Content-Type: application/json'
+      --header 'Accept: application/vnd.heroku+json; version=3.docker-releases'
+      --header "Authorization: Bearer $HEROKU_TOKEN"
+  only:
+    - tags

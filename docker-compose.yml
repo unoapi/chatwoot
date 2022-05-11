@@ -187,6 +187,23 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_HOST_AUTH_METHOD: md5
 
+  wppconnect:
+    hostname: wppconnect
+    container_name: wppconnect
+    build:
+      dockerfile: wppconnect.Dockerfile
+    environment:
+      SECRET_KEY: abcdef
+      HOST: wppconnect.lvh.me
+      PORT: 21465
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ''
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.wppconnect.rule=Host(`wppconnect.lvh.me`)
+      - traefik.http.routers.wppconnect.entrypoints=web
+
   redis:
     image: redis:5-alpine
     restart: always

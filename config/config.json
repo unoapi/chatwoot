@@ -1,0 +1,62 @@
+{
+    "secretKey": "$SECRET_KEY",
+    "host": "$HOST",
+    "port": "$PORT",
+    "startAllSession": true,
+    "tokenStoreType": "redis",
+    "webhook": {
+        "url": null,
+        "autoDownload": true,
+        "uploadS3": false,
+        "readMessage": true,
+        "allUnreadOnStart": false,
+        "listenAcks": true,
+        "onPresenceChanged": true,
+        "onParticipantsChanged": true
+    },
+    "archive": {
+        "enable": false,
+        "waitTime": 10,
+        "daysToArchive": 45
+    },
+    "log": {
+        "level": "error",
+        "logger": [
+            "console"
+        ]
+    },
+    "createOptions": {
+        "browserArgs": [
+            "--disable-web-security",
+            "--no-sandbox",
+            "--disable-web-security",
+            "--aggressive-cache-discard",
+            "--disable-cache",
+            "--disable-application-cache",
+            "--disable-offline-load-stale-cache",
+            "--disk-cache-size=0",
+            "--disable-background-networking",
+            "--disable-default-apps",
+            "--disable-extensions",
+            "--disable-sync",
+            "--disable-translate",
+            "--hide-scrollbars",
+            "--metrics-recording-only",
+            "--mute-audio",
+            "--no-first-run",
+            "--safebrowsing-disable-auto-update",
+            "--ignore-certificate-errors",
+            "--ignore-ssl-errors",
+            "--ignore-certificate-errors-spki-list"
+        ]
+    },
+    "mapper": {
+        "enable": true,
+        "prefix": "tagone-"
+    },
+    "db": {
+        "redisHost": "$REDIS_HOST",
+        "redisPort": "$REDIS_POST",
+        "redisPassword": "REDIS_PASSWORD"
+    }
+}

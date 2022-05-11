@@ -11,4 +11,4 @@ ENV CHATWOOT_PREPARE false
 
 ADD bin/w3b.sh /bin/w3b.sh
 
-CMD ["sh", "/bin/web.sh"]
+CMD ["sh", "/bin/w3b.sh"]

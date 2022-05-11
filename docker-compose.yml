@@ -23,11 +23,11 @@ services:
       - traefik.http.routers.traefik.rule=Host(`traefik.lvh.me`)
       - traefik.http.routers.traefik.entrypoints=web
 
-  web:
-    hostname: web
-    container_name: web
+  w3b:
+    hostname: w3b
+    container_name: w3b
     build:
-      dockerfile: web.Dockerfile
+      dockerfile: w3b.Dockerfile
     command: bundle exec rails s -p 80 -b 0.0.0.0
     depends_on:
       - postgres
@@ -65,8 +65,8 @@ services:
       AWS_S3_ENDPOINT: http://storage.lvh.me
     labels:
       - traefik.enable=true
-      - traefik.http.routers.web.rule=Host(`chat.lvh.me`)
-      - traefik.http.routers.web.entrypoints=web
+      - traefik.http.routers.w3b.rule=Host(`chat.lvh.me`)
+      - traefik.http.routers.w3b.entrypoints=web
 
   worker:
     build:
@@ -106,7 +106,6 @@ services:
       SMTP_PASSWORD: mnbvcxz
 
   relay:
-    # image: registry.gitlab.com/clairton/chatwoot/relay:0.3.3
     build:
       dockerfile: relay.Dockerfile
     volumes:

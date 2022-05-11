@@ -13,18 +13,7 @@ build_worker:
     paths:
       - image_worker.txt
   script:
-    - export TAG_NAME="$(git describe --abbrev=0 --tags | cut -d"v" -f2)"
-    - export BASE_CONTAINER_IMAGE="registry.gitlab.com/clairton/chatwoot/worker"
-    - export CONTAINER_IMAGE="${BASE_CONTAINER_IMAGE}:${TAG_NAME}"
-    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
-    - docker build -f worker.Dockerfile -t $CONTAINER_IMAGE .
-    - docker push $CONTAINER_IMAGE
-    - docker login --username=_ --password=$HEROKU_TOKEN registry.heroku.com
-    - export HEROKU_IMAGE="registry.heroku.com/chatwoot-worker:${TAG_NAME}"
-    - docker tag $CONTAINER_IMAGE $HEROKU_IMAGE
-    - docker push $HEROKU_IMAGE
-    - export IMAGE_ID=`docker inspect $HEROKU_IMAGE --format={{.Id}}`
-    - echo $IMAGE_ID > ./image_worker.txt
+    - sh ./scripts/build.sh worker $HEROKU_TOKEN
   only:
     - tags
 
@@ -32,22 +21,11 @@ deploy_worker:
   stage: deploy
   image: alpine:latest
   script:
-    - apk add --update --no-cache wget 
-    - export IMAGE_ID=`cat image_worker.txt`
-    - export PAYLOAD='{"updates":[{"type":"worker","docker_image":"'"$IMAGE_ID"'"}]}'
-    - export URL=https://api.heroku.com/apps/chatwoot-worker/formation
-    - >
-      wget $URL
-      --server-response
-      --method=PATCH
-      --body-data=$PAYLOAD
-      --header 'Content-Type: application/json'
-      --header 'Accept: application/vnd.heroku+json; version=3.docker-releases'
-      --header "Authorization: Bearer $HEROKU_TOKEN"
+    - sh ./scripts/deploy.sh worker worker $HEROKU_TOKEN
   only:
     - tags
 
-build_web:
+build_w3b:
   stage: build
   image: docker:stable-git
   services:
@@ -56,39 +34,17 @@ build_web:
     DOCKER_DRIVER: overlay2
   artifacts:
     paths:
-      - image_web.txt
+      - image_w3b.txt
   script:
-    - export TAG_NAME="$(git describe --abbrev=0 --tags | cut -d"v" -f2)"
-    - export BASE_CONTAINER_IMAGE="registry.gitlab.com/clairton/chatwoot/web"
-    - export CONTAINER_IMAGE="${BASE_CONTAINER_IMAGE}:${TAG_NAME}"
-    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
-    - docker build -f web.Dockerfile -t $CONTAINER_IMAGE .
-    - docker push $CONTAINER_IMAGE
-    - docker login --username=_ --password=$HEROKU_TOKEN registry.heroku.com
-    - export HEROKU_IMAGE="registry.heroku.com/chatwoot-w3b:${TAG_NAME}"
-    - docker tag $CONTAINER_IMAGE $HEROKU_IMAGE
-    - docker push $HEROKU_IMAGE
-    - export IMAGE_ID=`docker inspect $HEROKU_IMAGE --format={{.Id}}`
-    - echo $IMAGE_ID > ./image_web.txt
+    - sh ./scripts/build.sh w3b $HEROKU_TOKEN
   only:
     - tags
 
-deploy_web:
+deploy_w3b:
   stage: deploy
   image: alpine:latest
   script:
-    - apk add --update --no-cache wget 
-    - export IMAGE_ID=`cat image_web.txt`
-    - export PAYLOAD='{"updates":[{"type":"web","docker_image":"'"$IMAGE_ID"'"}]}'
-    - export URL=https://api.heroku.com/apps/chatwoot-w3b/formation
-    - >
-      wget $URL
-      --server-response
-      --method=PATCH
-      --body-data=$PAYLOAD
-      --header 'Content-Type: application/json'
-      --header 'Accept: application/vnd.heroku+json; version=3.docker-releases'
-      --header "Authorization: Bearer $HEROKU_TOKEN"
+    - sh ./scripts/deploy.sh w3b web $HEROKU_TOKEN
   only:
     - tags
 
@@ -103,18 +59,7 @@ build_relay:
     paths:
       - image_relay.txt
   script:
-    - export TAG_NAME="$(git describe --abbrev=0 --tags | cut -d"v" -f2)"
-    - export BASE_CONTAINER_IMAGE="registry.gitlab.com/clairton/chatwoot/relay"
-    - export CONTAINER_IMAGE="${BASE_CONTAINER_IMAGE}:${TAG_NAME}"
-    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
-    - docker build -f relay.Dockerfile -t $CONTAINER_IMAGE .
-    - docker push $CONTAINER_IMAGE
-    - docker login --username=_ --password=$HEROKU_TOKEN registry.heroku.com
-    - export HEROKU_IMAGE="registry.heroku.com/chatwoot-relay:${TAG_NAME}"
-    - docker tag $CONTAINER_IMAGE $HEROKU_IMAGE
-    - docker push $HEROKU_IMAGE
-    - export IMAGE_ID=`docker inspect $HEROKU_IMAGE --format={{.Id}}`
-    - echo $IMAGE_ID > ./image_relay.txt
+    - sh ./scripts/build.sh relay $HEROKU_TOKEN
   only:
     - tags
 
@@ -122,18 +67,7 @@ deploy_relay:
   stage: deploy
   image: alpine:latest
   script:
-    - apk add --update --no-cache wget 
-    - export IMAGE_ID=`cat image_relay.txt`
-    - export PAYLOAD='{"updates":[{"type":"worker","docker_image":"'"$IMAGE_ID"'"}]}'
-    - export URL=https://api.heroku.com/apps/chatwoot-relay/formation
-    - >
-      wget $URL
-      --server-response
-      --method=PATCH
-      --body-data=$PAYLOAD
-      --header 'Content-Type: application/json'
-      --header 'Accept: application/vnd.heroku+json; version=3.docker-releases'
-      --header "Authorization: Bearer $HEROKU_TOKEN"
+    - sh ./scripts/deploy.sh relay worker $HEROKU_TOKEN
   only:
     - tags
 
@@ -148,18 +82,7 @@ build_whatsapp:
     paths:
       - image_whatsapp.txt
   script:
-    - export TAG_NAME="$(git describe --abbrev=0 --tags | cut -d"v" -f2)"
-    - export BASE_CONTAINER_IMAGE="registry.gitlab.com/clairton/chatwoot/whatsapp"
-    - export CONTAINER_IMAGE="${BASE_CONTAINER_IMAGE}:${TAG_NAME}"
-    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
-    - docker build -f whatsapp.Dockerfile -t $CONTAINER_IMAGE .
-    - docker push $CONTAINER_IMAGE
-    - docker login --username=_ --password=$HEROKU_TOKEN registry.heroku.com
-    - export HEROKU_IMAGE="registry.heroku.com/chatwoot-whatsapp:${TAG_NAME}"
-    - docker tag $CONTAINER_IMAGE $HEROKU_IMAGE
-    - docker push $HEROKU_IMAGE
-    - export IMAGE_ID=`docker inspect $HEROKU_IMAGE --format={{.Id}}`
-    - echo $IMAGE_ID > ./image_whatsapp.txt
+    - sh ./scripts/build.sh whatsapp $HEROKU_TOKEN
   only:
     - tags
 
@@ -167,17 +90,7 @@ deploy_whatsapp:
   stage: deploy
   image: alpine:latest
   script:
-    - apk add --update --no-cache wget 
-    - export IMAGE_ID=`cat image_whatsapp.txt`
-    - export PAYLOAD='{"updates":[{"type":"web","docker_image":"'"$IMAGE_ID"'"}]}'
-    - export URL=https://api.heroku.com/apps/chatwoot-whatsapp/formation
-    - >
-      wget $URL
-      --server-response
-      --method=PATCH
-      --body-data=$PAYLOAD
-      --header 'Content-Type: application/json'
-      --header 'Accept: application/vnd.heroku+json; version=3.docker-releases'
-      --header "Authorization: Bearer $HEROKU_TOKEN"
+    - sh ./scripts/deploy.sh whatsapp web $HEROKU_TOKEN
+
   only:
     - tags

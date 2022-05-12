@@ -2,7 +2,7 @@ import saveStateRedis from './saveState.js'
 import baileys, { DisconnectReason } from '@adiwajshing/baileys'
 const makeWASocket = baileys.default
 
-const connect = async (token) => {
+const connect = async (token, onQrCode, onConnected) => {
   try {
     const { state, saveState, clearState } = await saveStateRedis(token)
     const sock = makeWASocket({
@@ -11,7 +11,7 @@ const connect = async (token) => {
     })
     sock.ev.on('creds.update', saveState)
     sock.ev.on('connection.update', (update) => {
-      const { connection, lastDisconnect = { error: { output: {}, data: { content: [] } } } } = update
+      const { connection, qr, lastDisconnect = { error: { output: {}, data: { content: [] } } } } = update
 
       if (connection === 'close') {
         const shouldReconnect = lastDisconnect.error.output.statusCode !== DisconnectReason.loggedOut
@@ -29,8 +29,10 @@ const connect = async (token) => {
         }
       } else if (connection === 'open') {
         console.debug('Connected to user', state.creds.me)
-        console.info('Connection ready!')
-        // await sock.sendMessage(m.messages[0].key.remoteJid, { text: 'Hello there!' })
+        await onConnected(sock)
+      } else if (qr) {
+        console.info('Received qrcode')
+        await onQrCode(qr)
       }
     })
     return sock

@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from 'uuid'
 import express from 'express'
 import { createServer } from 'http'
 import connect from './connect.js'
+import ChatWootClient from './chatwootClient.js'
 import validate from './validate.js'
 import { redisConnect, redisDisconnect, setConfig } from './redis.js'
 const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379'
@@ -20,8 +21,16 @@ const run = async (req, res) => {
     res.status(422).send(error)
     return false
   }
+  const chatwootClient = new ChatwootClient(config, token)
   try {
-    await connect(token)
+    const onQrCode = async qr => {
+
+    }
+    const onConnected = async sock => {
+      const phone = config.phone_number
+      return await sock.sendMessage(m.messages[0].key.remoteJid, { text: 'Hello there!' })
+    }
+    const socket = await connect(token, onQrCode, onConnected)
     const redisClient = await redisConnect(REDIS_URL)
     await setConfig(redisClient, token, config)
     await redisDisconnect(redisClient, false)

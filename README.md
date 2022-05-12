@@ -15,12 +15,12 @@ Copy the token, inbox id and account id
 
 Generate whatsapp token
 
-curl --location --request POST 'http://whatsapp.lvh.me/api/clairton/abcdef/generate-token'
+curl --location --request POST 'http://whatsapp.lvh.me/api/clairton/THISISMYSECURETOKEN/generate-token'
 
 Integrate with ChatWoot token, inbox id and account id
 
-curl --location --request POST 'http://whatsapp.lvh.me/api/clairton/start-session' \
---header 'Authorization: Bearer $2b$10$6_xqVd00qsHJZn_5IB2fdOJpaB_XZOKar_8iIfaO8LBvmUj9L85ou' \
+curl --location --request POST 'http://localhost:21465/api/clairton/start-session' \
+--header 'Authorization: Bearer $2b$10$wizTQTgUX4Pl1_L1.iTJf.WXUMDJh2nld6tEZfJK.1qQqPgcklaUm' \
 --data-raw '{
     "webhook": null,
     "waitQrCode": true,
@@ -28,7 +28,7 @@ curl --location --request POST 'http://whatsapp.lvh.me/api/clairton/start-sessio
       "enable": true,
       "mobile_number": "5549988290955",
       "mobile_name": "Clairton",
-      "baseURL": "http://chat.lvh.me"
+      "baseURL": "http://localhost:3000"
       "token": "KLo3Lupshver3GFTks4eRBjh",
       "account_id": "2",
       "inbox_id": "3"

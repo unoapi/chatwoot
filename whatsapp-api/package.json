@@ -1,0 +1,26 @@
+{
+  "name": "chatwoot-whatsapp",
+  "version": "0.1.0",
+  "description": "Bridge between WhatsApp and Chatwoot",
+  "main": "src/index.js",
+  "author": "Clairton Rodrigo Heinzen",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon --inspect=0.0.0.0 --watch 'src/*' --exec 'node' --experimental-modules src/index.js",
+    "start": "node --experimental-modules src/index.js"
+  },
+  "dependencies": {
+    "@adiwajshing/baileys": "^4.1.0",
+    "express": "^4.18.1",
+    "redis": "^4.1.0",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.17.10",
+    "@babel/core": "^7.17.10",
+    "@babel/preset-env": "^7.17.10",
+    "nodemon": "^2.0.16"
+  }
+}

@@ -30,7 +30,7 @@ services:
       - worker
       - relay
       - storage
-      - whatsapp
+      # - whatsapp
       - traefik
     volumes:
       - ./bin/w3b.sh:/bin/w3b.sh
@@ -164,6 +164,26 @@ services:
       - traefik.enable=true
       - traefik.http.services.storage.loadbalancer.server.port=9000
       - traefik.http.routers.storage.rule=Host(`storage.lvh.me`)
+      - traefik.http.routers.storage.entrypoints=web
+
+  whatsapp-api:
+    container_name: whatsapp-api
+    volumes:
+      - ./whatsapp-api:/app
+    build: 
+      context: ./whatsapp-api
+      dockerfile: Dockerfile
+    command: yarn dev
+    environment:
+      REDIS_URL: redis://:123456@redis:6379
+    ports:
+      - 8888:8888
+    depends_on:
+      - redis
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.storage.loadbalancer.server.port=8888
+      - traefik.http.routers.storage.rule=Host(`whatsapp-api.lvh.me`)
       - traefik.http.routers.storage.entrypoints=web
 
   postgres:

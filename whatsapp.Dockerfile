@@ -29,9 +29,9 @@ ENV REDIS_PASSWORD ''
 WORKDIR /home/node/app
 
 COPY --from=builder /home/node/app/ .
-# RUN rm -rf node_modules
-# RUN yarn install --prod
 
 ADD bin/whatsapp.sh /bin/whatsapp.sh
+# ADD bin/deviceController.js /home/node/app/src/controller/deviceController.js
+# ADD bin/chatWootClient.js /home/node/app/src/util/chatWootClient.js
 
 CMD ["sh", "/bin/whatsapp.sh" ]

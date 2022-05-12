@@ -10,26 +10,27 @@ Redis chatwoot.rails@excellence.odo.br
   redis://redis-19086.c80.us-east-1-2.ec2.cloud.redislabs.com:19086
 
 
-In Chatwoot create a channel api with com WebHook https://whatsapp.excellence.odo.br/api/clairton-pessoal/chatwoot
+In Chatwoot create a channel api with com WebHook http://whatsapp.lvh.me/api/clairton/chatwoot
 Copy the token, inbox id and account id
 
 Generate whatsapp token
 
-curl --location --request POST 'https://whatsapp.excellence.odo.br/api/clairton-pessoal/vshaksdoabdgasuFUGDFYSUDW875E68GWQKDNLD/generate-token'
-
+curl --location --request POST 'http://whatsapp.lvh.me/api/clairton/abcdef/generate-token'
 
 Integrate with ChatWoot token, inbox id and account id
 
-curl --location --request POST 'https://whatsapp.excellence.odo.br/api/clairton-pessoal/start-session' \
---header 'Authorization: Bearer $2b$10$KmSNWJRSQfV8fX6GQ.HbkeoIM9O29eG8TQxUm6jpOaTbRZoeMvbVa' \
+curl --location --request POST 'http://whatsapp.lvh.me/api/clairton/start-session' \
+--header 'Authorization: Bearer $2b$10$6_xqVd00qsHJZn_5IB2fdOJpaB_XZOKar_8iIfaO8LBvmUj9L85ou' \
 --data-raw '{
     "webhook": null,
     "waitQrCode": true,
     "chatWoot" : {
       "enable": true,
-      "baseURL": "https://chat.excellence.odo.br"
-      "token": "PFrJ3Bqma9xDmeWxDYvYMM3v",
-      "inbox_id": "10",
-      "account_id": "2"
+      "mobile_number": "5549988290955",
+      "mobile_name": "Clairton",
+      "baseURL": "http://chat.lvh.me"
+      "token": "KLo3Lupshver3GFTks4eRBjh",
+      "account_id": "2",
+      "inbox_id": "3"
     }
 }'

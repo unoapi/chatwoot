@@ -17,7 +17,6 @@ const run = async (req, res) => {
   const token = req.params.token
   const config = { ...req.body, token }
   try {
-    console.log(validate)
     await validate(config)
   } catch (error) {
     console.warn('Config is invalid', error)
@@ -36,16 +35,15 @@ const run = async (req, res) => {
 }
 
 /**
- * 
- * 
- * 
-  {
-    "baseURL": "http://localhost:3000"
-    "token": "KLo3Lupshver3GFTks4eRBjh",
-    "account_id": "2",
-    "inbox_id": "3"
-  }
- * 
+{
+  "autoConnect": true,
+  "mobile_name": "Me",
+  "mobile_number": "+5549988290955",
+  "baseURL": "http://localhost:3000",
+  "token": "KLo3Lupshver3GFTks4eRBjh",
+  "account_id": "2",
+  "inbox_id": "3"
+}
  */
 app.post('/connect', async (req, res) => {
   const token = uuidv4()

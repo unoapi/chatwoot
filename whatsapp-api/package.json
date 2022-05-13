@@ -9,6 +9,7 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon --inspect=0.0.0.0 --watch 'src/*' --exec 'node' --experimental-modules src/index.js",
+    "test": "nodemon --inspect=0.0.0.0 --watch 'src/*' --exec 'node' --experimental-modules src/test.js",
     "start": "node --experimental-modules src/index.js"
   },
   "dependencies": {

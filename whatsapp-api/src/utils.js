@@ -1,7 +1,7 @@
 
 export const formatNumber = (number) => {
-  let country = number.substring(1, 2)
-  prefix = number.substring(3, 4)
+  const country = number.substring(1, 2)
+  const prefix = number.substring(3, 4)
   const digits = number.match('.{8}$')[0]
   const phone = `${country}${prefix}${digits}`
   return phone

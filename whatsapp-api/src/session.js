@@ -1,4 +1,2 @@
-const whatsappClients = {}
-
-export default whatsappClients
+export const whatsappClients = {}
 export const chatwootClients = {}

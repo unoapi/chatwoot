@@ -1,18 +1,3 @@
-/*
- * Copyright 2021 WPPConnect Team
- *
- * Licensed under the Apache License, Version 2.0 (the "License")
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 import axios from 'axios'
 import { default as FormData } from 'form-data'
 import mime from 'mime-types'
@@ -33,20 +18,6 @@ export default class chatWootClient {
     this.api = axios.create({
       baseURL: this.config.baseURL,
       headers: { 'Content-Type': 'application/jsoncharset=utf-8', api_access_token: this.config.token },
-    })
-
-    //assiona o evento do status
-    eventEmitter.on(`status-${session}`, (client, status) => {
-      this.sendMessage(client, {
-        sender: this.sender,
-        chatId: this.mobile_number + '@c.us',
-        body: `Whatsapp status: ${status} `,
-      })
-    })
-
-    //assina o evento de mensagem
-    eventEmitter.on(`mensagem-${session}`, (client, message) => {
-      this.sendMessage(client, message)
     })
   }
 

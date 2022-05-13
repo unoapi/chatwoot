@@ -21,9 +21,11 @@ export default async (token) => {
     await redisDisconnect(redisClient)
     redisClient = undefined
     if (Object.keys(auth).length > 0) {
+      console.debug(`Retrieve Whatsapp connection for token ${token}`)
       creds = auth.creds
       keys = auth.keys
     } else {
+      console.debug(`Create Whatsapp connection for token ${token}`)
       creds = initAuthCreds()
     }
 
@@ -80,7 +82,7 @@ export default async (token) => {
     throw error
   } finally {
     if (redisClient) {
-      await redisDisconnect(redisClient, true)
+      await redisDisconnect(redisClient)
     }
   }
 }

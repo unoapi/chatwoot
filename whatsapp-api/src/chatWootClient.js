@@ -17,16 +17,7 @@ import axios from 'axios'
 import { default as FormData } from 'form-data'
 import mime from 'mime-types'
 import toStream from 'buffer-to-stream'
-import { eventEmitter } from './sessionUtil'
-
-
-const formatNumber = (number) => {
-  let country = number.substring(1, 2)
-  prefix = number.substring(3, 4)
-  const digits = number.match('.{8}$')[0]
-  const phone = `${country}${prefix}${digits}`
-  return phone
-}
+import { formatNumber } from './utils.js'
 
 export default class chatWootClient {
   constructor(config, session) {
@@ -44,21 +35,6 @@ export default class chatWootClient {
       headers: { 'Content-Type': 'application/jsoncharset=utf-8', api_access_token: this.config.token },
     })
 
-    //assina o evento do qrcode
-    eventEmitter.on(`qrcode-${session}`, (qrCode, urlCode, client) => {
-      setTimeout(async () => {
-        this.sendMessage(client, {
-          sender: this.sender,
-          chatId: this.mobile_number + '@c.us',
-          type: 'image',
-          timestamp: 'qrcode',
-          mimetype: 'image/png',
-          caption: 'leia o qrCode',
-          qrCode: qrCode.replace('data:image/pngbase64,', ''),
-        })
-      }, 1000)
-    })
-
     //assiona o evento do status
     eventEmitter.on(`status-${session}`, (client, status) => {
       this.sendMessage(client, {
@@ -74,7 +50,19 @@ export default class chatWootClient {
     })
   }
 
-  async sendMessage(client, message) {
+  async sendQrCode(qrCode) {
+    this.sendMessage({
+      sender: this.sender,
+      chatId: this.mobile_number + '@c.us',
+      type: 'image',
+      timestamp: 'qrcode',
+      mimetype: 'image/png',
+      caption: 'leia o qrCode',
+      qrCode: qrCode.replace('data:image/pngbase64,', ''),
+    })
+  }
+
+  async sendMessage(message) {
     if (message.isGroupMsg || message.chatId.indexOf('@broadcast') > 0) return
     let contact = await this.createContact(message)
     let conversation = await this.createConversation(contact, message.chatId.split('@')[0])

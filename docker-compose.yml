@@ -30,7 +30,7 @@ services:
       - worker
       - relay
       - storage
-      # - whatsapp
+      - whatsapp-api
       - traefik
     volumes:
       - ./bin/w3b.sh:/bin/w3b.sh
@@ -51,7 +51,7 @@ services:
       MAILER_INBOUND_EMAIL_DOMAIN: excellence.odo.br
       RAILS_INBOUND_EMAIL_SERVICE: relay
       RAILS_INBOUND_EMAIL_PASSWORD: abcde
-      CHATWOOT_PREPARE: 'true'
+      CHATWOOT_PREPARE: 'false'
       SECRET_KEY_BASE: qdjwoqroiqwihqwoeqwokdnqwdncuneuf82183219381ob
       ACTIVE_STORAGE_SERVICE: amazon
       S3_BUCKET_NAME: chatwoot
@@ -182,9 +182,9 @@ services:
       - redis
     labels:
       - traefik.enable=true
-      - traefik.http.services.storage.loadbalancer.server.port=8888
-      - traefik.http.routers.storage.rule=Host(`whatsapp-api.lvh.me`)
-      - traefik.http.routers.storage.entrypoints=web
+      - traefik.http.services.whatsapp-api.loadbalancer.server.port=8888
+      - traefik.http.routers.whatsapp-api.rule=Host(`whatsapp-api.lvh.me`)
+      - traefik.http.routers.whatsapp-api.entrypoints=web
 
   postgres:
     image: postgres:14-alpine

@@ -1,5 +1,4 @@
 import { redisConnect, redisDisconnect, setAuth, getAuth } from './redis.js'
-const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379'
 import { BufferJSON, initAuthCreds } from '@adiwajshing/baileys'
 
 
@@ -15,7 +14,7 @@ const KEY_MAP = {
 export default async (token) => {
   let redisClient
   try {
-    redisClient = await redisConnect(REDIS_URL)
+    redisClient = await redisConnect()
     let creds
     let keys = {}
     const auth = await getAuth(redisClient, token, value => JSON.parse(value, BufferJSON.reviver))
@@ -29,7 +28,7 @@ export default async (token) => {
     }
 
     const saveState = async () => {
-      redisClient = await redisConnect(REDIS_URL)
+      redisClient = await redisConnect()
       const state = { creds, keys }
       await setAuth(redisClient, token, state, value => JSON.stringify(value, BufferJSON.replacer, 2))
       await redisDisconnect(redisClient)
@@ -37,7 +36,7 @@ export default async (token) => {
     }
 
     const clearState = async () => {
-      redisClient = await redisConnect(REDIS_URL)
+      redisClient = await redisConnect()
       await setAuth(redisClient, token, {}, value)
       await redisDisconnect(redisClient)
       redisClient = undefined

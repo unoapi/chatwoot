@@ -13,13 +13,14 @@ Create a token in whatsapp-api
 
 curl --location --request POST 'http://whatsapp-api.lvh.me/api/THISISMYSECURETOKEN/token' @todo
 
-In Chatwoot create a channel api with com WebHook http://whatsapp-api.lvh.me/message/:token
+In Chatwoot create a channel api with com WebHook http://whatsapp-api.lvh.me/message/6e50e19a-37d4-4085-be7b-82c478e4dd0e
 Copy the token, inbox id and account id
 
 Integrate with ChatWoot token, inbox id and account id
 
-curl --location --request POST 'http://whatsapp-api.lvh.me/connect/:token' \
+curl --location --request POST 'http://localhost:8888/connect/6e50e19a-37d4-4085-be7b-82c478e4dd0e' \
 --data-raw '{
+  "autoConnect": true,
   "mobile_name": "Me",
   "mobile_number" "+5549988290955",
   "baseURL": "http://localhost:3000"

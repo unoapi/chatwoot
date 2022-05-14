@@ -47,7 +47,7 @@ const connect = async (token, onQrCode = df, onConnecionChange = df, onMessage =
         } else if (connection === 'open') {
           console.debug('Connected to user', state.creds.me)
           whatsappClients[token] = sock
-          await sock.sendMessage(state.creds.me.id, { text: `Success connected Chatwoot to WhatsApp!` })
+          // await sock.sendMessage(state.creds.me.id, { text: `Success connected Chatwoot to WhatsApp!` })
           resolve(sock)
         } else if (qr) {
           console.info('Received qrcode for token', token)

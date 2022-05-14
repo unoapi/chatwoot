@@ -20,13 +20,15 @@ export default async (token, config) => {
     const onConnecionChange = async message => {
       await chatwootClient.sendMessage({
         sender: chatwootClient.sender,
-        chatId: chatwootClient.mobile_number + '@c.us',
+        chatId: chatwootClient.mobile_number + '@s.whatsapp.net',
         content: message
       })
     }
-    const onMessage = async messages => {
+    const onMessage = async ({ messages = []}) => {
+      console.debug(`${messages.length} new message(s) received from Whatsapp`)
       for (var i = 0, j = messages.length; i < j; i++) {
         const message = messages[i]
+        console.log(message)
         await chatwootClient.sendMessage(message)
       }
     }

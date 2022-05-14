@@ -16,7 +16,7 @@ export default async (req, res) => {
 
     const {
       message_type,
-      phone = req.body.conversation.meta.sender.phone_number,
+      phone = req.body.conversation.meta.sender.phone_number.replace('+', ''),
       message = req.body.conversation.messages[0],
     } = req.body
 
@@ -27,8 +27,9 @@ export default async (req, res) => {
           let base_url = `${client.config.chatWoot.baseURL}/${message.attachments[0].data_url.substring(
             message.attachments[0].data_url.indexOf('/rails/') + 1
           )}`
-          await whatsappClient.sendMessage(contato, { url: message.content, caption: message.content })
+          await whatsappClient.sendMessage(contato, { url: base_url, caption: message.content })
         } else {
+          console.log('send message', contato, { text: message.content })
           await whatsappClient.sendMessage(contato, { text: message.content })
         }
       }

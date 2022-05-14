@@ -17,8 +17,8 @@ export default class chatWootClient {
     this.inbox_id = this.config.inbox_id
     this.api = axios.create({
       baseURL: this.config.baseURL,
-      headers: { 
-        'Content-Type': 'application/json; charset=utf-8', 
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
         api_access_token: this.config.token
       }
     })
@@ -37,67 +37,102 @@ export default class chatWootClient {
   }
 
   async sendMessage(message) {
-    if (message.isGroupMsg || message.chatId.indexOf('@broadcast') > 0) return
+    /*
+    {
+      key: {
+        remoteJid: '554936213177@s.whatsapp.net',
+        fromMe: false,
+        id: 'BAE5571AF7EDC43C',
+        participant: undefined
+      },
+      messageTimestamp: 1652495350,
+      pushName: 'Odonto Excellence',
+      message: Message {
+        extendedTextMessage: ExtendedTextMessage {
+          text: '*[Clairton]*\nda minha odonto excellence'
+        }
+      }
+      }
+
+      {
+        key: {
+          remoteJid: '554936213177@s.whatsapp.net',
+          fromMe: true,
+          id: '3A31402281D4AFD2B275',
+          participant: undefined
+        },
+        messageTimestamp: 1652495215,
+        pushName: 'Clairton Rodrigo Heinzen',
+        status: 2,
+        message: Message { conversation: 'Oi' }
+      }
+    */
+    const { key: { remoteJid, fromMe } } = message
+    if (remoteJid.indexOf('@g.us') > 0 || remoteJid.indexOf('@broadcast') > 0 || fromMe) return;
+    message.phone = `+${remoteJid.split('@')[0].split(':')[0]}`
     const contact = await this.createContact(message)
-    const conversation = await this.createConversation(contact, message.chatId.split('@')[0])
+    const conversation = await this.createConversation(contact, message.phone)
 
     try {
-      if (
-        message.type == 'image' ||
-        message.type == 'image/png' ||
-        message.type == 'video' ||
-        message.type == 'in' ||
-        message.type == 'document' ||
-        message.type == 'ptt' ||
-        message.type == 'audio' ||
-        message.type == 'sticker'
-      ) {
-        if (message.mimetype == 'image/webp') message.mimetype = 'image/jpeg'
-        const extension = mime.extension(message.mimetype)
-        const filename = `${message.timestamp}.${extension}`
-        let b64
+      // if (
+      //   message.type == 'image' ||
+      //   message.type == 'image/png' ||
+      //   message.type == 'video' ||
+      //   message.type == 'in' ||
+      //   message.type == 'document' ||
+      //   message.type == 'ptt' ||
+      //   message.type == 'audio' ||
+      //   message.type == 'sticker'
+      // ) {
+      //   if (message.mimetype == 'image/webp') message.mimetype = 'image/jpeg'
+      //   const extension = mime.extension(message.mimetype)
+      //   const filename = `${message.timestamp}.${extension}`
+      //   let b64
 
-        if (message.qrCode) {
-          b64 = message.qrCode
-        } else {
-          const buffer = await client.decryptFile(message)
-          b64 = await buffer.toString('base64')
-        }
-        const mediaData = Buffer.from(b64, 'base64')
-        const data = new FormData()
-        if (message.caption) {
-          data.append('content', message.caption)
-        }
-        data.append('attachments[]', toStream(mediaData), {
-          filename: filename,
-          contentType: message.mimetype,
-        })
-        data.append('message_type', 'incoming')
-        data.append('private', 'false')
+      //   if (message.qrCode) {
+      //     b64 = message.qrCode
+      //   } else {
+      //     const buffer = await client.decryptFile(message)
+      //     b64 = await buffer.toString('base64')
+      //   }
+      //   const mediaData = Buffer.from(b64, 'base64')
+      //   const data = new FormData()
+      //   if (message.caption) {
+      //     data.append('content', message.caption)
+      //   }
+      //   data.append('attachments[]', toStream(mediaData), {
+      //     filename: filename,
+      //     contentType: message.mimetype,
+      //   })
+      //   data.append('message_type', 'incoming')
+      //   data.append('private', 'false')
 
-        const configPost = Object.assign(
-          {},
-          {
-            baseURL: this.config.baseURL,
-            headers: {
-              'Content-Type': 'application/json; charset=utf-8',
-              api_access_token: this.config.token,
-            },
-          }
-        )
-        configPost.headers = { ...configPost.headers, ...data.getHeaders() }
-        const url = `api/v1/accounts/${this.account_id}/conversations/${conversation.id}/messages`
-        const result = await axios.post(url, data, configPost)
-        return result
-      } else {
-        const body = {
-          content: message.body,
-          message_type: 'incoming',
-        }
-        const url = `api/v1/accounts/${this.account_id}/conversations/${conversation.id}/messages`
-        const { data } = await this.api.post(url, body)
-        return data
+      //   const configPost = Object.assign(
+      //     {},
+      //     {
+      //       baseURL: this.config.baseURL,
+      //       headers: {
+      //         'Content-Type': 'application/json; charset=utf-8',
+      //         api_access_token: this.config.token,
+      //       },
+      //     }
+      //   )
+      //   configPost.headers = { ...configPost.headers, ...data.getHeaders() }
+      //   const url = `api/v1/accounts/${this.account_id}/conversations/${conversation.id}/messages`
+      //   const result = await axios.post(url, data, configPost)
+      //   return result
+      // } else {
+      const { message: { conversation: content, extendedTextMessage: { text } } } = message
+      const message_type = 'incoming'
+      const body = {
+        content: content || text,
+        message_type,
       }
+      console.log('message to send do chatwoot', body)
+      const url = `api/v1/accounts/${this.account_id}/conversations/${conversation.id}/messages`
+      const { data } = await this.api.post(url, body)
+      return data
+      // }
     } catch (e) {
       console.error('error on send message', e)
       throw e
@@ -115,12 +150,10 @@ export default class chatWootClient {
   }
 
   async createContact(message) {
-    const name = message.sender.isMyContact ? message.sender.formattedName : message.sender.pushname || message.sender.formattedName
-    const phone_number = typeof message.sender.id == 'object' ? message.sender.id.user : message.sender.id.split('@')[0]
     const body = {
       inbox_id: this.inbox_id,
-      name,
-      phone_number
+      name: message.pushName,
+      phone_number: message.phone
     }
     const contact = await this.findContact(body.phone_number.replace('+', ''))
     if (contact && contact.meta && contact.meta.count > 0) return contact.payload[0]

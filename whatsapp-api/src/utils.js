@@ -15,7 +15,7 @@ export function contactToArray(number, isGroup) {
       contact = contact.split('@')[0]
       if (contact !== '')
         if (isGroup) localArr.push(`${contact}@g.us`)
-        else localArr.push(`${formatNumber(contact)}@c.us`)
+        else localArr.push(`${formatNumber(contact)}@s.whatsapp.net`)
     }
   } else {
     const arrContacts = number.split(/\s*[,]\s*/g)
@@ -23,8 +23,9 @@ export function contactToArray(number, isGroup) {
       contact = contact.split('@')[0]
       if (contact !== '')
         if (isGroup) localArr.push(`${contact}@g.us`)
-        else localArr.push(`${formatNumber(contact)}@c.us`)
+        else localArr.push(`${formatNumber(contact)}@s.whatsapp.net`)
     }
   }
+  console.log('whatsapp destinies', localArr)
   return localArr
 }

@@ -8,7 +8,6 @@ const df = async () => { }
 const connect = async (token, onQrCode = df, onConnecionChange = df, onMessage = df) => {
   try {
     if (whatsappClients[token] && Object.keys(whatsappClients[token]).length > 0) {
-      console.log(whatsappClients[token])
       console.info('Whatsapp client already exist for token', token)
       return whatsappClients[token]
     }

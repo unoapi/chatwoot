@@ -29,19 +29,25 @@ export default async (token) => {
       creds = initAuthCreds()
     }
 
-    const saveState = async () => {
+
+    const save = async (state) => {
       redisClient = await redisConnect()
-      const state = { creds, keys }
       await setAuth(redisClient, token, state, value => JSON.stringify(value, BufferJSON.replacer, 2))
-      await redisDisconnect(redisClient)
-      redisClient = undefined
+      try {
+        await redisDisconnect(redisClient)
+      } catch (_error) { }
+      finally {
+        redisClient = undefined
+      }
+    }
+
+    const saveState = async () => {
+      const state = { creds, keys }
+      return save(state)
     }
 
     const clearState = async () => {
-      redisClient = await redisConnect()
-      await setAuth(redisClient, token, {}, value)
-      await redisDisconnect(redisClient)
-      redisClient = undefined
+      return save({})
     }
 
     return {

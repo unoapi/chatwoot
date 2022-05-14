@@ -25,7 +25,7 @@ export const redisKeys = async (client, pattern) => {
 }
 
 export const redisSet = async (client, key, value) => {
-  console.debug(`Setting ${key} => ${value}`)
+  console.debug(`Setting ${key} => ${value.substring(0, 10)}...`)
   return client.set(key, value)
 }
 

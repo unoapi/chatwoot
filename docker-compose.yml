@@ -44,6 +44,7 @@ services:
     depends_on:
       - postgres
       - redis
+      - whatsapp-api
     volumes:
       - ./bin/email_relay_job.rb:/app/app/jobs/email_relay_job.rb
       - ./bin/worker.sh:/bin/worker.sh
@@ -58,6 +59,8 @@ services:
       RAILS_MAX_THREADS: 1
       REDIS_URL: redis://redis:6379
       REDIS_PASSWORD: 123456
+      ACTIVE_STORAGE_SERVICE: local
+      SECRET_KEY_BASE: qdjwoqroiqwihqwoeqwokdnqwdncuneuf82183219381ob
       CHATWOOT_URL: http://localhost:3000/rails/action_mailbox/relay/inbound_emails
       SMTP_DOMAIN: excellence.odo.br
       SMTP_ADDRESS: smtp.gmail.com

@@ -1,24 +1,6 @@
 version: '3'
 
 services:
-  traefik:
-    image: traefik:v2.6
-    hostname: traefik
-    container_name: traefik
-    command:
-      - --api.insecure=true
-      - --providers.docker=true
-      - --providers.docker.exposedbydefault=false
-      - --entrypoints.web.address=:80
-    restart: always
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    labels:
-      - traefik.enable=true
-      - traefik.http.services.traefik.loadbalancer.server.port=8080
-      - traefik.http.routers.traefik.rule=Host(`traefik.lvh.me`)
-      - traefik.http.routers.traefik.entrypoints=web
-
   w3b:
     hostname: w3b
     container_name: w3b
@@ -29,9 +11,7 @@ services:
       - redis
       - worker
       - relay
-      - storage
       - whatsapp-api
-      - traefik
     volumes:
       - ./bin/w3b.sh:/bin/w3b.sh
     environment:
@@ -53,20 +33,10 @@ services:
       RAILS_INBOUND_EMAIL_PASSWORD: abcde
       CHATWOOT_PREPARE: 'false'
       SECRET_KEY_BASE: qdjwoqroiqwihqwoeqwokdnqwdncuneuf82183219381ob
-      ACTIVE_STORAGE_SERVICE: amazon
-      S3_BUCKET_NAME: chatwoot
-      AWS_ACCESS_KEY_ID: minio
-      AWS_SECRET_ACCESS_KEY: '0987654321'
-      AWS_REGION: us-east-1
-      AWS_S3_ENDPOINT: http://localhost:9000
+      ACTIVE_STORAGE_SERVICE: local
       DEFAULT_LOCALE: pt_BR
     ports:
       - 3000:3000
-    labels:
-      - traefik.enable=true
-      - traefik.http.services.w3b.loadbalancer.server.port=3000
-      - traefik.http.routers.w3b.rule=Host(`chat.lvh.me`)
-      - traefik.http.routers.w3b.entrypoints=web
 
   worker:
     build:
@@ -74,7 +44,6 @@ services:
     depends_on:
       - postgres
       - redis
-      - storage
     volumes:
       - ./bin/email_relay_job.rb:/app/app/jobs/email_relay_job.rb
       - ./bin/worker.sh:/bin/worker.sh
@@ -89,15 +58,6 @@ services:
       RAILS_MAX_THREADS: 1
       REDIS_URL: redis://redis:6379
       REDIS_PASSWORD: 123456
-      SECRET_KEY_BASE: qdjwoqroiqwihqwoeqwokdnqwdncuneuf82183219381ob
-      ACTIVE_STORAGE_SERVICE: amazon
-      S3_BUCKET_NAME: chatwoot
-      AWS_ACCESS_KEY_ID: minio
-      AWS_SECRET_ACCESS_KEY: '0987654321'
-      AWS_REGION: us-east-1
-      AWS_S3_ENDPOINT: http://localhost:9000
-      INGRESS_PASSWORD: abcde
-      INGRESS_USER: actionmailbox
       CHATWOOT_URL: http://localhost:3000/rails/action_mailbox/relay/inbound_emails
       SMTP_DOMAIN: excellence.odo.br
       SMTP_ADDRESS: smtp.gmail.com
@@ -120,52 +80,6 @@ services:
       REDIS_URL: redis://redis:6379
       REDIS_PASSWORD: 123456
 
-  whatsapp:
-    hostname: whatsapp
-    container_name: whatsapp
-    build:
-      dockerfile: whatsapp.Dockerfile
-    depends_on:
-      - redis
-    environment:
-      SECRET_KEY: abcdef
-      HOST: http://whatsapp.lvh.me
-      PORT: 21465
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      REDIS_PASSWORD: 123456
-      LOG_LEVEL: verbose
-    ports:
-      - 21465:21465
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.whatsapp.rule=Host(`whatsapp.lvh.me`)
-      - traefik.http.services.whatsapp.loadbalancer.server.port=21465
-      - traefik.http.routers.whatsapp.entrypoints=web
-    volumes:
-      - ./bin/whatsapp.sh:/bin/whatsapp.sh
-      # - ./bin/deviceController.js:/home/node/app/src/controller/deviceController.js
-      # - ./bin/chatWootClient.js:/home/node/app/src/util/chatWootClient.js
-
-  storage:
-    hostname: storage
-    container_name: storage
-    image: quay.io/minio/minio:latest
-    command: server /data --console-address ":9001"
-    volumes:
-      - ./data/storage:/data
-    environment:
-      MINIO_ROOT_USER: minio
-      MINIO_ROOT_PASSWORD: '0987654321'
-    ports:
-      - 9000:9000
-      - 9001:9001
-    labels:
-      - traefik.enable=true
-      - traefik.http.services.storage.loadbalancer.server.port=9000
-      - traefik.http.routers.storage.rule=Host(`storage.lvh.me`)
-      - traefik.http.routers.storage.entrypoints=web
-
   whatsapp-api:
     container_name: whatsapp-api
     volumes:
@@ -180,11 +94,6 @@ services:
       - 8888:8888
     depends_on:
       - redis
-    labels:
-      - traefik.enable=true
-      - traefik.http.services.whatsapp-api.loadbalancer.server.port=8888
-      - traefik.http.routers.whatsapp-api.rule=Host(`whatsapp-api.lvh.me`)
-      - traefik.http.routers.whatsapp-api.entrypoints=web
 
   postgres:
     image: postgres:14-alpine

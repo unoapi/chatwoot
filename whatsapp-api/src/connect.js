@@ -17,7 +17,7 @@ const connect = async (token, onQrCode = df, onConnecionChange = df, onMessage =
     return new Promise((resolve) => {
       console.info('Connecting token', token)
       const sock = makeWASocket({
-        printQRInTerminal: false,
+        printQRInTerminal: true,
         auth: state
       })
       sock.ev.on('creds.update', saveState)
@@ -30,7 +30,7 @@ const connect = async (token, onQrCode = df, onConnecionChange = df, onMessage =
           console.warn('connection closed due to ', lastDisconnect.error, ', reconnecting ', shouldReconnect, 'token', token)
           if (shouldReconnect) {
             await onConnecionChange('Whatsapp connection is changed, try reconnecting!')
-            return connect()
+            return connect(token, onQrCode, onConnecionChange, onMessage)
           }
 
           const isUnauthorized = lastDisconnect.error.output.statusCode === DisconnectReason.loggedOut

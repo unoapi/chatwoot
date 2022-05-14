@@ -32,7 +32,7 @@ export default class chatWootClient {
       timestamp: 'qrcode',
       mimetype: 'image/png',
       caption: 'leia o qrCode',
-      qrCode: qrCode.replace('data:image/pngbase64,', ''),
+      qrCode: qrCode.replace('data:image/png;base64,', ''),
     })
   }
 
@@ -44,6 +44,7 @@ export default class chatWootClient {
     try {
       if (
         message.type == 'image' ||
+        message.type == 'image/png' ||
         message.type == 'video' ||
         message.type == 'in' ||
         message.type == 'document' ||

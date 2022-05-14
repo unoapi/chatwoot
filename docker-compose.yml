@@ -45,7 +45,7 @@ services:
       RAILS_MAX_THREADS: 1
       REDIS_URL: redis://redis:6379
       REDIS_PASSWORD: 123456
-      FRONTEND_URL: http://chat.lvh.me
+      FRONTEND_URL: http://localhost:3000
       MAILER_SENDER_EMAIL: Odonto Excellence<minhaodontoexcellence@gmail.com>
       ENABLE_ACCOUNT_SIGNUP: 'true'
       MAILER_INBOUND_EMAIL_DOMAIN: excellence.odo.br
@@ -58,7 +58,7 @@ services:
       AWS_ACCESS_KEY_ID: minio
       AWS_SECRET_ACCESS_KEY: '0987654321'
       AWS_REGION: us-east-1
-      AWS_S3_ENDPOINT: http://storage.lvh.me
+      AWS_S3_ENDPOINT: http://localhost:9000
       DEFAULT_LOCALE: pt_BR
     ports:
       - 3000:3000
@@ -95,10 +95,10 @@ services:
       AWS_ACCESS_KEY_ID: minio
       AWS_SECRET_ACCESS_KEY: '0987654321'
       AWS_REGION: us-east-1
-      AWS_S3_ENDPOINT: http://storage.lvh.me
+      AWS_S3_ENDPOINT: http://localhost:9000
       INGRESS_PASSWORD: abcde
       INGRESS_USER: actionmailbox
-      CHATWOOT_URL: http://chat.lvh.me/rails/action_mailbox/relay/inbound_emails
+      CHATWOOT_URL: http://localhost:3000/rails/action_mailbox/relay/inbound_emails
       SMTP_DOMAIN: excellence.odo.br
       SMTP_ADDRESS: smtp.gmail.com
       SMTP_PORT: 587

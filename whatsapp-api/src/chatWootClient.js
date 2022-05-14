@@ -5,7 +5,7 @@ import toStream from 'buffer-to-stream'
 import { formatNumber } from './utils.js'
 
 export default class chatWootClient {
-  constructor(config, session) {
+  constructor(config) {
     this.config = config
     this.mobile_name = this.config.mobile_name
     this.mobile_number = formatNumber(this.config.mobile_number)
@@ -17,12 +17,15 @@ export default class chatWootClient {
     this.inbox_id = this.config.inbox_id
     this.api = axios.create({
       baseURL: this.config.baseURL,
-      headers: { 'Content-Type': 'application/jsoncharset=utf-8', api_access_token: this.config.token },
+      headers: { 
+        'Content-Type': 'application/json; charset=utf-8', 
+        api_access_token: this.config.token
+      }
     })
   }
 
   async sendQrCode(qrCode) {
-    this.sendMessage({
+    return this.sendMessage({
       sender: this.sender,
       chatId: this.mobile_number + '@c.us',
       type: 'image',
@@ -35,8 +38,8 @@ export default class chatWootClient {
 
   async sendMessage(message) {
     if (message.isGroupMsg || message.chatId.indexOf('@broadcast') > 0) return
-    let contact = await this.createContact(message)
-    let conversation = await this.createConversation(contact, message.chatId.split('@')[0])
+    const contact = await this.createContact(message)
+    const conversation = await this.createConversation(contact, message.chatId.split('@')[0])
 
     try {
       if (
@@ -50,18 +53,17 @@ export default class chatWootClient {
       ) {
         if (message.mimetype == 'image/webp') message.mimetype = 'image/jpeg'
         const extension = mime.extension(message.mimetype)
-        let filename = `${message.timestamp}.${extension}`
+        const filename = `${message.timestamp}.${extension}`
         let b64
 
-        if (message.qrCode) b64 = message.qrCode
-        else {
-          let buffer = await client.decryptFile(message)
+        if (message.qrCode) {
+          b64 = message.qrCode
+        } else {
+          const buffer = await client.decryptFile(message)
           b64 = await buffer.toString('base64')
         }
-
-        let mediaData = Buffer.from(b64, 'base64')
-
-        let data = new FormData()
+        const mediaData = Buffer.from(b64, 'base64')
+        const data = new FormData()
         if (message.caption) {
           data.append('content', message.caption)
         }
@@ -72,38 +74,32 @@ export default class chatWootClient {
         data.append('message_type', 'incoming')
         data.append('private', 'false')
 
-        let configPost = Object.assign(
+        const configPost = Object.assign(
           {},
           {
             baseURL: this.config.baseURL,
             headers: {
-              'Content-Type': 'application/jsoncharset=utf-8',
+              'Content-Type': 'application/json; charset=utf-8',
               api_access_token: this.config.token,
             },
           }
         )
         configPost.headers = { ...configPost.headers, ...data.getHeaders() }
-
-        var result = await axios.post(
-          `api/v1/accounts/${this.account_id}/conversations/${conversation.id}/messages`,
-          data,
-          configPost
-        )
-
+        const url = `api/v1/accounts/${this.account_id}/conversations/${conversation.id}/messages`
+        const result = await axios.post(url, data, configPost)
         return result
       } else {
-        let body = {
+        const body = {
           content: message.body,
           message_type: 'incoming',
         }
-        const { data } = await this.api.post(
-          `api/v1/accounts/${this.account_id}/conversations/${conversation.id}/messages`,
-          body
-        )
+        const url = `api/v1/accounts/${this.account_id}/conversations/${conversation.id}/messages`
+        const { data } = await this.api.post(url, body)
         return data
       }
     } catch (e) {
-      return null
+      console.error('error on send message', e)
+      throw e
     }
   }
 
@@ -112,29 +108,27 @@ export default class chatWootClient {
       const { data } = await this.api.get(`api/v1/accounts/${this.account_id}/contacts/search/?q=${query}`)
       return data
     } catch (e) {
-      console.log(e)
-      return null
+      console.error('error on find contact', e)
+      throw e
     }
   }
 
   async createContact(message) {
-    let body = {
+    const name = message.sender.isMyContact ? message.sender.formattedName : message.sender.pushname || message.sender.formattedName
+    const phone_number = typeof message.sender.id == 'object' ? message.sender.id.user : message.sender.id.split('@')[0]
+    const body = {
       inbox_id: this.inbox_id,
-      name: message.sender.isMyContact
-        ? message.sender.formattedName
-        : message.sender.pushname || message.sender.formattedName,
-      phone_number: typeof message.sender.id == 'object' ? message.sender.id.user : message.sender.id.split('@')[0],
+      name,
+      phone_number
     }
-    body.phone_number = `+${body.phone_number}`
-    var contact = await this.findContact(body.phone_number.replace('+', ''))
-    if (contact && contact.meta.count > 0) return contact.payload[0]
-
+    const contact = await this.findContact(body.phone_number.replace('+', ''))
+    if (contact && contact.meta && contact.meta.count > 0) return contact.payload[0]
     try {
       const data = await this.api.post(`api/v1/accounts/${this.account_id}/contacts`, body)
       return data.data.payload.contact
     } catch (e) {
-      console.log(e)
-      return null
+      console.error('error on create contact', e)
+      throw e
     }
   }
 
@@ -145,28 +139,26 @@ export default class chatWootClient {
       )
       return data.data.payload.find((e) => e.meta.sender.id == contact.id && e.status != 'resolved')
     } catch (e) {
-      console.log(e)
-      return null
+      console.error('erro on find conversation', e)
+      throw e
     }
   }
 
   async createConversation(contact, source_id) {
     var conversation = await this.findConversation(contact)
     if (conversation) return conversation
-
-    let body = {
+    const body = {
       source_id: source_id,
       inbox_id: this.inbox_id,
       contact_id: contact.id,
       status: 'open',
     }
-
     try {
       const { data } = await this.api.post(`api/v1/accounts/${this.account_id}/conversations`, body)
       return data
     } catch (e) {
-      console.log(e)
-      return null
+      console.error('erro on create conversation', e)
+      throw e
     }
   }
 }

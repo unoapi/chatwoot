@@ -17,7 +17,7 @@ const connect = async (token, onQrCode = df, onConnecionChange = df, onMessage =
     return new Promise((resolve) => {
       console.info('Connecting token', token)
       const sock = makeWASocket({
-        printQRInTerminal: true,
+        printQRInTerminal: false,
         auth: state
       })
       sock.ev.on('creds.update', saveState)
@@ -27,7 +27,7 @@ const connect = async (token, onQrCode = df, onConnecionChange = df, onMessage =
 
         if (connection === 'close') {
           const shouldReconnect = lastDisconnect.error.output.statusCode !== DisconnectReason.loggedOut
-          console.warning('connection closed due to ', lastDisconnect.error, ', reconnecting ', shouldReconnect, 'token', token)
+          console.warn('connection closed due to ', lastDisconnect.error, ', reconnecting ', shouldReconnect, 'token', token)
           if (shouldReconnect) {
             await onConnecionChange('Whatsapp connection is changed, try reconnecting!')
             return connect()
@@ -51,7 +51,7 @@ const connect = async (token, onQrCode = df, onConnecionChange = df, onMessage =
           await sock.sendMessage(state.creds.me.id, { text: `Success connected Chatwoot to WhatsApp!` })
           resolve(sock)
         } else if (qr) {
-          console.info('Received qrcode')
+          console.info('Received qrcode for token', token)
           await onQrCode(qr)
         }
       })

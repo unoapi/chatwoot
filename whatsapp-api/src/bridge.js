@@ -10,7 +10,7 @@ export default async (token, config) => {
     chatwootClient = chatwootClients[token]
   } else {
     console.info('Create new Chatwoot client for token', token)
-    chatwootClient = new ChatwootClient(config, token)
+    chatwootClient = new ChatwootClient(config)
     chatwootClients[token] = chatwootClient
   }
   try {

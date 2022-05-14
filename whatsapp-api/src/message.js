@@ -1,18 +1,19 @@
 import bridge from './bridge.js'
 import { contactToArray } from './utils.js'
+const IGNORED_EVENTS = ['conversation_status_changed', 'conversation_resolved', 'conversation_updated']
 
 export default async (req, res) => {
   const { token } = req.params
   const { whatsappClient } = await bridge(token)
+  console.debug('chatwoot message', req.body)
   if (!whatsappClient) {
     return res.status(400).json({ status: 'error', message: `Whatsapp client token ${token} is disconnected` })
   }
   try {
     const event = req.body.event
-    if (event == 'conversation_status_changed' || event == 'conversation_resolved' || req.body.private) {
+    if (IGNORED_EVENTS.includes(event) || req.body.private) {
       return res.status(200).json({ status: 'success', message: 'Success on receive chatwoot' })
     }
-    console.log('message to send do whatsapp', req.body)
     const {
       message_type,
       phone = req.body.conversation.meta.sender.phone_number.replace('+', ''),

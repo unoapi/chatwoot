@@ -66,6 +66,29 @@ export default class chatWootClient {
         status: 2,
         message: Message { conversation: 'Oi' }
       }
+      {
+        key: {
+          remoteJid: '554936213177@s.whatsapp.net',
+          fromMe: false,
+          id: 'BAE5EDFE6B58778D',
+          participant: undefined
+        },
+        messageTimestamp: 1652548464,
+        pushName: 'Odonto Excellence',
+        message: Message {
+          documentMessage: DocumentMessage {
+            url: 'https://mmg.whatsapp.net/d/f/Aq9AwiI-4iPo-IIEa5I-vTHH6-of-K_PrJmWFFn0OQ7T.enc',
+            mimetype: 'application/pdf',
+            fileSha256: [Uint8Array],
+            fileLength: [Long],
+            mediaKey: [Uint8Array],
+            fileName: '143cac00ad37e8959ad62ecdf86c7d1bb5bd38ce-220216170607kgUxy.pdf',
+            fileEncSha256: [Uint8Array],
+            directPath: '/v/t62.7119-24/56154192_166716635803027_3601122370820876096_n.enc?ccb=11-4&oh=01_AVx-cqOyQot2prbZPhYua5SjszlDupn4HKBrzVLPrRCDOA&oe=62A5DF63',
+            mediaKeyTimestamp: [Long]
+          }
+        }
+      }
     */
     const { key: { remoteJid } } = message
     message.phone = `+${remoteJid.split('@')[0].split(':')[0]}`

@@ -17,7 +17,8 @@ const connect = async (token, onQrCode = df, onConnecionChange = df, onMessage =
       console.info('Connecting token', token)
       const sock = makeWASocket({
         printQRInTerminal: true,
-        auth: state
+        auth: state,
+        browser: 'Chatwoot'
       })
       sock.ev.on('creds.update', saveState)
       sock.ev.on('messages.upsert', onMessage)

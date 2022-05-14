@@ -24,16 +24,21 @@ export default async (token, config) => {
         content: message
       })
     }
-    const onMessage = async ({ messages = []}) => {
+    const onMessage = async ({ messages = [] } = messages) => {
       console.debug(`${messages.length} new message(s) received from Whatsapp`)
+      // if (type === 'notify'){
+      //   console.debug('ignore messages type notify')
+      //   return;
+      // }
+      console.log('messages', messages)
       for (var i = 0, j = messages.length; i < j; i++) {
         const message = messages[i]
         console.debug('whatsapp message', message)
         const { key: { remoteJid, fromMe } } = message
-        if (remoteJid.indexOf('@g.us') > 0 || remoteJid.indexOf('@broadcast') > 0 || fromMe){
+        if (remoteJid.indexOf('@g.us') > 0 || remoteJid.indexOf('@broadcast') > 0 || fromMe) {
           console.debug('ignore message')
           continue;
-        } 
+        }
         await chatwootClient.sendMessage(message)
       }
     }

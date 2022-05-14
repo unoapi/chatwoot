@@ -2,13 +2,13 @@ import axios from 'axios'
 import { default as FormData } from 'form-data'
 import mime from 'mime-types'
 import toStream from 'buffer-to-stream'
-import { formatNumber } from './utils.js'
+import { idToNumber } from './utils.js'
 
 export default class chatWootClient {
   constructor(config) {
     this.config = config
     this.mobile_name = this.config.mobile_name
-    this.mobile_number = formatNumber(this.config.mobile_number)
+    this.mobile_number = this.config.mobile_number
     this.sender = {
       pushname: this.mobile_name,
       id: this.mobile_number,
@@ -91,7 +91,7 @@ export default class chatWootClient {
       }
     */
     const { key: { remoteJid } } = message
-    message.phone = `+${remoteJid.split('@')[0].split(':')[0]}`
+    message.phone = idToNumber(remoteJid)
     const contact = await this.createContact(message)
     const conversation = await this.createConversation(contact, message.phone)
 
@@ -144,9 +144,9 @@ export default class chatWootClient {
       //   const result = await axios.post(url, data, configPost)
       //   return result
       // } else {
-      const { message: { conversation: conversation_text, extendedTextMessage: { text: extended_text } } } = message
+      const { message: { conversation: conversationText, extendedTextMessage: extendedMessage } } = message
       const message_type = 'incoming'
-      const content = conversation_text || extended_text
+      const content = conversationText || extendedMessage.text
       const body = {
         content,
         message_type,

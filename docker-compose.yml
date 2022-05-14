@@ -11,7 +11,7 @@ services:
       - redis
       - worker
       - relay
-      - whatsapp-api
+      - whatsapp
     volumes:
       - ./bin/w3b.sh:/bin/w3b.sh
     environment:
@@ -44,7 +44,7 @@ services:
     depends_on:
       - postgres
       - redis
-      - whatsapp-api
+      - whatsapp
     volumes:
       - ./bin/email_relay_job.rb:/app/app/jobs/email_relay_job.rb
       - ./bin/worker.sh:/bin/worker.sh
@@ -83,16 +83,17 @@ services:
       REDIS_URL: redis://redis:6379
       REDIS_PASSWORD: 123456
 
-  whatsapp-api:
-    container_name: whatsapp-api
+  whatsapp:
+    container_name: whatsapp
     volumes:
-      - ./whatsapp-api:/app
+      - ./whatsapp:/app
     build: 
-      context: ./whatsapp-api
+      context: ./whatsapp
       dockerfile: Dockerfile
     command: yarn dev
     environment:
       REDIS_URL: redis://:123456@redis:6379
+      PORT: 8888
     ports:
       - 8888:8888
     depends_on:

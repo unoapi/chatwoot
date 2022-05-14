@@ -28,7 +28,12 @@ export default async (token, config) => {
       console.debug(`${messages.length} new message(s) received from Whatsapp`)
       for (var i = 0, j = messages.length; i < j; i++) {
         const message = messages[i]
-        console.log(message)
+        console.debug('whatsapp message', message)
+        const { key: { remoteJid, fromMe } } = message
+        if (remoteJid.indexOf('@g.us') > 0 || remoteJid.indexOf('@broadcast') > 0 || fromMe){
+          console.debug('ignore message')
+          continue;
+        } 
         await chatwootClient.sendMessage(message)
       }
     }

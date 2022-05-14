@@ -5,32 +5,32 @@ export default async (req, res) => {
   const { token } = req.params
   const { whatsappClient } = await bridge(token)
   if (!whatsappClient) {
-    return res.status(400).json({ status: 'error', message: `Token ${token} is disconnected` })
+    return res.status(400).json({ status: 'error', message: `Whatsapp client token ${token} is disconnected` })
   }
   try {
     const event = req.body.event
-
     if (event == 'conversation_status_changed' || event == 'conversation_resolved' || req.body.private) {
       return res.status(200).json({ status: 'success', message: 'Success on receive chatwoot' })
     }
-
+    console.log('message to send do whatsapp', req.body)
     const {
       message_type,
       phone = req.body.conversation.meta.sender.phone_number.replace('+', ''),
-      message = req.body.conversation.messages[0],
+      message = req.body.conversation.messages[0]
     } = req.body
-
+    const senderName = req.body.sender.name
     if (event != 'message_created' && message_type != 'outgoing') return res.status(200)
     for (const contato of contactToArray(phone, false)) {
       if (message_type == 'outgoing') {
+        const content = `*${senderName}*\n${message.content}`
         if (message.attachments) {
           let base_url = `${client.config.chatWoot.baseURL}/${message.attachments[0].data_url.substring(
             message.attachments[0].data_url.indexOf('/rails/') + 1
           )}`
-          await whatsappClient.sendMessage(contato, { url: base_url, caption: message.content })
+          await whatsappClient.sendMessage(contato, { url: base_url, caption: content })
         } else {
-          console.log('send message', contato, { text: message.content })
-          await whatsappClient.sendMessage(contato, { text: message.content })
+          console.debug('message to send to whatsapp', contato, { text: content })
+          await whatsappClient.sendMessage(contato, { text: content })
         }
       }
     }

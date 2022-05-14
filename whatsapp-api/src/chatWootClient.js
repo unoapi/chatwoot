@@ -67,8 +67,7 @@ export default class chatWootClient {
         message: Message { conversation: 'Oi' }
       }
     */
-    const { key: { remoteJid, fromMe } } = message
-    if (remoteJid.indexOf('@g.us') > 0 || remoteJid.indexOf('@broadcast') > 0 || fromMe) return;
+    const { key: { remoteJid } } = message
     message.phone = `+${remoteJid.split('@')[0].split(':')[0]}`
     const contact = await this.createContact(message)
     const conversation = await this.createConversation(contact, message.phone)
@@ -122,13 +121,14 @@ export default class chatWootClient {
       //   const result = await axios.post(url, data, configPost)
       //   return result
       // } else {
-      const { message: { conversation: content, extendedTextMessage: { text } } } = message
+      const { message: { conversation: conversation_text, extendedTextMessage: { text: extended_text } } } = message
       const message_type = 'incoming'
+      const content = conversation_text || extended_text
       const body = {
-        content: content || text,
+        content,
         message_type,
       }
-      console.log('message to send do chatwoot', body)
+      console.debug('message to send to chatwoot', body)
       const url = `api/v1/accounts/${this.account_id}/conversations/${conversation.id}/messages`
       const { data } = await this.api.post(url, body)
       return data

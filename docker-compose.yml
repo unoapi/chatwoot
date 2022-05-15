@@ -14,6 +14,7 @@ services:
       - whatsapp
     volumes:
       - ./bin/w3b.sh:/bin/w3b.sh
+      - ./data/storage:/app/public/uploads
     environment:
       PORT: 3000
       POSTGRES_HOST: postgres
@@ -61,7 +62,7 @@ services:
       REDIS_PASSWORD: 123456
       ACTIVE_STORAGE_SERVICE: local
       SECRET_KEY_BASE: qdjwoqroiqwihqwoeqwokdnqwdncuneuf82183219381ob
-      CHATWOOT_URL: http://localhost:3000/rails/action_mailbox/relay/inbound_emails
+      CHATWOOT_URL: http://w3b:3000/rails/action_mailbox/relay/inbound_emails
       SMTP_DOMAIN: excellence.odo.br
       SMTP_ADDRESS: smtp.gmail.com
       SMTP_PORT: 587

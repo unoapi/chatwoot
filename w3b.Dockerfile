@@ -1,5 +1,7 @@
 FROM chatwoot/chatwoot:hotfix-v2.4.1
 
+RUN apk add --update --no-cache imagemagick
+
 RUN gem install bundler
 ENV NODE_ENV production
 ENV RAILS_ENV production

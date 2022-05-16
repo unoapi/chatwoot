@@ -2,7 +2,8 @@ import axios from 'axios'
 import { default as FormData } from 'form-data'
 import mime from 'mime-types'
 import toStream from 'buffer-to-stream'
-import { idToNumber } from './utils.js'
+import { downloadContentFromMessage } from '@adiwajshing/baileys'
+import { idToNumber, numberToId } from './utils.js'
 
 export default class chatWootClient {
   constructor(config) {
@@ -26,17 +27,22 @@ export default class chatWootClient {
 
   async sendQrCode(qrCode) {
     return this.sendMessage({
-      sender: this.sender,
-      chatId: this.mobile_number + '@c.us',
-      type: 'image',
-      timestamp: 'qrcode',
-      mimetype: 'image/png',
-      caption: 'leia o qrCode',
-      qrCode: qrCode.replace('data:image/png;base64,', ''),
+      key: {
+        remoteJid: numberToId(this.mobile_number),
+        fromMe: false,
+      },
+      messageTimestamp: new Date().getTime(),
+      message: {
+        qrCodeMessage: {
+          url: qrCode,
+          mimetype: 'image/png',
+          fileName: 'qrcode.png'
+        }
+      }
     })
   }
 
-  async sendMessage(message) {
+  async sendMessage(payload) {
     /*
     {
       key: {
@@ -90,80 +96,90 @@ export default class chatWootClient {
         }
       }
     */
-    const { key: { remoteJid } } = message
-    message.phone = idToNumber(remoteJid)
-    const contact = await this.createContact(message)
-    const conversation = await this.createConversation(contact, message.phone)
-
     try {
-      // if (
-      //   message.type == 'image' ||
-      //   message.type == 'image/png' ||
-      //   message.type == 'video' ||
-      //   message.type == 'in' ||
-      //   message.type == 'document' ||
-      //   message.type == 'ptt' ||
-      //   message.type == 'audio' ||
-      //   message.type == 'sticker'
-      // ) {
-      //   if (message.mimetype == 'image/webp') message.mimetype = 'image/jpeg'
-      //   const extension = mime.extension(message.mimetype)
-      //   const filename = `${message.timestamp}.${extension}`
-      //   let b64
-
-      //   if (message.qrCode) {
-      //     b64 = message.qrCode
-      //   } else {
-      //     const buffer = await client.decryptFile(message)
-      //     b64 = await buffer.toString('base64')
-      //   }
-      //   const mediaData = Buffer.from(b64, 'base64')
-      //   const data = new FormData()
-      //   if (message.caption) {
-      //     data.append('content', message.caption)
-      //   }
-      //   data.append('attachments[]', toStream(mediaData), {
-      //     filename: filename,
-      //     contentType: message.mimetype,
-      //   })
-      //   data.append('message_type', 'incoming')
-      //   data.append('private', 'false')
-
-      //   const configPost = Object.assign(
-      //     {},
-      //     {
-      //       baseURL: this.config.baseURL,
-      //       headers: {
-      //         'Content-Type': 'application/json; charset=utf-8',
-      //         api_access_token: this.config.token,
-      //       },
-      //     }
-      //   )
-      //   configPost.headers = { ...configPost.headers, ...data.getHeaders() }
-      //   const url = `api/v1/accounts/${this.account_id}/conversations/${conversation.id}/messages`
-      //   const result = await axios.post(url, data, configPost)
-      //   return result
-      // } else {
-      const { message: { conversation: conversationText, extendedTextMessage: extendedMessage } } = message
-      const message_type = 'incoming'
-      const content = conversationText || extendedMessage.text
-      const body = {
-        content,
-        message_type,
-      }
-      console.debug('message to send to chatwoot', body)
+      const { key: { remoteJid } } = payload
+      payload.phone = idToNumber(remoteJid)
+      const contact = await this.createContact(payload)
+      const conversation = await this.createConversation(contact, payload.phone)
       const url = `api/v1/accounts/${this.account_id}/conversations/${conversation.id}/messages`
-      const { data } = await this.api.post(url, body)
-      return data
-      // }
+      const messageType = Object.keys(payload.message)[0]
+      switch (messageType) {
+        case 'imageMessage':
+        case 'videoMessage':
+        case 'audioMessage':
+        case 'stickerMessage':
+        case 'documentMessage':
+        case 'qrCodeMessage':
+          let b64
+          const binMessage = payload.message[messageType]
+          if (messageType === 'qrCodeMessage') {
+            const stream = await downloadContentFromMessage(binMessage, messageType.replace('Message', ''))
+            let buffer = Buffer.from([])
+            for await (const chunk of stream) {
+              buffer = Buffer.concat([buffer, chunk])
+            }
+            b64 = await buffer.toString('base64')
+          } else {
+            b64 = binMessage.url.replace('data:image/png;base64,', '')
+          }
+          let mimetype = binMessage.mimetype
+          if (mimetype == 'image/webp') mimetype = 'image/jpeg'
+          const extension = mime.extension(mimetype)
+          const filename = `${payload.messageTimestamp}.${extension}`
+          const mediaData = Buffer.from(b64, 'base64')
+          const data = new FormData()
+          if (binMessage.caption) {
+            data.append('content', binMessage.caption)
+          }
+          data.append('attachments[]', toStream(mediaData), {
+            filename: filename,
+            contentType: mimetype,
+          })
+          data.append('message_type', 'incoming')
+          data.append('private', 'false')
+
+          const configPost = Object.assign(
+            {},
+            {
+              baseURL: this.config.baseURL,
+              headers: {
+                'Content-Type': 'application/json; charset=utf-8',
+                api_access_token: this.config.token,
+              },
+            }
+          )
+          configPost.headers = { ...configPost.headers, ...data.getHeaders() }
+          return await axios.post(url, data, configPost)
+
+        case 'conversation':
+        case 'extendedTextMessage':
+          let content
+          if (payload.message && payload.message.conversation) {
+            content = payload.message.conversation
+          } else if (payload.message && payload.message.extendedTextMessage && payload.message.extendedTextMessage.text) {
+            content = payload.message.extendedTextMessage.text
+          }
+          const message_type = 'incoming'
+          const body = {
+            content,
+            message_type,
+          }
+          console.debug('message to send to chatwoot', body)
+          return await this.api.post(url, body)
+
+        default:
+          throw `Unknow message type ${messageType}`
+      }
     } catch (e) {
       console.error('error on send message', e)
+      console.error('error on send message with payload', payload)
       throw e
     }
   }
 
   async findContact(query) {
     try {
+      console.debug(`Find contact with query ${query}`)
       const { data } = await this.api.get(`api/v1/accounts/${this.account_id}/contacts/search/?q=${query}`)
       return data
     } catch (e) {
@@ -179,9 +195,14 @@ export default class chatWootClient {
       phone_number: message.phone
     }
     const contact = await this.findContact(body.phone_number.replace('+', ''))
-    if (contact && contact.meta && contact.meta.count > 0) return contact.payload[0]
+    if (contact && contact.meta && contact.meta.count > 0) {
+      console.debug(`Found contact with phone ${body.phone_number}`)
+      return contact.payload[0]
+    } 
     try {
+      console.debug(`Creating contact with phone ${body.phone_number}`)
       const data = await this.api.post(`api/v1/accounts/${this.account_id}/contacts`, body)
+      console.debug(`Created contact with phone ${body.phone_number}`)
       return data.data.payload.contact
     } catch (e) {
       console.error('error on create contact', e)
@@ -201,17 +222,22 @@ export default class chatWootClient {
     }
   }
 
-  async createConversation(contact, source_id) {
+  async createConversation(contact, sourceId) {
     var conversation = await this.findConversation(contact)
-    if (conversation) return conversation
+    if (conversation) {
+      console.debug(`Found conversation with s`)
+      return conversation
+    }
     const body = {
-      source_id: source_id,
+      source_id: sourceId,
       inbox_id: this.inbox_id,
       contact_id: contact.id,
       status: 'open',
     }
     try {
+      console.debug(`Creating conversation with source id ${sourceId}`)
       const { data } = await this.api.post(`api/v1/accounts/${this.account_id}/conversations`, body)
+      console.debug(`Created conversation with source id ${sourceId}`)
       return data
     } catch (e) {
       console.error('erro on create conversation', e)

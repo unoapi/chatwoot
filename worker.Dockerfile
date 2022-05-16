@@ -1,4 +1,6 @@
-FROM chatwoot/chatwoot:hotfix-v2.4.1
+FROM chatwoot/chatwoot:release-v2.5.0
+
+RUN gem install bundler
 
 ENV NODE_ENV production
 ENV RAILS_ENV production

@@ -14,7 +14,6 @@ services:
       - whatsapp
     volumes:
       - ./bin/w3b.sh:/bin/w3b.sh
-      - ./data/storage:/app/public/uploads
     environment:
       PORT: 3000
       POSTGRES_HOST: postgres
@@ -34,7 +33,13 @@ services:
       RAILS_INBOUND_EMAIL_PASSWORD: abcde
       CHATWOOT_PREPARE: 'false'
       SECRET_KEY_BASE: qdjwoqroiqwihqwoeqwokdnqwdncuneuf82183219381ob
-      ACTIVE_STORAGE_SERVICE: local
+      ACTIVE_STORAGE_SERVICE: s3_compatible
+      STORAGE_BUCKET_NAME: chatwoot
+      STORAGE_ACCESS_KEY_ID: minio
+      STORAGE_SECRET_ACCESS_KEY: '0987654321'
+      STORAGE_REGION: us-east-1
+      STORAGE_ENDPOINT: http://localhost:9000
+      STORAGE_FORCE_PATH_STYLE: 'true'
       DEFAULT_LOCALE: pt_BR
     ports:
       - 3000:3000
@@ -46,6 +51,7 @@ services:
       - postgres
       - redis
       - whatsapp
+      - minio
     volumes:
       - ./bin/email_relay_job.rb:/app/app/jobs/email_relay_job.rb
       - ./bin/worker.sh:/bin/worker.sh
@@ -60,14 +66,22 @@ services:
       RAILS_MAX_THREADS: 1
       REDIS_URL: redis://redis:6379
       REDIS_PASSWORD: 123456
-      ACTIVE_STORAGE_SERVICE: local
+      FRONTEND_URL: http://localhost:3000
       SECRET_KEY_BASE: qdjwoqroiqwihqwoeqwokdnqwdncuneuf82183219381ob
       CHATWOOT_URL: http://w3b:3000/rails/action_mailbox/relay/inbound_emails
+      MAILER_SENDER_EMAIL: Odonto Excellence<atendimento@excellence.odo.br>
       SMTP_DOMAIN: excellence.odo.br
       SMTP_ADDRESS: smtp.gmail.com
       SMTP_PORT: 587
       SMTP_USERNAME: minhaodontoexcellence@gmail.com
       SMTP_PASSWORD: kzqmahbryevylilf
+      ACTIVE_STORAGE_SERVICE: s3_compatible
+      STORAGE_BUCKET_NAME: chatwoot
+      STORAGE_ACCESS_KEY_ID: minio
+      STORAGE_SECRET_ACCESS_KEY: '0987654321'
+      STORAGE_REGION: us-east-1
+      STORAGE_ENDPOINT: http://minio:9000
+      STORAGE_FORCE_PATH_STYLE: 'true'
 
   relay:
     build:
@@ -99,6 +113,20 @@ services:
       - 8888:8888
     depends_on:
       - redis
+
+  minio:
+    hostname: minio
+    container_name: minio
+    image: quay.io/minio/minio:latest
+    command: server /data
+    volumes:
+      - ./data/storage:/data
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: '0987654321'
+    ports:
+      - 9000:9000
+      - 9001:9001
 
   postgres:
     image: postgres:14-alpine

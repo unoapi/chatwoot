@@ -26,20 +26,16 @@ export default async (token, config) => {
     }
     const onMessage = async ({ messages = [] } = messages) => {
       console.debug(`${messages.length} new message(s) received from Whatsapp`)
-      // if (type === 'notify'){
-      //   console.debug('ignore messages type notify')
-      //   return;
-      // }
       console.log('messages', messages)
       for (var i = 0, j = messages.length; i < j; i++) {
-        const message = messages[i]
-        console.debug('whatsapp message', message)
-        const { key: { remoteJid, fromMe } } = message
-        if (remoteJid.indexOf('@g.us') > 0 || remoteJid.indexOf('@broadcast') > 0 || fromMe) {
+        const payload = messages[i]
+        console.debug('whatsapp message', payload)
+        const { key: { remoteJid, fromMe } } = payload
+        if (!payload.message || remoteJid.indexOf('@g.us') > 0 || remoteJid.indexOf('@broadcast') > 0 || fromMe) {
           console.debug('ignore message')
           continue;
         }
-        await chatwootClient.sendMessage(message)
+        await chatwootClient.sendMessage(payload)
       }
     }
     const whatsappClient = await connect(token, onQrCode, onConnecionChange, onMessage)

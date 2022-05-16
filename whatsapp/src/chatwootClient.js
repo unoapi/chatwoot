@@ -225,7 +225,7 @@ export default class chatWootClient {
   async createConversation(contact, sourceId) {
     var conversation = await this.findConversation(contact)
     if (conversation) {
-      console.debug(`Found conversation with s`)
+      console.debug(`Found conversation with contact id ${contact.id}`)
       return conversation
     }
     const body = {

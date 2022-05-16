@@ -2,6 +2,7 @@ import saveStateRedis from './saveState.js'
 import baileys, { DisconnectReason } from '@adiwajshing/baileys'
 const makeWASocket = baileys.default
 import { whatsappClients } from './session.js'
+import { numberToId, idToNumber } from './utils.js'
 
 const df = async () => { }
 
@@ -24,7 +25,12 @@ const connect = async (token, onQrCode = df, onConnecionChange = df, onMessage =
       sock.ev.on('messages.upsert', onMessage)
       sock.ev.on('connection.update', async (update) => {
         const { connection, qr, lastDisconnect = { error: { output: {}, data: { content: [] } } } } = update
-
+        if (!lastDisconnect.error.output) {
+          lastDisconnect.error.output = {}
+        }
+        if (!lastDisconnect.error.data) {
+          lastDisconnect.error.data = { content: [] }
+        }
         if (connection === 'close') {
           const shouldReconnect = lastDisconnect.error.output.statusCode !== DisconnectReason.loggedOut
           console.warn('connection closed due to ', lastDisconnect.error, ', reconnecting ', shouldReconnect, 'token', token)
@@ -43,12 +49,14 @@ const connect = async (token, onQrCode = df, onConnecionChange = df, onMessage =
             console.info('Clearing state redis')
             delete whatsappClients[token]
             await clearState()
-            return connect()
+            return connect(token, onQrCode, onConnecionChange, onMessage)
           }
         } else if (connection === 'open') {
           console.debug('Connected to user', state.creds.me)
           whatsappClients[token] = sock
-          await sock.sendMessage(state.creds.me.id, { text: `Success connected Chatwoot to WhatsApp!` })
+          const number = idToNumber(state.creds.me.id)
+          const id = numberToId(number)
+          await sock.sendMessage(id, { text: `Success Whatsapp connected in Chatwoot` })
           resolve(sock)
         } else if (qr) {
           console.info('Received qrcode for token', token)

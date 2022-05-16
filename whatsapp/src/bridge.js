@@ -2,6 +2,7 @@
 import ChatwootClient from './chatwootClient.js'
 import connect from './connect.js'
 import { chatwootClients } from './session.js'
+import { numberToId } from './utils.js'
 
 export default async (token, config) => {
   let chatwootClient
@@ -15,13 +16,29 @@ export default async (token, config) => {
   }
   try {
     const onQrCode = async qrCode => {
-      return chatwootClient.sendQrCode(qrCode)
+      return chatwootClient.sendMessage({
+        key: {
+          remoteJid: numberToId(chatwootClient.mobile_number),
+          fromMe: false,
+        },
+        messageTimestamp: new Date().getTime(),
+        message: {
+          qrCodeMessage: {
+            url: qrCode,
+            mimetype: 'image/png',
+            fileName: 'qrcode.png'
+          }
+        }
+      })
     }
     const onConnecionChange = async message => {
-      await chatwootClient.sendMessage({
-        sender: chatwootClient.sender,
-        chatId: chatwootClient.mobile_number + '@s.whatsapp.net',
-        content: message
+      return chatwootClient.sendMessage({
+        key: {
+          remoteJid: numberToId(chatwootClient.mobile_number)
+        },
+        message: {
+          conversation: message
+        }
       })
     }
     const onMessage = async ({ messages = [] } = messages) => {

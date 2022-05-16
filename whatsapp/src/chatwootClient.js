@@ -3,7 +3,7 @@ import { default as FormData } from 'form-data'
 import mime from 'mime-types'
 import toStream from 'buffer-to-stream'
 import { downloadContentFromMessage } from '@adiwajshing/baileys'
-import { idToNumber, numberToId } from './utils.js'
+import { idToNumber } from './utils.js'
 
 export default class chatWootClient {
   constructor(config) {
@@ -21,23 +21,6 @@ export default class chatWootClient {
       headers: {
         'Content-Type': 'application/json; charset=utf-8',
         api_access_token: this.config.token
-      }
-    })
-  }
-
-  async sendQrCode(qrCode) {
-    return this.sendMessage({
-      key: {
-        remoteJid: numberToId(this.mobile_number),
-        fromMe: false,
-      },
-      messageTimestamp: new Date().getTime(),
-      message: {
-        qrCodeMessage: {
-          url: qrCode,
-          mimetype: 'image/png',
-          fileName: 'qrcode.png'
-        }
       }
     })
   }
@@ -113,14 +96,14 @@ export default class chatWootClient {
           let b64
           const binMessage = payload.message[messageType]
           if (messageType === 'qrCodeMessage') {
+            b64 = binMessage.url.replace('data:image/png;base64,', '')
+          } else {
             const stream = await downloadContentFromMessage(binMessage, messageType.replace('Message', ''))
             let buffer = Buffer.from([])
             for await (const chunk of stream) {
               buffer = Buffer.concat([buffer, chunk])
             }
             b64 = await buffer.toString('base64')
-          } else {
-            b64 = binMessage.url.replace('data:image/png;base64,', '')
           }
           let mimetype = binMessage.mimetype
           if (mimetype == 'image/webp') mimetype = 'image/jpeg'

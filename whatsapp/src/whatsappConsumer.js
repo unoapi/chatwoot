@@ -1,5 +1,4 @@
 import { amqpConnect, amqpCreateChannel, amqpConsume } from './amqp.js'
-import { getAndCacheConfig } from './redis.js'
 import { contactToArray } from './utils.js'
 import bridge from './bridge.js'
 
@@ -13,17 +12,14 @@ await amqpConsume(channel, queue, async (payload) => {
   const { content, token } = object
   const phone = content.conversation.meta.sender.phone_number.replace('+', '')
   const message = content.conversation.messages[0]
-  const senderName = content.conversation.sender.available_name || content.conversation.sender.senderName
+  const senderName = message.sender.available_name || message.sender.senderName
   const { whatsappClient } = await bridge(token)
   for (const contato of contactToArray(phone)) {
     const text = `*${senderName}*:\n${message.content || ''}`
     const params = [contato]
     if (message.attachments) {
-      const config = await getAndCacheConfig(token)
-      let base_url = `${config.baseExtenalURL || config.baseURL}/${message.attachments[0].data_url.substring(
-        message.attachments[0].data_url.indexOf('/rails/') + 1
-      )}`
-      params.push({ url: base_url, caption: text })
+      const dataUrl = message.attachments[0].data_url
+      params.push({ url: dataUrl, caption: text })
     } else {
       params.push({ text })
     }

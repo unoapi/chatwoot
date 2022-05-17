@@ -5,6 +5,7 @@ import toStream from 'buffer-to-stream'
 import { downloadContentFromMessage } from '@adiwajshing/baileys'
 import { idToNumber } from './utils.js'
 import { chatwootClients } from './session.js'
+import vCard from 'vcard-parser'
 
 export const getChatwootClient = (token, config) => {
   let chatwootClient
@@ -92,6 +93,27 @@ export default class ChatWootClient {
           }
         }
       }
+
+      {
+        key: {
+        remoteJid: '554999621461@s.whatsapp.net',
+        fromMe: false,
+        id: '3A4FBD061C5F3BABB5B2'
+        },
+        messageTimestamp: 1652802085,
+        pushName: 'Silvia Castagna Heinzen',
+        message: {
+        contactMessage: {
+        displayName: 'Everton - Laboratorio',
+        vcard: 'BEGIN:VCARD\nVERSION:3.0\nN:;Everton - Laboratorio;;;\nFN:Everton - Laboratorio\nTEL;type=CELL;type=VOICE;waid=554991537303:+55 49 9153-7303\n' +
+        'END:VCARD'
+        },
+        messageContextInfo: { deviceListMetadata: [Object], deviceListMetadataVersion: 2 }
+        },
+        phone: '+5549999621461'
+      }
+}
+
     */
     try {
       const { key: { remoteJid } } = payload
@@ -148,6 +170,15 @@ export default class ChatWootClient {
           configPost.headers = { ...configPost.headers, ...data.getHeaders() }
           return await axios.post(url, data, configPost)
 
+        case 'contactMessage':
+          let card = vCard.parse(payload.message.contactMessage.vcard)
+          let d = {
+            content: `${card.fn[0].value} ${card.tel.map(t => t.value).join(', ')}`,
+            message_type: 'incoming'
+          }
+          console.debug('message to send to chatwoot', d)
+          return await this.api.post(url, d)
+
         case 'conversation':
         case 'extendedTextMessage':
           let content
@@ -195,7 +226,7 @@ export default class ChatWootClient {
     if (contact && contact.meta && contact.meta.count > 0) {
       console.debug(`Found contact with phone ${body.phone_number}`)
       return contact.payload[0]
-    } 
+    }
     try {
       console.debug(`Creating contact with phone ${body.phone_number}`)
       const data = await this.api.post(`api/v1/accounts/${this.account_id}/contacts`, body)

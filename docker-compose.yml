@@ -31,14 +31,14 @@ services:
       MAILER_INBOUND_EMAIL_DOMAIN: excellence.odo.br
       RAILS_INBOUND_EMAIL_SERVICE: relay
       RAILS_INBOUND_EMAIL_PASSWORD: abcde
-      CHATWOOT_PREPARE: 'false'
+      CHATWOOT_PREPARE: 'true'
       SECRET_KEY_BASE: qdjwoqroiqwihqwoeqwokdnqwdncuneuf82183219381ob
       ACTIVE_STORAGE_SERVICE: s3_compatible
       STORAGE_BUCKET_NAME: chatwoot
       STORAGE_ACCESS_KEY_ID: minio
-      STORAGE_SECRET_ACCESS_KEY: '0987654321'
+      STORAGE_SECRET_ACCESS_KEY: minio123
       STORAGE_REGION: us-east-1
-      STORAGE_ENDPOINT: http://minio:9000
+      STORAGE_ENDPOINT: http://localhost:9000
       STORAGE_FORCE_PATH_STYLE: 'true'
       DEFAULT_LOCALE: pt_BR
     ports:
@@ -66,10 +66,13 @@ services:
       RAILS_MAX_THREADS: 1
       REDIS_URL: redis://redis:6379
       REDIS_PASSWORD: 123456
-      FRONTEND_URL: http://localhost:3000
+      FRONTEND_URL: http://w3b:3000
       SECRET_KEY_BASE: qdjwoqroiqwihqwoeqwokdnqwdncuneuf82183219381ob
-      CHATWOOT_URL: http://w3b:3000/rails/action_mailbox/relay/inbound_emails
       MAILER_SENDER_EMAIL: Odonto Excellence<atendimento@excellence.odo.br>
+      MAILER_INBOUND_EMAIL_DOMAIN: excellence.odo.br
+      RAILS_INBOUND_EMAIL_SERVICE: relay
+      RAILS_INBOUND_EMAIL_USER: actionmailbox
+      RAILS_INBOUND_EMAIL_PASSWORD: abcde
       SMTP_DOMAIN: excellence.odo.br
       SMTP_ADDRESS: smtp.gmail.com
       SMTP_PORT: 587
@@ -78,9 +81,9 @@ services:
       ACTIVE_STORAGE_SERVICE: s3_compatible
       STORAGE_BUCKET_NAME: chatwoot
       STORAGE_ACCESS_KEY_ID: minio
-      STORAGE_SECRET_ACCESS_KEY: '0987654321'
+      STORAGE_SECRET_ACCESS_KEY: minio123
       STORAGE_REGION: us-east-1
-      STORAGE_ENDPOINT: http://minio:9000
+      STORAGE_ENDPOINT: http://localhost:9000
       STORAGE_FORCE_PATH_STYLE: 'true'
 
   relay:
@@ -95,8 +98,7 @@ services:
       IMAP_PASSWORD: kzqmahbryevylilf
       IMAP_PORT: 993
       IMAP_USER: minhaodontoexcellence@gmail.com
-      REDIS_URL: redis://redis:6379
-      REDIS_PASSWORD: 123456
+      REDIS_URL: redis://:123456@redis:6379
 
   whatsapp:
     container_name: whatsapp
@@ -120,12 +122,12 @@ services:
     hostname: minio
     container_name: minio
     image: quay.io/minio/minio:latest
-    command: server /data
+    command: server /data --console-address ":9001"
     volumes:
       - ./data/storage:/data
     environment:
       MINIO_ROOT_USER: minio
-      MINIO_ROOT_PASSWORD: '0987654321'
+      MINIO_ROOT_PASSWORD: minio123
     ports:
       - 9000:9000
       - 9001:9001

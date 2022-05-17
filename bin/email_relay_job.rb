@@ -10,9 +10,9 @@ class EmailRelayJob
   def perform(message)
     mail = Mail::Message.new(message)
     puts "New mail from #{mail.from.first}: #{mail.subject}"
-    uri = URI.parse(ENV['CHATWOOT_URL'])
+    uri = URI.parse("#{ENV['FRONTEND_URL']}/rails/action_mailbox/relay/inbound_emails")
     req = Net::HTTP::Post.new(uri)
-    req.basic_auth(ENV['INGRESS_USER'], ENV['INGRESS_PASSWORD'])
+    req.basic_auth(ENV['RAILS_INBOUND_EMAIL_USER'], ENV['RAILS_INBOUND_EMAIL_PASSWORD'])
     req.body = message
     req.content_type = 'message/rfc822'
     Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https') do |http|

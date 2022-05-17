@@ -3,6 +3,7 @@ import baileys, { DisconnectReason } from '@adiwajshing/baileys'
 const makeWASocket = baileys.default
 import { whatsappClients } from './session.js'
 import { numberToId, idToNumber } from './utils.js'
+import QRCode from 'qrcode'
 
 const df = async () => { }
 
@@ -59,8 +60,9 @@ const connect = async (token, onQrCode = df, onConnecionChange = df, onMessage =
           await sock.sendMessage(id, { text: `Success Whatsapp connected in Chatwoot` })
           resolve(sock)
         } else if (qr) {
-          console.info('Received qrcode for token', token)
-          await onQrCode(qr)
+          console.info('Received qrcode for token', token, qr)
+          const qrCodeUrl = await QRCode.toDataURL(qr)
+          await onQrCode(qrCodeUrl)
         }
       })
     })

@@ -1,5 +1,6 @@
 import { redisConnect, redisDisconnect, setAuth, getAuth } from './redis.js'
-import { BufferJSON, initAuthCreds } from '@adiwajshing/baileys'
+import baileys from '@adiwajshing/baileys'
+const { BufferJSON, initAuthCreds, proto } = baileys
 
 
 const KEY_MAP = {
@@ -29,16 +30,12 @@ export default async (token) => {
       creds = initAuthCreds()
     }
 
-
     const save = async (state) => {
-      redisClient = await redisConnect()
+      let redisClient = await redisConnect()
       await setAuth(redisClient, token, state, value => JSON.stringify(value, BufferJSON.replacer, 2))
       try {
         await redisDisconnect(redisClient)
       } catch (_error) { }
-      finally {
-        redisClient = undefined
-      }
     }
 
     const saveState = async () => {
@@ -60,9 +57,9 @@ export default async (token) => {
               (dict, id) => {
                 let value = keys[key]?.[id]
                 if (value) {
-                  // if (type === 'app-state-sync-key') {
-                  //   value = proto.AppStateSyncKeyData.fromObject(value)
-                  // }
+                  if (type === 'app-state-sync-key') {
+                    value = proto.AppStateSyncKeyData.fromObject(value)
+                  }
                   dict[id] = value
                 }
                 return dict
@@ -88,7 +85,7 @@ export default async (token) => {
     throw error
   } finally {
     if (redisClient) {
-      await redisDisconnect(redisClient)
+      await redisDisconnect(redisClient, true)
     }
   }
 }

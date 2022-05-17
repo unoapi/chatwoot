@@ -49,7 +49,7 @@ export const getAndCacheConfig = async token => {
   if (!configs[token]) {
     const redisClient = await redisConnect()
     const config = await getConfig(redisClient, token)
-    await redisDisconnect(redisClient)
+    await redisDisconnect(redisClient, true)
     configs[token] = config
   }
   return configs[token]

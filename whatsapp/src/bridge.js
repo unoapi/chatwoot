@@ -1,19 +1,14 @@
-
-import ChatwootClient from './chatwootClient.js'
 import connect from './connect.js'
-import { chatwootClients } from './session.js'
 import { numberToId } from './utils.js'
+import { amqpConnect, amqpCreateChannel, amqpEnqueue } from './amqp.js'
+import { getChatwootClient } from './chatwootClient.js'
+
+const connection = await amqpConnect()
+const queue = process.env.QUEUE_CHATWOOT_NAME || 'chatwoot'
+const channel = await amqpCreateChannel(connection, queue)
 
 export default async (token, config) => {
-  let chatwootClient
-  if (chatwootClients[token] && Object.keys(chatwootClients[token]).length > 0) {
-    console.info('Chatwoot client already exist for token', token)
-    chatwootClient = chatwootClients[token]
-  } else {
-    console.info('Create new Chatwoot client for token', token)
-    chatwootClient = new ChatwootClient(config)
-    chatwootClients[token] = chatwootClient
-  }
+  let chatwootClient = getChatwootClient(token, config)
   try {
     const onQrCode = async qrCode => {
       return chatwootClient.sendMessage({
@@ -52,7 +47,7 @@ export default async (token, config) => {
           console.debug('ignore message')
           continue;
         }
-        await chatwootClient.sendMessage(payload)
+        await amqpEnqueue(channel, queue, JSON.stringify({ token, content: payload }), 3)
       }
     }
     const whatsappClient = await connect(token, onQrCode, onConnecionChange, onMessage)

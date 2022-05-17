@@ -4,8 +4,22 @@ import mime from 'mime-types'
 import toStream from 'buffer-to-stream'
 import { downloadContentFromMessage } from '@adiwajshing/baileys'
 import { idToNumber } from './utils.js'
+import { chatwootClients } from './session.js'
 
-export default class chatWootClient {
+export const getChatwootClient = (token, config) => {
+  let chatwootClient
+  if (chatwootClients[token] && Object.keys(chatwootClients[token]).length > 0) {
+    console.info('Chatwoot client already exist for token', token)
+    chatwootClient = chatwootClients[token]
+  } else {
+    console.info('Create new Chatwoot client for token', token)
+    chatwootClient = new ChatWootClient(config)
+    chatwootClients[token] = chatwootClient
+  }
+  return chatwootClient
+}
+
+export default class ChatWootClient {
   constructor(config) {
     this.config = config
     this.mobile_name = this.config.mobile_name

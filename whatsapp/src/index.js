@@ -1,6 +1,7 @@
 // start http server
 
 import './server.js'
+import './whatsappConsumer.js'
 import autoConnect from './autoConnect.js'
 
 autoConnect()

@@ -1,5 +1,6 @@
 import redis from 'redis'
 const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379'
+const configs = {}
 
 export const redisConnect = async (redisUrl = REDIS_URL) => {
   console.debug(`Connecting redis`)
@@ -42,6 +43,16 @@ export const getConfig = async (redisClient, token) => {
   const configString = await redisGet(redisClient, key) || '{}'
   const config = JSON.parse(configString)
   return config
+}
+
+export const getAndCacheConfig = async token => {
+  if (!configs[token]) {
+    const redisClient = await redisConnect()
+    const config = await getConfig(redisClient, token)
+    await redisDisconnect(redisClient)
+    configs[token] = config
+  }
+  return configs[token]
 }
 
 export const setConfig = async (redisClient, token, value) => {

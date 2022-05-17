@@ -109,9 +109,11 @@ services:
     environment:
       REDIS_URL: redis://:123456@redis:6379
       PORT: 8888
+      RABBITMQ_URL: amqp://rabbitmq:5672
     ports:
       - 8888:8888
     depends_on:
+      - rabbitmq
       - redis
 
   minio:
@@ -147,3 +149,10 @@ services:
     command: redis-server --appendonly yes --requirepass 123456
     ports:
       - 6379:6379
+
+  rabbitmq:
+    image: rabbitmq:management-alpine
+    ports:
+      - 15672:15672
+    volumes:
+      - ./data/rabbitmq:/var/lib/rabbitmq

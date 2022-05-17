@@ -14,7 +14,7 @@ const port = process.env.PORT || 8888
 const http = async (req, res) => {
   console.info('Received token: ', req.params.token, req.body)
   const token = req.params.token
-  const config = { ...req.body, token }
+  const config = req.body
   try {
     await validate(config)
   } catch (error) {

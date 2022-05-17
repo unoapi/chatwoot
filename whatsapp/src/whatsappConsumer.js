@@ -13,11 +13,11 @@ await amqpConsume(channel, queue, async (payload) => {
   const { content, token } = object
   const phone = content.conversation.meta.sender.phone_number.replace('+', '')
   const message = content.conversation.messages[0]
-  const senderName = content.sender.name
+  const senderName = content.sender.available_name || content.sender.senderName
 
   const { whatsappClient } = await bridge(token)
   for (const contato of contactToArray(phone)) {
-    const text = `*${senderName}*:\n${message.content}`
+    const text = `*${senderName}*:\n${message.content || ''}`
     const params = [contato]
     if (message.attachments) {
       const config = await getAndCacheConfig(token)

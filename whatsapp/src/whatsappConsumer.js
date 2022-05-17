@@ -21,7 +21,7 @@ await amqpConsume(channel, queue, async (payload) => {
     const params = [contato]
     if (message.attachments) {
       const config = await getAndCacheConfig(token)
-      let base_url = `${config.chatWoot.baseURL}/${message.attachments[0].data_url.substring(
+      let base_url = `${config.baseURL}/${message.attachments[0].data_url.substring(
         message.attachments[0].data_url.indexOf('/rails/') + 1
       )}`
       params.push({ url: base_url, caption: text })

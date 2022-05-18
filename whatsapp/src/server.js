@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid'
 import express from 'express'
 import { createServer } from 'http'
-import message from './message.js'
+import webhook from './webhook.js'
 import save from './save.js'
 import validate from './validate.js'
 
@@ -51,7 +51,7 @@ app.post('/connect/:token([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-
   await http(req, res)
 })
 
-app.post('/message/:token([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})', message)
+app.post('/webhook/:token([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})', webhook)
 
 app.get('/ping', async (_req, res) => {
   res.send('pong!')

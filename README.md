@@ -16,8 +16,8 @@ Create a token in whatsapp-api
 
 curl --location --request POST 'http://whatsapp:8888/api/THISISMYSECURETOKEN/token' @todo
 
-In Chatwoot create a channel api with com WebHook http://whatsapp:8888/message/6e50e19a-37d4-4085-be7b-82c478e4dd0e
-Copy the token, inbox id and account id
+In Chatwoot create a channel api with com WebHook http://localhost:8888/webhook/6e50e19a-37d4-4085-be7b-82c478e4dd0e
+Copy the inbox id, account id and token in app/accounts/:account_id/profile/settings
 
 Integrate with ChatWoot token, inbox id and account id
 

@@ -41,3 +41,4 @@ Todo List
 * copy messages sended in directely in whatssap at chatwoot
 * bots
 * facebook app to create channel with facebook messenger and instagram direct
+* qrcode connect user friendly

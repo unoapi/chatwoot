@@ -32,3 +32,12 @@ curl --location --request POST 'http://localhost:8888/connect/6e50e19a-37d4-4085
   "account_id": "2",
   "inbox_id": "3"
 }'
+
+
+
+
+Todo List
+* group messages
+* copy messages sended in directely in whatssap at chatwoot
+* bots
+* facebook app to create channel with facebook messenger and instagram direct

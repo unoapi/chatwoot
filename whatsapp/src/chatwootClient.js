@@ -116,12 +116,14 @@ class ChatWootClient {
 
     */
     try {
-      const { key: { remoteJid } } = payload
+      const { key: { remoteJid, fromMe } } = payload
       payload.phone = idToNumber(remoteJid)
       const contact = await this.createContact(payload)
-      const conversation = await this.createConversation(contact, payload.phone)
+      const conversation = await this.createConversation(contact, payload.chatId)
       const url = `api/v1/accounts/${this.account_id}/conversations/${conversation.id}/messages`
       const messageType = Object.keys(payload.message)[0]
+      // const chatwootMessageType = fromMe ? 'outgoing' : 'incoming'
+      const chatwootMessageType = fromMe ? 'outgoing' : 'incoming'
       switch (messageType) {
         case 'imageMessage':
         case 'videoMessage':
@@ -154,7 +156,7 @@ class ChatWootClient {
             filename: filename,
             contentType: mimetype,
           })
-          data.append('message_type', 'incoming')
+          data.append('message_type', chatwootMessageType)
           data.append('private', 'false')
 
           const configPost = Object.assign(
@@ -174,7 +176,7 @@ class ChatWootClient {
           let card = vCard.parse(payload.message.contactMessage.vcard)
           let d = {
             content: `${card.fn[0].value} ${card.tel.map(t => t.value).join(', ')}`,
-            message_type: 'incoming'
+            message_type: chatwootMessageType
           }
           console.debug('message to send to chatwoot', d)
           return await this.api.post(url, d)
@@ -187,10 +189,9 @@ class ChatWootClient {
           } else if (payload.message && payload.message.extendedTextMessage && payload.message.extendedTextMessage.text) {
             content = payload.message.extendedTextMessage.text
           }
-          const message_type = 'incoming'
           const body = {
             content,
-            message_type,
+            message_type: chatwootMessageType,
           }
           console.debug('message to send to chatwoot', body)
           return await this.api.post(url, body)

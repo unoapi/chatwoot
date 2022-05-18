@@ -1,15 +1,31 @@
-import { amqpConnect, amqpCreateChannel, amqpEnqueue } from './amqp.js'
+import Queue from 'bull'
+import whatsappConsumer from './whatsappConsumer.js'
+const queue = new Queue(process.env.QUEUE_WHATSAPP_NAME || 'whatsapp', process.env.REDIS_URL || 'redis://localhost:6379')
+const retries = process.env.QUEUE_WHATSAPP_RETRIES || 3
+queue.process(async (job, done) => {
+  const payload = job.data
+  console.info('Process chatwoot -> whatsapp %s', payload)
+  try {
+    await whatsappConsumer(payload)
+    done()
+  } catch (error) {
+    if (payload.count >= retries) {
+      console.warn('Reject %s retries', payload.count)
+      throw error
+    } else {
+      payload.count++
+      queue.add(payload)
+    }
+  }
+})
 
-const connection = await amqpConnect()
-const queue = process.env.QUEUE_WHATSAPP_NAME || 'whatsapp'
-const channel = await amqpCreateChannel(connection, queue)
 
 export default async (req, res) => {
   const { token } = req.params
   try {
     const { event, message_type } = req.body
     if (event == 'message_created' && message_type == 'outgoing') {
-      await amqpEnqueue(channel, queue, JSON.stringify({ token, content: req.body }), 3)
+      await queue.add({ token, content: req.body, count: 0 })
     }
     return res.status(200).json({ status: 'success', message: 'Success on receive chatwoot' })
   } catch (e) {

@@ -33,14 +33,7 @@ services:
       RAILS_INBOUND_EMAIL_PASSWORD: abcde
       CHATWOOT_PREPARE: 'true'
       SECRET_KEY_BASE: qdjwoqroiqwihqwoeqwokdnqwdncuneuf82183219381ob
-      ACTIVE_STORAGE_SERVICE: s3_compatible
-      STORAGE_BUCKET_NAME: chatwoot
-      STORAGE_ACCESS_KEY_ID: minio
-      STORAGE_SECRET_ACCESS_KEY: minio123
-      STORAGE_REGION: us-east-1
-      STORAGE_ENDPOINT: http://localhost:9000
-      STORAGE_FORCE_PATH_STYLE: 'true'
-      DEFAULT_LOCALE: pt_BR
+      ACTIVE_STORAGE_SERVICE: local
     ports:
       - 3000:3000
 
@@ -66,7 +59,7 @@ services:
       RAILS_MAX_THREADS: 1
       REDIS_URL: redis://redis:6379
       REDIS_PASSWORD: 123456
-      FRONTEND_URL: http://w3b:3000
+      FRONTEND_URL: http://localhost:3000
       SECRET_KEY_BASE: qdjwoqroiqwihqwoeqwokdnqwdncuneuf82183219381ob
       MAILER_SENDER_EMAIL: Odonto Excellence<atendimento@excellence.odo.br>
       MAILER_INBOUND_EMAIL_DOMAIN: excellence.odo.br
@@ -78,13 +71,7 @@ services:
       SMTP_PORT: 587
       SMTP_USERNAME: minhaodontoexcellence@gmail.com
       SMTP_PASSWORD: kzqmahbryevylilf
-      ACTIVE_STORAGE_SERVICE: s3_compatible
-      STORAGE_BUCKET_NAME: chatwoot
-      STORAGE_ACCESS_KEY_ID: minio
-      STORAGE_SECRET_ACCESS_KEY: minio123
-      STORAGE_REGION: us-east-1
-      STORAGE_ENDPOINT: http://localhost:9000
-      STORAGE_FORCE_PATH_STYLE: 'true'
+      ACTIVE_STORAGE_SERVICE: local
 
   relay:
     build:
@@ -111,11 +98,9 @@ services:
     environment:
       REDIS_URL: redis://:123456@redis:6379
       PORT: 8888
-      RABBITMQ_URL: amqp://rabbitmq:5672
     ports:
       - 8888:8888
     depends_on:
-      - rabbitmq
       - redis
 
   minio:
@@ -151,10 +136,3 @@ services:
     command: redis-server --appendonly yes --requirepass 123456
     ports:
       - 6379:6379
-
-  rabbitmq:
-    image: rabbitmq:management-alpine
-    ports:
-      - 15672:15672
-    volumes:
-      - ./data/rabbitmq:/var/lib/rabbitmq

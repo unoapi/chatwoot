@@ -1,17 +1,10 @@
-import { amqpConnect, amqpCreateChannel, amqpConsume } from './amqp.js'
 import { contactToArray } from './utils.js'
 import { getAndCacheConfig } from './redis.js'
 import bridge from './bridge.js'
 import mime from 'mime-types'
 
-const connection = await amqpConnect()
-const queue = process.env.QUEUE_WHATSAPP_NAME || 'whatsapp'
-const delay = parseInt(process.env.QUEUE_WHATSAPP_DELAY || '60')
-const channel = await amqpCreateChannel(connection, queue, delay)
-
-await amqpConsume(channel, queue, async (payload) => {
-  const object = JSON.parse(payload.content)
-  const { content, token } = object
+export default async (payload) => {
+  const { content, token } = payload
   const phone = content.conversation.meta.sender.phone_number.replace('+', '')
   const message = content.conversation.messages[0]
   const senderName = message.sender.available_name || message.sender.senderName
@@ -35,4 +28,4 @@ await amqpConsume(channel, queue, async (payload) => {
     console.debug('message to send to whatsapp', ...params)
     await whatsappClient.sendMessage(...params)
   }
-})
+}

@@ -1,19 +1,37 @@
 import { getWhatsappClient } from './whatsappClient.js'
 import { numberToId } from './utils.js'
-import { amqpConnect, amqpCreateChannel, amqpEnqueue } from './amqp.js'
-import { getChatwootClient } from './chatwootClient.js'
+import chatwootConsumer from './chatwootConsumer.js'
+import Queue from 'bull'
+const queue = new Queue(process.env.QUEUE_CHATWOOT_NAME || 'chatwoot', process.env.REDIS_URL || 'redis://localhost:6379')
+const retries = process.env.QUEUE_CHATWOOT_RETRIES || 3
+queue.process(async (job, done) => {
+  const payload = job.data
+  console.info('Process whatsapp -> chatwoot message %s', payload)
+  try {
+    await chatwootConsumer(payload)
+    done()
+  } catch (error) {
+    if (payload.count >= retries) {
+      console.warn('Reject %s retries', payload.count)
+      throw error
+    } else {
+      payload.count++
+      queue.add(payload)
+    }
+  }
+})
 
-const connection = await amqpConnect()
-const queue = process.env.QUEUE_CHATWOOT_NAME || 'chatwoot'
-const channel = await amqpCreateChannel(connection, queue)
+import { getChatwootClient } from './chatwootClient.js'
 
 export default async (token, config) => {
   let chatwootClient = getChatwootClient(token, config)
+  const id = numberToId(chatwootClient.mobile_number)
   try {
     const onQrCode = async qrCode => {
+      const id = numberToId(chatwootClient.mobile_number)
       return chatwootClient.sendMessage({
         key: {
-          remoteJid: numberToId(chatwootClient.mobile_number),
+          remoteJid: id,
           fromMe: false,
         },
         messageTimestamp: new Date().getTime(),
@@ -27,9 +45,11 @@ export default async (token, config) => {
       })
     }
     const onConnecionChange = async message => {
+      const id = numberToId(chatwootClient.mobile_number)
       return chatwootClient.sendMessage({
+        chatId: id,
         key: {
-          remoteJid: numberToId(chatwootClient.mobile_number)
+          remoteJid: id
         },
         message: {
           conversation: message
@@ -47,7 +67,8 @@ export default async (token, config) => {
           console.debug('ignore message')
           continue;
         }
-        await amqpEnqueue(channel, queue, JSON.stringify({ token, content: payload }), 3)
+        payload.chatId = remoteJid
+        await queue.add({ token, content: payload, count: 0 })
       }
     }
     const whatsappClient = await getWhatsappClient(token, onQrCode, onConnecionChange, onMessage)

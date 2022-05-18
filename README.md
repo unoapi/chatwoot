@@ -9,9 +9,6 @@ DataBase on elephantsql.com with clairton.rodrigo@gmail.com
 Redis chatwoot.rails@excellence.odo.br
   redis://redis-19086.c80.us-east-1-2.ec2.cloud.redislabs.com:19086
 
-Rabbitmq clairton.rodrigo@gmail.com
-  https://www.cloudamqp.com
-
 Create a token in whatsapp-api
 
 curl --location --request POST 'http://whatsapp:8888/api/THISISMYSECURETOKEN/token' @todo

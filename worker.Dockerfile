@@ -1,4 +1,4 @@
-FROM chatwoot/chatwoot:release-v2.5.0
+FROM chatwoot/chatwoot:v2.5.0
 
 RUN gem install bundler
 

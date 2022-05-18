@@ -1,6 +1,8 @@
 import { amqpConnect, amqpCreateChannel, amqpConsume } from './amqp.js'
 import { contactToArray } from './utils.js'
+import { getAndCacheConfig } from './redis.js'
 import bridge from './bridge.js'
+import mime from 'mime-types'
 
 const connection = await amqpConnect()
 const queue = process.env.QUEUE_WHATSAPP_NAME || 'whatsapp'
@@ -18,8 +20,14 @@ await amqpConsume(channel, queue, async (payload) => {
     const text = `*${senderName}*:\n${message.content || ''}`
     const params = [contato]
     if (message.attachments) {
-      const dataUrl = message.attachments[0].data_url
-      params.push({ url: dataUrl, caption: text })
+      const config = await getAndCacheConfig(token)
+      const attachment = message.attachments[0]
+      const dataUrl = `${config.baseURL}/${attachment.data_url.substring(attachment.data_url.indexOf('/rails/') + 1)}`;
+      const fileType = attachment.file_type
+      const mimeType = mime.lookup(dataUrl)
+      const m = { caption: text, mimeType }
+      m[fileType] = { url: dataUrl }
+      params.push(m)
     } else {
       params.push({ text })
     }

@@ -116,14 +116,13 @@ class ChatWootClient {
 
     */
     try {
-      const { key: { remoteJid, fromMe } } = payload
+      const { key: { remoteJid } } = payload
       payload.phone = idToNumber(remoteJid)
       const contact = await this.createContact(payload)
       const conversation = await this.createConversation(contact, payload.chatId)
       const url = `api/v1/accounts/${this.account_id}/conversations/${conversation.id}/messages`
       const messageType = Object.keys(payload.message)[0]
-      // const chatwootMessageType = fromMe ? 'outgoing' : 'incoming'
-      const chatwootMessageType = fromMe ? 'outgoing' : 'incoming'
+      const chatwootMessageType = 'incoming'
       switch (messageType) {
         case 'imageMessage':
         case 'videoMessage':

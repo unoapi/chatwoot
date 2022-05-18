@@ -7,18 +7,8 @@ const retries = process.env.QUEUE_CHATWOOT_RETRIES || 3
 queue.process(async (job, done) => {
   const payload = job.data
   console.info('Process whatsapp -> chatwoot message %s', payload)
-  try {
-    await chatwootConsumer(payload)
-    done()
-  } catch (error) {
-    if (payload.count >= retries) {
-      console.warn('Reject %s retries', payload.count)
-      throw error
-    } else {
-      payload.count++
-      queue.add(payload)
-    }
-  }
+  await chatwootConsumer(payload)
+  await done()
 })
 
 import { getChatwootClient } from './chatwootClient.js'
@@ -68,7 +58,10 @@ export default async (token, config) => {
           continue;
         }
         payload.chatId = remoteJid
-        await queue.add({ token, content: payload, count: 0 })
+        await queue.add(
+          { token, content: payload },
+          { attempts: process.env.QUEUE_WHATSAPP_NAME || 3, backoff: 10000 }
+        )
       }
     }
     const whatsappClient = await getWhatsappClient(token, onQrCode, onConnecionChange, onMessage)

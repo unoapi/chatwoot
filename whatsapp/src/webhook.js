@@ -5,18 +5,8 @@ const retries = process.env.QUEUE_WHATSAPP_RETRIES || 3
 queue.process(async (job, done) => {
   const payload = job.data
   console.info('Process chatwoot -> whatsapp %s', payload)
-  try {
-    await whatsappConsumer(payload)
-    done()
-  } catch (error) {
-    if (payload.count >= retries) {
-      console.warn('Reject %s retries', payload.count)
-      throw error
-    } else {
-      payload.count++
-      queue.add(payload)
-    }
-  }
+  await whatsappConsumer(payload)
+  await done()
 })
 
 
@@ -25,7 +15,10 @@ export default async (req, res) => {
   try {
     const { event, message_type } = req.body
     if (event == 'message_created' && message_type == 'outgoing') {
-      await queue.add({ token, content: req.body, count: 0 })
+      await queue.add(
+        { token, content: req.body },
+        { attempts: process.env.QUEUE_WHATSAPP_NAME || 3, backoff: 10000 }
+      )
     }
     return res.status(200).json({ status: 'success', message: 'Success on receive chatwoot' })
   } catch (e) {

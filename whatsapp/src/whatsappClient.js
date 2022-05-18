@@ -7,12 +7,19 @@ import QRCode from 'qrcode'
 
 const df = async () => { }
 
+
+export const getWhatsappClient = async (token, onQrCode = df, onConnecionChange = df, onMessage = df) => {
+  if (whatsappClients[token] && Object.keys(whatsappClients[token]).length > 0) {
+    console.info('Whatsapp client already exist for token', token)
+  } else {
+    const whatsappClient = await connect(token, onQrCode, onConnecionChange, onMessage)
+    whatsappClients[token] = whatsappClient
+  }
+  return whatsappClients[token]
+}
+
 const connect = async (token, onQrCode = df, onConnecionChange = df, onMessage = df) => {
   try {
-    if (whatsappClients[token] && Object.keys(whatsappClients[token]).length > 0) {
-      console.info('Whatsapp client already exist for token', token)
-      return whatsappClients[token]
-    }
     console.info('Create new Whatsapp client for token', token)
     const { state, saveState, clearState } = await saveStateRedis(token)
     return new Promise((resolve) => {
@@ -54,10 +61,13 @@ const connect = async (token, onQrCode = df, onConnecionChange = df, onMessage =
           }
         } else if (connection === 'open') {
           console.debug('Connected to user', state.creds.me)
-          whatsappClients[token] = sock
           const number = idToNumber(state.creds.me.id)
           const id = numberToId(number)
-          await sock.sendMessage(id, { text: `Success Whatsapp connected in Chatwoot` })
+          try {
+            await sock.sendMessage(id, { text: `Success Whatsapp connected in Chatwoot` })
+          } catch (error) {
+            console.warn('Error on welcome message', e)
+          }
           resolve(sock)
         } else if (qr) {
           console.info('Received qrcode for token', token, qr)
@@ -71,5 +81,3 @@ const connect = async (token, onQrCode = df, onConnecionChange = df, onMessage =
     throw error
   }
 }
-
-export default connect

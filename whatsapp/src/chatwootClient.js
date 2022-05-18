@@ -20,7 +20,7 @@ export const getChatwootClient = (token, config) => {
   return chatwootClient
 }
 
-export default class ChatWootClient {
+class ChatWootClient {
   constructor(config) {
     this.config = config
     this.mobile_name = this.config.mobile_name

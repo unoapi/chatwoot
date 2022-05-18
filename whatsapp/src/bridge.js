@@ -1,4 +1,4 @@
-import connect from './connect.js'
+import { getWhatsappClient } from './whatsappClient.js'
 import { numberToId } from './utils.js'
 import { amqpConnect, amqpCreateChannel, amqpEnqueue } from './amqp.js'
 import { getChatwootClient } from './chatwootClient.js'
@@ -50,7 +50,7 @@ export default async (token, config) => {
         await amqpEnqueue(channel, queue, JSON.stringify({ token, content: payload }), 3)
       }
     }
-    const whatsappClient = await connect(token, onQrCode, onConnecionChange, onMessage)
+    const whatsappClient = await getWhatsappClient(token, onQrCode, onConnecionChange, onMessage)
     return { whatsappClient, chatwootClient }
   } catch (error) {
     console.error('error on bridge function', error)

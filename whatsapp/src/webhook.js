@@ -1,16 +1,7 @@
 import whatsappConsumer from './whatsappConsumer.js'
 import { createQueue, addToQueue } from './queue.js'
 
-const queue = await createQueue(process.env.QUEUE_WHATSAPP_NAME || 'whatsapp', async (job, done) => {
-  try {
-    const payload = job.data
-    console.info('Process chatwoot -> whatsapp %s', payload)
-    await whatsappConsumer(payload)
-    await done()
-  } catch (e) {
-    console.log(`Error on process chatwoot -> whatsapp message`, e)
-  }
-})
+const queue = await createQueue(process.env.QUEUE_WHATSAPP_NAME || 'whatsapp', whatsappConsumer)
 
 
 export default async (req, res) => {

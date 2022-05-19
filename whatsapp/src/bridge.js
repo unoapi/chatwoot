@@ -3,16 +3,7 @@ import { numberToId } from './utils.js'
 import chatwootConsumer from './chatwootConsumer.js'
 import { createQueue, addToQueue } from './queue.js'
 
-const queue = await createQueue(process.env.QUEUE_CHATWOOT_NAME || 'chatwoot', async (job, done) => {
-  try {
-    const payload = job.data
-    console.info('Process whatsapp -> chatwoot message %s', payload.token, payload.content)
-    await chatwootConsumer(payload)
-    await done()
-  } catch (e) {
-    console.log(`Error on process whatsapp -> chatwoot message`, e)
-  }
-})
+const queue = await createQueue(process.env.QUEUE_CHATWOOT_NAME || 'chatwoot', chatwootConsumer)
 
 import { getChatwootClient } from './chatwootClient.js'
 

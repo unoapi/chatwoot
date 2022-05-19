@@ -46,12 +46,12 @@ export default async (token, config) => {
       for (var i = 0, j = messages.length; i < j; i++) {
         const payload = messages[i]
         console.debug('whatsapp message', payload)
-        const { key: { remoteJid } } = payload
-        if (!payload.message || remoteJid.indexOf('@g.us') > 0 || remoteJid.indexOf('@broadcast') > 0) {
+        const { key: { remoteJid, participant } } = payload
+        if (!payload.message || remoteJid.indexOf('@broadcast') > 0) {
           console.debug('ignore message')
           continue;
         }
-        payload.chatId = remoteJid
+        payload.chatId =  remoteJid.indexOf('@g.us') > 0 ? `${remoteJid}:${participant}` : remoteJid
         await addToQueue(queue, { token, content: payload }, process.env.QUEUE_CHATWOOT_RETRY || 3)
       }
     }

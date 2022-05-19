@@ -161,8 +161,9 @@ class ChatWootClient {
     }
     */
     try {
-      const { key: { remoteJid, fromMe } } = payload
-      payload.phone = idToNumber(remoteJid)
+      const { key: { remoteJid, fromMe, participant } } = payload
+      payload.isGroup = remoteJid.indexOf('@g.us') > 0
+      payload.phone = idToNumber(payload.isGroup ? participant : remoteJid)
       const contact = await this.createContact(payload)
       const conversation = await this.createConversation(contact, payload.chatId)
       const url = `api/v1/accounts/${this.account_id}/conversations/${conversation.id}/messages`
@@ -265,7 +266,19 @@ class ChatWootClient {
   }
 
   async createContact(message) {
-    const contact = await this.findContact(message.phone.replace('+', ''))
+    let query = ''
+    let type = ''
+    let value = ''
+    if (message.isGroup) {
+      query = message.email
+      value = message.email
+      type = 'email'
+    } else {
+      query = message.phone.replace('+', '')
+      value = message.phone
+      type = 'phone_number'
+    }
+    const contact = await this.findContact(query)
     if (contact && contact.meta && contact.meta.count > 0) {
       console.debug(`Found contact with phone ${message.phone}`)
       return contact.payload[0]
@@ -273,19 +286,19 @@ class ChatWootClient {
     try {
       const body = {
         inbox_id: this.inbox_id,
-        name: message.pushName,
-        phone_number: message.phone
+        name: message.pushName
       }
+      body[type] = value
       const { key: { fromMe } } = message
-      if (fromMe) {
+      if (fromMe && !message.isGroup) {
         // @TODO: retrieve profile name
         body.name = message.phone
       } else {
         body.name = message.pushName
       }
-      console.debug(`Creating contact with phone ${body.phone_number}`)
+      console.debug(`Creating contact with ${type} ${value}`)
       const data = await this.api.post(`api/v1/accounts/${this.account_id}/contacts`, body)
-      console.debug(`Created contact with phone ${body.phone_number}`)
+      console.debug(`Created contact with ${type} ${value}`)
       return data.data.payload.contact
     } catch (e) {
       console.error('error on create contact', e)

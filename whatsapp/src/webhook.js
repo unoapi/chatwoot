@@ -1,12 +1,15 @@
 import Queue from 'bull'
 import whatsappConsumer from './whatsappConsumer.js'
 const queue = new Queue(process.env.QUEUE_WHATSAPP_NAME || 'whatsapp', process.env.REDIS_URL || 'redis://localhost:6379')
-const retries = process.env.QUEUE_WHATSAPP_RETRIES || 3
 queue.process(async (job, done) => {
-  const payload = job.data
-  console.info('Process chatwoot -> whatsapp %s', payload)
-  await whatsappConsumer(payload)
-  await done()
+  try{
+    const payload = job.data
+    console.info('Process chatwoot -> whatsapp %s', payload)
+    await whatsappConsumer(payload)
+    await done()
+  } catch (e) {
+    console.log(`Error on process chatwoot -> whatsapp message`, e)
+  }
 })
 
 

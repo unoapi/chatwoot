@@ -3,12 +3,15 @@ import { numberToId } from './utils.js'
 import chatwootConsumer from './chatwootConsumer.js'
 import Queue from 'bull'
 const queue = new Queue(process.env.QUEUE_CHATWOOT_NAME || 'chatwoot', process.env.REDIS_URL || 'redis://localhost:6379')
-const retries = process.env.QUEUE_CHATWOOT_RETRIES || 3
 queue.process(async (job, done) => {
-  const payload = job.data
-  console.info('Process whatsapp -> chatwoot message %s', payload)
-  await chatwootConsumer(payload)
-  await done()
+  try {
+    const payload = job.data
+    console.info('Process whatsapp -> chatwoot message %s', payload)
+    await chatwootConsumer(payload)
+    await done()
+  } catch (e) {
+    console.log(`Error on process whatsapp -> chatwoot message`, e)
+  }
 })
 
 import { getChatwootClient } from './chatwootClient.js'

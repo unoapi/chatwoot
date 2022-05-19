@@ -46,8 +46,8 @@ export default async (token, config) => {
       for (var i = 0, j = messages.length; i < j; i++) {
         const payload = messages[i]
         console.debug('whatsapp message', payload)
-        const { key: { remoteJid, fromMe } } = payload
-        if (!payload.message || remoteJid.indexOf('@g.us') > 0 || remoteJid.indexOf('@broadcast') > 0 || fromMe) {
+        const { key: { remoteJid } } = payload
+        if (!payload.message || remoteJid.indexOf('@g.us') > 0 || remoteJid.indexOf('@broadcast') > 0) {
           console.debug('ignore message')
           continue;
         }

@@ -161,13 +161,13 @@ class ChatWootClient {
     }
     */
     try {
-      const { key: { remoteJid } } = payload
+      const { key: { remoteJid, fromMe } } = payload
       payload.phone = idToNumber(remoteJid)
       const contact = await this.createContact(payload)
       const conversation = await this.createConversation(contact, payload.chatId)
       const url = `api/v1/accounts/${this.account_id}/conversations/${conversation.id}/messages`
       const messageType = Object.keys(payload.message)[0]
-      const chatwootMessageType = 'incoming'
+      const chatwootMessageType = fromMe ? 'template' : 'incoming'
       switch (messageType) {
         case 'imageMessage':
         case 'videoMessage':
@@ -265,17 +265,24 @@ class ChatWootClient {
   }
 
   async createContact(message) {
-    const body = {
-      inbox_id: this.inbox_id,
-      name: message.pushName,
-      phone_number: message.phone
-    }
-    const contact = await this.findContact(body.phone_number.replace('+', ''))
+    const contact = await this.findContact(message.phone.replace('+', ''))
     if (contact && contact.meta && contact.meta.count > 0) {
-      console.debug(`Found contact with phone ${body.phone_number}`)
+      console.debug(`Found contact with phone ${message.phone}`)
       return contact.payload[0]
     }
     try {
+      const body = {
+        inbox_id: this.inbox_id,
+        name: message.pushName,
+        phone_number: message.phone
+      }
+      const { key: { fromMe } } = message
+      if (fromMe) {
+        // @TODO: retrieve profile name
+        body.name = message.phone
+      } else {
+        body.name = message.pushName
+      }
       console.debug(`Creating contact with phone ${body.phone_number}`)
       const data = await this.api.post(`api/v1/accounts/${this.account_id}/contacts`, body)
       console.debug(`Created contact with phone ${body.phone_number}`)

@@ -17,6 +17,6 @@ export const createQueue = async (name, process) => {
 }
 
 export const addToQueue = async (queue, payload, attempts) => {
-  console.debug('Enqueue message %s', payload)
-  return queue.add(payload, { attempts, backoff: 10000 })
+  queue.add(payload, { attempts, backoff: 10000 })
+  console.debug('Enqueued message %s', payload.content)
 } 

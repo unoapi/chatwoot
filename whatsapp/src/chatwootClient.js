@@ -5,7 +5,9 @@ import toStream from 'buffer-to-stream'
 import { downloadContentFromMessage } from '@adiwajshing/baileys'
 import { idToNumber } from './utils.js'
 import { chatwootClients } from './session.js'
+import { redisConnect, redisDisconnect, getAndCacheConversationId } from './redis.js'
 import vCard from 'vcard-parser'
+import { setConversationId } from './redis.js'
 
 export const getChatwootClient = (token, config) => {
   let chatwootClient
@@ -94,8 +96,8 @@ class ChatWootClient {
         }
       }
 
-      {
-        key: {
+    {
+      key: {
         remoteJid: '554999621461@s.whatsapp.net',
         fromMe: false,
         id: '3A4FBD061C5F3BABB5B2'
@@ -112,8 +114,51 @@ class ChatWootClient {
         },
         phone: '+5549999621461'
       }
-}
+    }
 
+    {
+      key: {
+        remoteJid: '5511951005318-1574706845@g.us',
+        fromMe: false,
+        id: '3EB0B37E2B6CF7BD44DB',
+        participant: '5511985206083:1@s.whatsapp.net'
+      },
+      messageTimestamp: 1652906110,
+      pushName: 'Canaltech Ofertas',
+      message: {
+        senderKeyDistributionMessage: {
+          groupId: '5511951005318-1574706845@g.us',
+          axolotlSenderKeyDistributionMessage: 'MwiV5+yJBRAAGiDhyCCAgkkJ7c1TyoH9vVq2GAaX82Av7gDXTJO9g4Uq9CIhBR6Hd8fdM509vVQggWRdSeR2eRFmp/BjRavARk5il/h4'
+        },
+        extendedTextMessage: {
+          text: '👏🏻👏🏻👏🏻\n' +
+            '\n' +
+            'São MUITOS itens com cupom de desconto para você escolher! Clique em destacar o cupom na página do link e ele será aplicado no carrinho de compras!\n' +
+            '\n' +
+            'Loja de Cupons Amazon\n' +
+            '\n' +
+            '*Acesse:* https://canalte.ch/c1p1/p6xiz\n' +
+            '\n' +
+            'Link pra entrar no grupo de ofertas:\n' +
+            'https://canalte.ch/canaltech-ofertas',
+          matchedText: 'https://canalte.ch/c1p1/p6xiz',
+          canonicalUrl: 'https://canalte.ch/c1p1/p6xiz',
+          description: 'Loja de Cupons Amazon. Compre aqui com o melhor preço nas melhores lojas 80135',
+          title: 'Loja de Cupons Amazon 80135 - Canaltech Ofertas',
+          previewType: 'VIDEO',
+          contextInfo: [Object],
+          thumbnailSha256: 'iQHLbX6ZH0/hJ0tbQaBi7rK42EaAaw5SPPGcrxkm/SQ=',
+          thumbnailEncSha256: 'gUH5UUQd9/sqMVNv1iD3i2dUU23ylpSAyH1F1WAgXjQ=',
+          mediaKey: 'O2gor1y/ty26fg9pKXpgKWWpxrhpusZAQd7q3hkxuOw=',
+          mediaKeyTimestamp: '1652905855',
+          thumbnailHeight: 600,
+          thumbnailWidth: 1200
+        },
+        messageContextInfo: { deviceListMetadata: [Object], deviceListMetadataVersion: 2 }
+      },
+      chatId: '5511951005318-1574706845@g.us',
+      phone: '+5511951005318-1574706845'
+    }
     */
     try {
       const { key: { remoteJid } } = payload
@@ -195,6 +240,9 @@ class ChatWootClient {
           console.debug('message to send to chatwoot', body)
           return await this.api.post(url, body)
 
+        case 'protocolMessage':
+          return;
+
         default:
           throw `Unknow message type ${messageType}`
       }
@@ -238,12 +286,17 @@ class ChatWootClient {
     }
   }
 
-  async findConversation(contact) {
+  async findConversation(conversationId) {
     try {
-      const { data } = await this.api.get(
-        `api/v1/accounts/${this.account_id}/conversations?inbox_id=${this.inbox_id}&status=all`
-      )
-      return data.data.payload.find((e) => e.meta.sender.id == contact.id && e.status != 'resolved')
+      const { data } = await this.api.get(`api/v1/accounts/${this.account_id}/conversations/${conversationId}`)
+      console.debug('find conversation', data)
+      if (data.status === 'revolved') {
+        console.debug('Found conversation, but status is resolved', data)
+        return
+      } else {
+        console.debug('Found conversation', data)
+        return data
+      }
     } catch (e) {
       console.error('erro on find conversation', e)
       throw e
@@ -251,10 +304,15 @@ class ChatWootClient {
   }
 
   async createConversation(contact, sourceId) {
-    var conversation = await this.findConversation(contact)
-    if (conversation) {
-      console.debug(`Found conversation with contact id ${contact.id}`)
-      return conversation
+    const redisClient = await redisConnect()
+    const conversationId = await getAndCacheConversationId(redisClient, sourceId)
+    if (conversationId) {
+      const conversation = await this.findConversation(conversationId)
+      if (conversation) {
+        await redisDisconnect(redisClient)
+        console.debug(`Found conversation with source id ${sourceId}`)
+        return conversation
+      }
     }
     const body = {
       source_id: sourceId,
@@ -265,11 +323,16 @@ class ChatWootClient {
     try {
       console.debug(`Creating conversation with source id ${sourceId}`)
       const { data } = await this.api.post(`api/v1/accounts/${this.account_id}/conversations`, body)
-      console.debug(`Created conversation with source id ${sourceId}`)
+      console.debug(`Created conversation ${data.id} with source id ${sourceId}`)
+      await setConversationId(redisClient, sourceId, data.id)
       return data
     } catch (e) {
       console.error('erro on create conversation', e)
       throw e
+    } finally {
+      try {
+        await redisDisconnect(redisClient)
+      } catch (_error) { }
     }
   }
 }

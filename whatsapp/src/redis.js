@@ -1,6 +1,7 @@
 import redis from 'redis'
 const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379'
 const configs = {}
+const conversationIds = {}
 
 export const redisConnect = async (redisUrl = REDIS_URL) => {
   console.debug(`Connecting redis`)
@@ -26,12 +27,16 @@ export const redisKeys = async (client, pattern) => {
 }
 
 export const redisSet = async (client, key, value) => {
-  console.debug(`Setting ${key} => ${value.substring(0, 10)}...`)
+  console.debug(`Setting ${key} => ${(value + '').substring(0, 10)}...`)
   return client.set(key, value)
 }
 
 export const authInfoKey = (token) => {
   return `authInfo:${token}`
+}
+
+export const conversationIdKey = (sourceId) => {
+  return `conversationId:${sourceId}`
 }
 
 export const configInfoKey = (token) => {
@@ -73,4 +78,22 @@ export const setAuth = async (redisClient, token, value, stringify = value => JS
   const key = authInfoKey(token)
   const authValue = stringify(value)
   await redisSet(redisClient, key, authValue)
+}
+
+export const getConversationId = async (redisClient, sourceId) => {
+  const key = conversationIdKey(sourceId)
+  return await redisGet(redisClient, key)
+}
+
+export const setConversationId = async (redisClient, sourceId, conversationId) => {
+  const key = conversationIdKey(sourceId)
+  await redisSet(redisClient, key, conversationId)
+}
+
+export const getAndCacheConversationId = async (redisClient, sourceId) => {
+  if (!conversationIds[sourceId]) {
+    const conversationId = await getConversationId(redisClient, sourceId)
+    conversationIds[sourceId] = conversationId
+  }
+  return conversationIds[sourceId]
 }

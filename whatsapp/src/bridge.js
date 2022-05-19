@@ -1,12 +1,12 @@
 import { getWhatsappClient } from './whatsappClient.js'
 import { numberToId } from './utils.js'
 import chatwootConsumer from './chatwootConsumer.js'
-import Queue from 'bull'
-const queue = new Queue(process.env.QUEUE_CHATWOOT_NAME || 'chatwoot', process.env.REDIS_URL || 'redis://localhost:6379')
-queue.process(async (job, done) => {
+import { createQueue, addToQueue } from './queue.js'
+
+const queue = await createQueue(process.env.QUEUE_CHATWOOT_NAME || 'chatwoot', async (job, done) => {
   try {
     const payload = job.data
-    console.info('Process whatsapp -> chatwoot message %s', payload)
+    console.info('Process whatsapp -> chatwoot message %s', payload.token, payload.content)
     await chatwootConsumer(payload)
     await done()
   } catch (e) {
@@ -61,10 +61,7 @@ export default async (token, config) => {
           continue;
         }
         payload.chatId = remoteJid
-        await queue.add(
-          { token, content: payload },
-          { attempts: process.env.QUEUE_WHATSAPP_NAME || 3, backoff: 10000 }
-        )
+        await addToQueue(queue, { token, content: payload }, process.env.QUEUE_CHATWOOT_RETRY || 3)
       }
     }
     const whatsappClient = await getWhatsappClient(token, onQrCode, onConnecionChange, onMessage)

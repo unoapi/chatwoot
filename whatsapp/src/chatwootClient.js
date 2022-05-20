@@ -241,9 +241,9 @@ class ChatWootClient {
           console.debug('message to send to chatwoot', body)
           return await this.api.post(url, body)
         case 'location':
-          const {degreesLatitude, degreesLongitude} = payload.message.location
+          const { degreesLatitude, degreesLongitude } = payload.message.location
           const m = {
-            content:  `lat ${degreesLatitude}, long: ${degreesLongitude}`,
+            content: `lat ${degreesLatitude}, long: ${degreesLongitude}`,
             message_type: chatwootMessageType,
           }
           console.debug('message to send to chatwoot', m)
@@ -268,7 +268,7 @@ class ChatWootClient {
       console.debug(`Find contact with query ${query}`)
       const { data } = await this.api.get(`api/v1/accounts/${this.account_id}/contacts/search/?q=${query}`)
       if (data && data.meta && data.meta.count > 0) {
-        console.debug(`Found contact with query ${query}`)
+        console.debug(`Found contact ${data.payload[0]} with query ${query}`)
         return data.payload[0]
       }
     } catch (e) {
@@ -292,7 +292,6 @@ class ChatWootClient {
     }
     const contact = await this.findContact(query)
     if (contact) {
-      console.debug(`Found contact ${contact.id} with ${type} ${value}`)
       return contact
     }
     try {
@@ -319,9 +318,19 @@ class ChatWootClient {
   }
 
   async findConversation(conversationId) {
+    console.debug(`Find conversation with id ${conversationId}`)
     try {
-      const { data } = await this.api.get(`api/v1/accounts/${this.account_id}/conversations/${conversationId}`)
-      console.debug('find conversation', data)
+      let data
+      try {
+        const resp = await this.api.get(`api/v1/accounts/${this.account_id}/conversations/${conversationId}`)
+        data = resp.data
+      } catch (error) {
+        if (error.response.status === 404) {
+          console.warn(`Not Found conversation with id ${conversationId}`)
+          return
+        }
+        throw error
+      }
       if (data.status === 'revolved') {
         console.debug('Found conversation, but status is resolved', data)
         return

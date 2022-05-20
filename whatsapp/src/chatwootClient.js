@@ -240,8 +240,17 @@ class ChatWootClient {
           }
           console.debug('message to send to chatwoot', body)
           return await this.api.post(url, body)
+        case 'location':
+          const {degreesLatitude, degreesLongitude} = payload.message.location
+          const m = {
+            content:  `lat ${degreesLatitude}, long: ${degreesLongitude}`,
+            message_type: chatwootMessageType,
+          }
+          console.debug('message to send to chatwoot', m)
+          return await this.api.post(url, m)
 
         case 'protocolMessage':
+        case 'senderKeyDistributionMessage':
           return;
 
         default:

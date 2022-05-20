@@ -267,7 +267,10 @@ class ChatWootClient {
     try {
       console.debug(`Find contact with query ${query}`)
       const { data } = await this.api.get(`api/v1/accounts/${this.account_id}/contacts/search/?q=${query}`)
-      return data
+      if (data && data.meta && data.meta.count > 0) {
+        console.debug(`Found contact with query ${query}`)
+        return data.payload[0]
+      }
     } catch (e) {
       console.error('error on find contact', e)
       throw e
@@ -288,9 +291,9 @@ class ChatWootClient {
       type = 'phone_number'
     }
     const contact = await this.findContact(query)
-    if (contact && contact.meta && contact.meta.count > 0) {
-      console.debug(`Found contact with phone ${message.phone}`)
-      return contact.payload[0]
+    if (contact) {
+      console.debug(`Found contact ${contact.id} with ${type} ${value}`)
+      return contact
     }
     try {
       const body = {
@@ -299,7 +302,7 @@ class ChatWootClient {
       }
       body[type] = value
       const { key: { fromMe } } = message
-      if (fromMe && !message.isGroup) {
+      if (fromMe) {
         // @TODO: retrieve profile name
         body.name = message.phone
       } else {

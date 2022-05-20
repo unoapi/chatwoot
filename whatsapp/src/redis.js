@@ -97,3 +97,8 @@ export const getAndCacheConversationId = async (redisClient, sourceId) => {
   }
   return conversationIds[sourceId]
 }
+
+export const setAndCacheConversationId = async (redisClient, sourceId, conversationId) => {
+  conversationIds[sourceId] = conversationId
+  return setConversationId(redisClient, sourceId, conversationId)
+}

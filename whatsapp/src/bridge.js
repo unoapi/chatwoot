@@ -14,6 +14,7 @@ export default async (token, config) => {
     const onQrCode = async qrCode => {
       const id = numberToId(chatwootClient.mobile_number)
       return chatwootClient.sendMessage({
+        chatId: id,
         key: {
           remoteJid: id,
           fromMe: false,
@@ -51,7 +52,11 @@ export default async (token, config) => {
           console.debug('ignore message')
           continue;
         }
-        payload.chatId =  remoteJid.indexOf('@g.us') > 0 ? `${remoteJid}:${participant}` : remoteJid
+        if (remoteJid.indexOf('@g.us') > 0) {
+          payload.chatId = `${remoteJid}#${participant}`
+        } else {
+          payload.chatId = remoteJid
+        }
         await addToQueue(queue, { token, content: payload }, process.env.QUEUE_CHATWOOT_RETRY || 3)
       }
     }

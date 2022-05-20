@@ -5,9 +5,8 @@ import toStream from 'buffer-to-stream'
 import { downloadContentFromMessage } from '@adiwajshing/baileys'
 import { idToNumber } from './utils.js'
 import { chatwootClients } from './session.js'
-import { redisConnect, redisDisconnect, getAndCacheConversationId } from './redis.js'
+import { redisConnect, redisDisconnect, getAndCacheConversationId, setAndCacheConversationId } from './redis.js'
 import vCard from 'vcard-parser'
-import { setConversationId } from './redis.js'
 
 export const getChatwootClient = (token, config) => {
   let chatwootClient
@@ -163,6 +162,7 @@ class ChatWootClient {
     try {
       const { key: { remoteJid, fromMe, participant } } = payload
       payload.isGroup = remoteJid.indexOf('@g.us') > 0
+
       payload.phone = idToNumber(payload.isGroup ? participant : remoteJid)
       const contact = await this.createContact(payload)
       const conversation = await this.createConversation(contact, payload.chatId)
@@ -268,8 +268,9 @@ class ChatWootClient {
       console.debug(`Find contact with query ${query}`)
       const { data } = await this.api.get(`api/v1/accounts/${this.account_id}/contacts/search/?q=${query}`)
       if (data && data.meta && data.meta.count > 0) {
-        console.debug(`Found contact ${data.payload[0]} with query ${query}`)
-        return data.payload[0]
+        const contact = data.payload[0]
+        console.debug(`Found contact ${contact.id} with query ${query}`)
+        return contact
       }
     } catch (e) {
       console.error('error on find contact', e)
@@ -309,8 +310,9 @@ class ChatWootClient {
       }
       console.debug(`Creating contact with ${type} ${value}`)
       const data = await this.api.post(`api/v1/accounts/${this.account_id}/contacts`, body)
-      console.debug(`Created contact with ${type} ${value}`)
-      return data.data.payload.contact
+      const contact = data.data.payload.contact
+      console.debug(`Created contact ${contact.id} with ${type} ${value}`)
+      return contact
     } catch (e) {
       console.error('error on create contact', e)
       throw e
@@ -365,7 +367,7 @@ class ChatWootClient {
       console.debug(`Creating conversation with source id ${sourceId}`)
       const { data } = await this.api.post(`api/v1/accounts/${this.account_id}/conversations`, body)
       console.debug(`Created conversation ${data.id} with source id ${sourceId}`)
-      await setConversationId(redisClient, sourceId, data.id)
+      await setAndCacheConversationId(redisClient, sourceId, data.id)
       return data
     } catch (e) {
       console.error('erro on create conversation', e)

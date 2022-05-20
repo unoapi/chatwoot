@@ -162,10 +162,9 @@ class ChatWootClient {
     try {
       const { key: { remoteJid, fromMe, participant } } = payload
       payload.isGroup = remoteJid.indexOf('@g.us') > 0
-
       payload.phone = idToNumber(payload.isGroup ? participant : remoteJid)
       const contact = await this.createContact(payload)
-      const conversation = await this.createConversation(contact, payload.chatId)
+      const conversation = await this.createConversation(contact, payload.chatId || remoteJid)
       const url = `api/v1/accounts/${this.account_id}/conversations/${conversation.id}/messages`
       const messageType = Object.keys(payload.message)[0]
       const chatwootMessageType = fromMe ? 'template' : 'incoming'
@@ -333,11 +332,11 @@ class ChatWootClient {
         }
         throw error
       }
-      if (data.status === 'revolved') {
-        console.debug('Found conversation, but status is resolved', data)
+      if (data.status == 'resolved') {
+        console.debug(`Found conversation with id ${conversationId}, but status is resolved`)
         return
       } else {
-        console.debug('Found conversation', data)
+        console.debug(`Found conversation with id ${conversationId}`)
         return data
       }
     } catch (e) {
@@ -353,7 +352,6 @@ class ChatWootClient {
       const conversation = await this.findConversation(conversationId)
       if (conversation) {
         await redisDisconnect(redisClient)
-        console.debug(`Found conversation with source id ${sourceId}`)
         return conversation
       }
     }

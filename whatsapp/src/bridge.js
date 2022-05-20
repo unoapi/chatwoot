@@ -14,7 +14,6 @@ export default async (token, config) => {
     const onQrCode = async qrCode => {
       const id = numberToId(chatwootClient.mobile_number)
       return chatwootClient.sendMessage({
-        chatId: id,
         key: {
           remoteJid: id,
           fromMe: false,
@@ -26,19 +25,20 @@ export default async (token, config) => {
             mimetype: 'image/png',
             fileName: 'qrcode.png'
           }
-        }
+        },
+        chatId: id
       })
     }
     const onConnecionChange = async message => {
       const id = numberToId(chatwootClient.mobile_number)
       return chatwootClient.sendMessage({
-        chatId: id,
         key: {
           remoteJid: id
         },
         message: {
           conversation: message
-        }
+        },
+        chatId: id
       })
     }
     const onMessage = async ({ messages = [] } = messages) => {
@@ -50,7 +50,7 @@ export default async (token, config) => {
         const { key: { remoteJid, participant } } = payload
         if (!payload.message || remoteJid.indexOf('@broadcast') > 0) {
           console.debug('ignore message')
-          continue;
+          continue
         }
         if (remoteJid.indexOf('@g.us') > 0) {
           payload.chatId = `${remoteJid}#${participant}`

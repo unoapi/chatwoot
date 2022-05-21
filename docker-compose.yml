@@ -72,6 +72,7 @@ services:
       SMTP_USERNAME: minhaodontoexcellence@gmail.com
       SMTP_PASSWORD: kzqmahbryevylilf
       ACTIVE_STORAGE_SERVICE: local
+      CHATWOOT_WHATSAPP_SERVER_AUTH_TOKEN: ksjhdfiasfu
 
   relay:
     build:
@@ -98,6 +99,7 @@ services:
     environment:
       REDIS_URL: redis://:123456@redis:6379
       PORT: 8888
+      CHATWOOT_WHATSAPP_SERVER_AUTH_TOKEN: ksjhdfiasfu
     ports:
       - 8888:8888
     depends_on:

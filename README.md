@@ -32,8 +32,8 @@ curl --location --request POST 'http://localhost:8888/connect/6e50e19a-37d4-4085
 
 Todo List
 * group messages
-* copy messages sended in directely in whatssap at chatwoot
+* copy messages sended in directely in whatssap at chatwoot ok
 * bots
 * facebook app to create channel with facebook messenger and instagram direct
 * qrcode connect user friendly
-* security webhook
+* security webhook ok -> add env CHATWOOT_WHATSAPP_SERVER_AUTH_TOKEN in worker and whatsapp to auth server to server

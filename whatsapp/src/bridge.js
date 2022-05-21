@@ -3,13 +3,35 @@ import { numberToId } from './utils.js'
 import chatwootConsumer from './chatwootConsumer.js'
 import { createQueue, addToQueue } from './queue.js'
 
-const queue = await createQueue(process.env.QUEUE_CHATWOOT_NAME || 'chatwoot', chatwootConsumer)
+const queue = await createQueue(process.env.QUEUE_CHATWOOT_NAME, chatwootConsumer)
 
 import { getChatwootClient } from './chatwootClient.js'
 
 export default async (token, config) => {
   let chatwootClient = getChatwootClient(token, config)
   const id = numberToId(chatwootClient.mobile_number)
+  let isIgnoreMessage = (payload) => {
+    const { key: { remoteJid } } = payload
+    return !payload.message || remoteJid.indexOf('@broadcast') > 0
+  }
+  let formatChatId = (payload) => {
+    const { key: { remoteJid } } = payload
+    return remoteJid
+  }
+  if(!config.ignore_group_messages) {
+    formatChatId = (payload) => {
+      const { key: { remoteJid, participant } } = payload
+      if (remoteJid.indexOf('@g.us') > 0) {
+        return `${remoteJid}#${participant}`
+      } else {
+        return remoteJid
+      }
+    }
+    isIgnoreMessage = (payload) => {
+      const { key: { remoteJid } } = payload
+      return !payload.message || remoteJid.indexOf('@g.us') > 0 || remoteJid.indexOf('@broadcast') > 0
+    }
+  }
   try {
     const onQrCode = async qrCode => {
       const id = numberToId(chatwootClient.mobile_number)
@@ -43,21 +65,15 @@ export default async (token, config) => {
     }
     const onMessage = async ({ messages = [] } = messages) => {
       console.debug(`${messages.length} new message(s) received from Whatsapp`)
-      console.log('messages', messages)
       for (var i = 0, j = messages.length; i < j; i++) {
         const payload = messages[i]
         console.debug('whatsapp message', payload)
-        const { key: { remoteJid, participant } } = payload
-        if (!payload.message || remoteJid.indexOf('@broadcast') > 0) {
+        if (isIgnoreMessage(payload)) {
           console.debug('ignore message')
           continue
         }
-        if (remoteJid.indexOf('@g.us') > 0) {
-          payload.chatId = `${remoteJid}#${participant}`
-        } else {
-          payload.chatId = remoteJid
-        }
-        await addToQueue(queue, { token, content: payload }, process.env.QUEUE_CHATWOOT_RETRY || 3)
+        payload.chatId = formatChatId(payload)
+        await addToQueue(queue, { token, content: payload }, process.env.QUEUE_CHATWOOT_RETRY)
       }
     }
     const whatsappClient = await getWhatsappClient(token, onQrCode, onConnecionChange, onMessage)

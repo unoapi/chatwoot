@@ -1,7 +1,7 @@
 import whatsappConsumer from './whatsappConsumer.js'
 import { createQueue, addToQueue } from './queue.js'
 
-const queue = await createQueue(process.env.chatwoot_whatsapp_server_auth_token || 'whatsapp', whatsappConsumer)
+const queue = await createQueue(process.env.QUEUE_WHATSAPP_NAME, whatsappConsumer)
 
 export default async (req, res) => {
   const { token } = req.params
@@ -16,7 +16,7 @@ export default async (req, res) => {
   try {
     const { event, message_type } = req.body
     if (event == 'message_created' && message_type == 'outgoing') {
-      await addToQueue(queue, { token, content: req.body }, process.env.QUEUE_WHATSAPP_RETRY || 3)
+      await addToQueue(queue, { token, content: req.body }, process.env.QUEUE_WHATSAPP_RETRY)
     }
     return res.status(200).json({ status: 'success', message: 'Success on receive chatwoot' })
   } catch (e) {

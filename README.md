@@ -21,18 +21,19 @@ Integrate with ChatWoot token, inbox id and account id
 curl --location --request POST 'http://localhost:8888/connect/6e50e19a-37d4-4085-be7b-82c478e4dd0e' \
 --header 'Content-Type: application/json' \
 --data-raw '{
-  "autoConnect": true,
+  "auto_connect": true,
   "mobile_name": "Me",
   "mobile_number": "+5549988290955",
   "baseURL": "http://w3b:3000",
   "token": "KLo3Lupshver3GFTks4eRBjh",
   "account_id": "2",
-  "inbox_id": "3"
+  "inbox_id": "3",
+  "ignore_group_messages"
 }'
 
 Todo List
 * group messages
-* copy messages sended in directely in whatssap at chatwoot ok
+* copy messages sended trougth whatssap at chatwoot ok
 * bots
 * facebook app to create channel with facebook messenger and instagram direct
 * qrcode connect user friendly

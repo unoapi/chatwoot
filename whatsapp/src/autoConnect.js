@@ -13,7 +13,7 @@ export default async () => {
       const key = keys[i]
       const token = key.replace(toReplace, '')
       const config = await getConfig(redisClient, token)
-      if (config.auto_connect || config.autoConnect) {
+      if (config.auto_connect) {
         console.info(`Auto connect key ${token}`)
         try {
           bridge(token, config)

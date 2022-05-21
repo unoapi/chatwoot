@@ -39,13 +39,14 @@ const http = async (req, res) => {
 
 /**
 {
-  "autoConnect": true,
+  "auto_connect": true,
   "mobile_name": "Me",
   "mobile_number": "+5549988290955",
-  "baseURL": "http://localhost:3000",
+  "base_url": "http://localhost:3000",
   "token": "KLo3Lupshver3GFTks4eRBjh",
   "account_id": "2",
-  "inbox_id": "3"
+  "inbox_id": "3",
+  "ignore_group_messages": true
 }
  */
 app.post('/connect', async (req, res) => {

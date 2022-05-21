@@ -33,7 +33,7 @@ class ChatWootClient {
     this.account_id = this.config.account_id
     this.inbox_id = this.config.inbox_id
     this.api = axios.create({
-      baseURL: this.config.baseURL,
+      baseURL: this.config.base_url,
       headers: {
         'Content-Type': 'application/json; charset=utf-8',
         api_access_token: this.config.token
@@ -206,7 +206,7 @@ class ChatWootClient {
           const configPost = Object.assign(
             {},
             {
-              baseURL: this.config.baseURL,
+              baseURL: this.config.base_url,
               headers: {
                 'Content-Type': 'application/json; charset=utf-8',
                 api_access_token: this.config.token,

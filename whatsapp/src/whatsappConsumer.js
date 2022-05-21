@@ -15,7 +15,7 @@ export default async (payload) => {
     if (message.attachments) {
       const config = await getAndCacheConfig(token)
       const attachment = message.attachments[0]
-      const dataUrl = `${config.baseURL}/${attachment.data_url.substring(attachment.data_url.indexOf('/rails/') + 1)}`;
+      const dataUrl = `${config.base_url}/${attachment.data_url.substring(attachment.data_url.indexOf('/rails/') + 1)}`;
       const fileType = attachment.file_type === 'file' ? 'document' : attachment.file_type
       const mimeType = mime.lookup(dataUrl)
       const object = { caption: text, mimeType }

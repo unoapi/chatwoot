@@ -73,6 +73,7 @@ services:
       SMTP_PASSWORD: kzqmahbryevylilf
       ACTIVE_STORAGE_SERVICE: local
       CHATWOOT_WHATSAPP_SERVER_AUTH_TOKEN: ksjhdfiasfu
+      CHATWOOT_WHATSAPP_URL: http://whatsapp:8888
 
   relay:
     build:
@@ -100,6 +101,10 @@ services:
       REDIS_URL: redis://:123456@redis:6379
       PORT: 8888
       CHATWOOT_WHATSAPP_SERVER_AUTH_TOKEN: ksjhdfiasfu
+      QUEUE_CHATWOOT_RETRY: 5
+      QUEUE_WHATSAPP_RETRY: 5
+      QUEUE_CHATWOOT_NAME: chatwoot
+      QUEUE_WHATSAPP_NAME: whatsapp
     ports:
       - 8888:8888
     depends_on:

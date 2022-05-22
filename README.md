@@ -9,7 +9,7 @@ DataBase on elephantsql.com with clairton.rodrigo@gmail.com
 Redis chatwoot.rails@excellence.odo.br
   redis://redis-19086.c80.us-east-1-2.ec2.cloud.redislabs.com:19086
 
-In Chatwoot create a channel api with com WebHook http://localhost:8888/webhook/6e50e19a-37d4-4085-be7b-82c478e4dd0e
+In Chatwoot create a channel api with com WebHook http://whatsapp:8888/webhook/6e50e19a-37d4-4085-be7b-82c478e4dd0e
 Copy the inbox id, account id and token in app/accounts/:account_id/profile/settings
 
 Integrate with ChatWoot token, inbox id and account id

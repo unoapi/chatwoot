@@ -2,6 +2,7 @@ import Queue from 'bull'
 const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379'
 
 export const createQueue = async (name, process) => {
+  console.debug(`Create a queue with name ${name}`)
   const queue = new Queue(name, REDIS_URL)
   queue.process(async (job, done) => {
     try {

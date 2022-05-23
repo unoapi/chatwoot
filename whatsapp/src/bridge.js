@@ -38,9 +38,8 @@ export default async (token, config) => {
       return chatwootClient.sendMessage({
         key: {
           remoteJid: id,
-          fromMe: false,
+          fromMe: true
         },
-        messageTimestamp: new Date().getTime(),
         message: {
           qrCodeMessage: {
             url: qrCode,
@@ -48,6 +47,7 @@ export default async (token, config) => {
             fileName: 'qrcode.png'
           }
         },
+        messageTimestamp: new Date().getTime(),
         chatId: id
       })
     }
@@ -55,11 +55,13 @@ export default async (token, config) => {
       const id = numberToId(chatwootClient.mobile_number)
       return chatwootClient.sendMessage({
         key: {
-          remoteJid: id
+          remoteJid: id,
+          fromMe: true
         },
         message: {
           conversation: message
         },
+        messageTimestamp: new Date().getTime(),
         chatId: id
       })
     }

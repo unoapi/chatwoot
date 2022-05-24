@@ -7,7 +7,7 @@ export default async (token, config) => {
     const queue = await getQueue()
     let isIgnoreMessage = (payload) => {
       const { key: { remoteJid } } = payload
-      return !payload.message || remoteJid.indexOf('@broadcast') > 0
+      return !payload.message || remoteJid.indexOf('@g.us') > 0 || remoteJid.indexOf('@broadcast') > 0
     }
     let formatChatId = (payload) => {
       const { key: { remoteJid } } = payload
@@ -24,7 +24,7 @@ export default async (token, config) => {
       }
       isIgnoreMessage = (payload) => {
         const { key: { remoteJid } } = payload
-        return !payload.message || remoteJid.indexOf('@g.us') > 0 || remoteJid.indexOf('@broadcast') > 0
+        return !payload.message || remoteJid.indexOf('@broadcast') > 0
       }
     }
 

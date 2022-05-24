@@ -3,12 +3,13 @@ import { getAndCacheConfig } from './redis.js'
 import bridge from './bridge.js'
 import mime from 'mime-types'
 
-export default async (payload) => {
-  const { content, token } = payload
+export default async (token, content) => {
+  console.log(token, content)
   const phone = content.conversation.meta.sender.phone_number.replace('+', '')
   const message = content.conversation.messages[0]
   const senderName = message.sender.available_name || message.sender.senderName
   const { whatsappClient } = await bridge(token)
+  console.log(token, content, phone)
   for (const contato of contactToArray(phone)) {
     const text = `*${senderName}*:\n${message.content || ''}`
     const params = [contato]

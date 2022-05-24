@@ -5,6 +5,7 @@ module RequestPatch
     base.send(:include, InstanceMethods)
     
     base.class_eval do
+      alias_method :execute_original, :execute
       alias_method :execute, :execute_and_put_headers_authorizarion
     end    
   end 
@@ -15,7 +16,7 @@ module RequestPatch
         @headers.store(:chatwoot_whatsapp_server_auth_token, ENV['CHATWOOT_WHATSAPP_SERVER_AUTH_TOKEN'])
         puts ">>>>>>>>>>>>>>>>>>> Call Request.execute with params #{@headers}"
       end
-      super.execute(& block)
+      execute_original(& block)
     end    
   end
 end

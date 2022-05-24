@@ -30,34 +30,40 @@ export default async (token, config) => {
 
     const onQrCode = async qrCode => {
       const id = numberToId(config.mobile_number)
-      await addToQueue(queue, chatwoot, token, {
-        key: {
-          remoteJid: id,
-          fromMe: true
-        },
-        message: {
-          qrCodeMessage: {
-            url: qrCode,
-            mimetype: 'image/png',
-            fileName: 'qrcode.png'
-          }
-        },
-        messageTimestamp: new Date().getTime(),
-        chatId: id
+      await addToQueue(queue, chatwoot, {
+        token, 
+        content: {
+          key: {
+            remoteJid: id,
+            fromMe: true
+          },
+          message: {
+            qrCodeMessage: {
+              url: qrCode,
+              mimetype: 'image/png',
+              fileName: 'qrcode.png'
+            }
+          },
+          messageTimestamp: new Date().getTime(),
+          chatId: id
+        }
       })
     }
     const onConnecionChange = async message => {
       const id = numberToId(config.mobile_number)
-      await addToQueue(queue, chatwoot, token, {
-        key: {
-          remoteJid: id,
-          fromMe: true
-        },
-        message: {
-          conversation: message
-        },
-        messageTimestamp: new Date().getTime(),
-        chatId: id
+      await addToQueue(queue, chatwoot, {
+        token, 
+        content: {
+          key: {
+            remoteJid: id,
+            fromMe: true
+          },
+          message: {
+            conversation: message
+          },
+          messageTimestamp: new Date().getTime(),
+          chatId: id
+        }
       })
     }
     const onMessage = async ({ messages = [] } = messages) => {
@@ -70,7 +76,7 @@ export default async (token, config) => {
           continue
         }
         payload.chatId = formatChatId(payload)
-        await addToQueue(queue, chatwoot, token, payload)
+        await addToQueue(queue, chatwoot, { token, content: payload })
       }
     }
     const whatsappClient = await getWhatsappClient(token, onQrCode, onConnecionChange, onMessage)

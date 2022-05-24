@@ -1,10 +1,11 @@
-import { redisConnect } from './redis.js'
+import { redisConnect, delConversationId } from './redis.js'
 import chatwootConsumer from './chatwootConsumer.js'
 import whatsappConsumer from './whatsappConsumer.js'
 import { Worker, Plugins, Queue } from 'node-resque'
 
 export const chatwoot = process.env.QUEUE_CHATWOOT_NAME
 export const whatsapp = process.env.QUEUE_WHATSAPP_NAME
+export const cleanConversationIdCache = 'cleanConversationIdCache'
 
 let queue = null
 
@@ -20,7 +21,8 @@ const createQueue = async () => {
         retryDelay: process.env.QUEUE_WHATSAPP_RETRY_DELAY || 10000,
       },
     },
-    perform: async (token, content) => {
+    perform: async (payload) => {
+      const { token, content } = payload
       console.debug('Process whatsapp message %s', token, content)
       await whatsappConsumer(token, content)
       return true
@@ -35,16 +37,26 @@ const createQueue = async () => {
         retryDelay: process.env.QUEUE_CHATWOOT_RETRY_DELAY || 10000,
       },
     },
-    perform: async (token, content) => {
+    perform: async (payload) => {
+      const { token, content } = payload
       console.debug('Process chatwoot message %s', token, content)
       await chatwootConsumer(token, content)
+      return true
+    }
+  }
+
+  jobs[cleanConversationIdCache] = {
+    perform: async (payload) => {
+      const { contact_inbox: { source_id } } = payload
+      console.debug('Process clean conversationId cache %s', source_id)
+      await delConversationId(source_id)
       return true
     }
   }
   const queue = new Queue({ connection: connectionDetails }, jobs)
   queue.on('error', console.error)
   const worker = new Worker(
-    { connection: connectionDetails, queues: ['message'] },
+    { connection: connectionDetails, queues: ['jobs'] },
     jobs
   );
   await worker.connect();
@@ -60,7 +72,7 @@ export const getQueue = async () => {
   return queue
 }
 
-export const addToQueue = async (queue, job, token, content, _attempts) => {
-  await queue.enqueue('message', job, [token, content])
-  console.debug('Enqueued message %s', content)
+export const addToQueue = async (queue, job, payload) => {
+  await queue.enqueue('jobs', job, [payload])
+  console.debug('Enqueued message %s', JSON.stringify(payload))
 } 

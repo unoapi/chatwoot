@@ -32,6 +32,7 @@ Todo List
 * group messages
 * copy messages sended trougth whatssap at chatwoot ok
 * bots
-* facebook app to create channel with facebook messenger and instagram direct
+* facebook messenger ok
+* instagram direct
 * qrcode connect user friendly
 * security webhook ok -> add env CHATWOOT_WHATSAPP_SERVER_AUTH_TOKEN in worker and whatsapp to auth server to server

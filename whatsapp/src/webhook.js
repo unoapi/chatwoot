@@ -1,4 +1,4 @@
-import { getQueue, whatsapp, addToQueue } from './queue.js'
+import { getQueue, whatsapp, cleanConversationIdCache,  addToQueue } from './queue.js'
 
 const queue = await getQueue()
 
@@ -15,9 +15,11 @@ export default async (req, res) => {
     })
   }
   try {
-    const { event, message_type } = req.body
+    const { event, message_type, status } = req.body
     if (event == 'message_created' && message_type == 'outgoing') {
-      await addToQueue(queue, whatsapp, token, req.body)
+      await addToQueue(queue, whatsapp, { token, content: req.body})
+    } else if (event == 'conversation_updated' && status == 'resolved') {
+      await addToQueue(queue, cleanConversationIdCache, req.body)
     }
     return res.status(200).json({ status: 'success', message: 'Success on receive chatwoot' })
   } catch (e) {

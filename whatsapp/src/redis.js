@@ -30,6 +30,11 @@ export const redisSet = async (client, key, value) => {
   return client.set(key, value)
 }
 
+export const redisDel = async (client, key) => {
+  console.debug(`Deleting ${key}`)
+  return client.del(key)
+}
+
 export const authInfoKey = (token) => {
   return `authInfo:${token}`
 }
@@ -100,4 +105,13 @@ export const getAndCacheConversationId = async (redisClient, sourceId) => {
 export const setAndCacheConversationId = async (redisClient, sourceId, conversationId) => {
   conversationIds[sourceId] = conversationId
   return setConversationId(redisClient, sourceId, conversationId)
+}
+
+export const delConversationId = async (sourceId) => {
+  const redisClient = await redisConnect()
+  delete conversationIds[sourceId]
+  const key = conversationIdKey(sourceId)
+  await redisDel(redisClient, key)
+  await redisDisconnect(redisClient)
+  return true
 }

@@ -1,4 +1,4 @@
-import bridge from './bridge.js'
+import listener from './listener.js'
 import { redisConnect, redisDisconnect, configInfoKey, redisKeys, getConfig } from './redis.js'
 
 export default async () => {
@@ -16,7 +16,7 @@ export default async () => {
       if (config.auto_connect) {
         console.info(`Auto connect key ${token}`)
         try {
-          bridge(token, config)
+          listener(token, config)
         } catch (error) {
           console.error(`Error on brigde Whatsapp/Chatwoot for token ${token}`, error)
         }

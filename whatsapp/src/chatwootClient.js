@@ -256,8 +256,8 @@ class ChatWootClient {
           throw `Unknow message type ${messageType}`
       }
     } catch (e) {
-      console.error('error on send message', e)
-      console.error('error on send message with payload', payload)
+      console.error('error on send chatwoot message', e)
+      console.error('error on send chatwoot message with payload', payload)
       throw e
     }
   }

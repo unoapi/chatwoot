@@ -46,7 +46,8 @@ const http = async (req, res) => {
   "token": "KLo3Lupshver3GFTks4eRBjh",
   "account_id": "2",
   "inbox_id": "3",
-  "ignore_group_messages": true
+  "ignore_group_messages": true,
+  "ignore_self_messages": true
 }
  */
 app.post('/connect', async (req, res) => {

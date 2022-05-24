@@ -5,14 +5,27 @@ import { getQueue, chatwoot, addToQueue } from './queue.js'
 export default async (token, config) => {
   try {
     const queue = await getQueue()
-    let isIgnoreMessage = (payload) => {
-      const { key: { remoteJid } } = payload
-      return !payload.message || remoteJid.indexOf('@g.us') > 0 || remoteJid.indexOf('@broadcast') > 0
+
+    let ignoreSelfMessage = (payload) => {
+      const { key: { fromMe } } = payload
+      return fromMe
     }
+
+    let ignoreGroupMessage = (payload) => {
+      const { key: { remoteJid } } = payload
+      return remoteJid.indexOf('@g.us') > 0
+    }
+
+    let ignoreDefault = (payload) => {
+      const { key: { remoteJid } } = payload
+      return !payload.message || remoteJid.indexOf('@broadcast') > 0
+    }
+
     let formatChatId = (payload) => {
       const { key: { remoteJid } } = payload
       return remoteJid
     }
+
     if (!config.ignore_group_messages) {
       formatChatId = (payload) => {
         const { key: { remoteJid, participant } } = payload
@@ -22,10 +35,15 @@ export default async (token, config) => {
           return remoteJid
         }
       }
-      isIgnoreMessage = (payload) => {
-        const { key: { remoteJid } } = payload
-        return !payload.message || remoteJid.indexOf('@broadcast') > 0
-      }
+      ignoreGroupMessage = _ => false
+    }
+
+    if (!config.ignore_self_messages) {
+      ignoreSelfMessage = _ => false
+    }
+
+    const isIgnoreMessage = (payload) => {
+      return ignoreDefault(payload) || ignoreSelfMessage(payload) || ignoreGroupMessage(payload)
     }
 
     const onQrCode = async qrCode => {

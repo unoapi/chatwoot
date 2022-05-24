@@ -1,10 +1,6 @@
 import { getWhatsappClient } from './whatsappClient.js'
 import { numberToId } from './utils.js'
-import chatwootConsumer from './chatwootConsumer.js'
-import { createQueue, addToQueue } from './queue.js'
-
-const queue = await createQueue(process.env.QUEUE_CHATWOOT_NAME, chatwootConsumer)
-
+import { getQueue, whatsapp, addToQueue } from './queue.js'
 import { getChatwootClient } from './chatwootClient.js'
 
 export default async (token, config) => {
@@ -18,7 +14,7 @@ export default async (token, config) => {
     const { key: { remoteJid } } = payload
     return remoteJid
   }
-  if(!config.ignore_group_messages) {
+  if (!config.ignore_group_messages) {
     formatChatId = (payload) => {
       const { key: { remoteJid, participant } } = payload
       if (remoteJid.indexOf('@g.us') > 0) {
@@ -75,7 +71,10 @@ export default async (token, config) => {
           continue
         }
         payload.chatId = formatChatId(payload)
-        await addToQueue(queue, { token, content: payload }, process.env.QUEUE_CHATWOOT_RETRY)
+
+
+const queue = await getQueue()
+        await addToQueue(queue, whatsapp, token, payload)
       }
     }
     const whatsappClient = await getWhatsappClient(token, onQrCode, onConnecionChange, onMessage)

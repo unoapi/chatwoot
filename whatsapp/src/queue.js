@@ -1,24 +1,58 @@
-import Queue from 'bull'
-const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379'
+import { redisConnect } from './redis.js'
+import chatwootConsumer from './chatwootConsumer.js'
+import whatsappConsumer from './whatsappConsumer.js'
+import { Plugins, Queue } from 'node-resque'
 
-export const createQueue = async (name, process) => {
-  console.debug(`Create a queue with name ${name}`)
-  const queue = new Queue(name, REDIS_URL)
-  queue.process(async (job) => {
-    try {
-      const payload = job.data
-      console.debug('Process message %s', payload.token, payload.content)
-      await process('message', payload)
-      job.moveToCompleted('done', true)
-    } catch (e) {
-      console.log(`Error on process message`, e)
-      job.moveToFailed({message: 'job failed'})
+export const chatwoot = process.env.QUEUE_CHATWOOT_NAME
+export const whatsapp = process.env.QUEUE_WHATSAPP_NAME
+
+let queue = null
+
+const createQueue = async () => {
+  const redisClient = await redisConnect()
+  const connectionDetails = { redis: redisClient }
+  const jobs = {}
+  jobs[whatsapp] = {
+    plugins: [Plugins.Retry],
+    pluginOptions: {
+      Retry: {
+        retryLimit: process.env.QUEUE_WHATSAPP_RETRY,
+        retryDelay: process.env.QUEUE_WHATSAPP_RETRY_DELAY || 10000,
+      },
+    },
+    perform: async (token, content) => {
+      console.debug('Process whatsapp message %s', token, content)
+      return await whatsappConsumer(token, content)
     }
-  })
+  }
+
+  jobs[chatwoot] = {
+    plugins: [Plugins.Retry],
+    pluginOptions: {
+      Retry: {
+        retryLimit: process.env.QUEUE_CHATWOOT_RETRY,
+        retryDelay: process.env.QUEUE_CHATWOOT_RETRY_DELAY || 10000,
+      },
+    },
+    perform: async (token, content) => {
+      console.debug('Process chatwoot message %s', token, content)
+      return await chatwootConsumer(token, content)
+    }
+  }
+  const queue = new Queue({ connection: connectionDetails }, jobs)
+  queue.on('error', console.error)
+  await queue.connect()
   return queue
 }
 
-export const addToQueue = async (queue, payload, attempts) => {
-  queue.add('message', payload, { attempts, backoff: 10000 })
-  console.debug('Enqueued message %s', payload.content)
+export const getQueue = async () => {
+  if (!queue) {
+    queue = await createQueue()
+  }
+  return queue
+}
+
+export const addToQueue = async (queue, job, token, content, _attempts) => {
+  await queue.enqueue('message', job, [token, content])
+  console.debug('Enqueued message %s', content)
 } 

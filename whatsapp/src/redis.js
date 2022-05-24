@@ -1,12 +1,11 @@
-import redis from 'redis'
+import Redis from 'ioredis'
 const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379'
 const configs = {}
 const conversationIds = {}
 
 export const redisConnect = async (redisUrl = REDIS_URL) => {
   console.debug(`Connecting redis`)
-  const client = await redis.createClient({ url: redisUrl })
-  await client.connect()
+  const client = new Redis(redisUrl)
   client.on('error', error => console.log(`Redis Error: ${error}`))
   return client
 }

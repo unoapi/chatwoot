@@ -5,18 +5,18 @@ module RequestPatch
     base.send(:include, InstanceMethods)
     
     base.class_eval do
-      alias_method :execute_original, :execute
-      alias_method :execute, :execute_and_put_headers_authorizarion
+      alias_method :make_headers_original, :make_headers
+      alias_method :make_headers, :make_headers_and_put_headers_authorizarion
     end    
   end 
   
   module InstanceMethods
-    def execute_and_put_headers_authorizarion(& block)
+    def make_headers_and_put_headers_authorizarion(user_headers)
       if @url.starts_with?(ENV['CHATWOOT_WHATSAPP_URL'])
-        @headers.store(:chatwoot_whatsapp_server_auth_token, ENV['CHATWOOT_WHATSAPP_SERVER_AUTH_TOKEN'])
-        puts ">>>>>>>>>>>>>>>>>>> Call Request.execute with params #{@headers}"
+        user_headers.store(:chatwoot_whatsapp_server_auth_token, ENV['CHATWOOT_WHATSAPP_SERVER_AUTH_TOKEN'])
+        puts ">>>>>>>>>>>>>>>>>>> make_headers with params #{user_headers}"
       end
-      execute_original(& block)
-    end    
+      make_headers_original(user_headers)
+    end
   end
 end

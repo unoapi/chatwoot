@@ -3,13 +3,15 @@ import { getQueue, whatsapp, addToQueue } from './queue.js'
 const queue = await getQueue()
 
 export default async (req, res) => {
+  console.debug('chatwoot message headers', req.headers)
+  console.debug('chatwoot message body', req.body)
   const { token } = req.params
-  const httpAuthToken = req.headers['chatwoot_whatsapp_server_auth_token']
+  const httpAuthToken = req.headers['chatwoot-whatsapp-server-auth-token']
   const envAuthToken = process.env.CHATWOOT_WHATSAPP_SERVER_AUTH_TOKEN
   if (httpAuthToken !== envAuthToken) {
     return res.status(401).json({
       status: 'error',
-      message: `Invalid header chatwoot_whatsapp_server_auth_token value ${httpAuthToken}`
+      message: `Invalid header chatwoot-whatsapp-server-auth-token value ${httpAuthToken}`
     })
   }
   try {

@@ -15,12 +15,13 @@ const http = async (req, res) => {
   console.info('Received token: ', req.params.token, req.body)
   const token = req.params.token
   const config = req.body
-  const httpAuthToken = req.headers['chatwoot_whatsapp_server_auth_token']
+  const headerName = 'chatwoot-whatsapp-server-auth-token'
+  const httpAuthToken = req.headers[headerName]
   const envAuthToken = process.env.CHATWOOT_WHATSAPP_SERVER_AUTH_TOKEN
   if (httpAuthToken !== envAuthToken) {
     res.status(401).json({
       status: 'error', 
-      message: `Invalid header chatwoot_whatsapp_server_auth_token value ${httpAuthToken}` 
+      message: `Invalid header ${headerName} value ${httpAuthToken}` 
     })
   }
   try {

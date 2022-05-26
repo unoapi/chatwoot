@@ -7,7 +7,7 @@ import QRCode from 'qrcode'
 import mime from 'mime-types'
 import { getQueue, chatwoot, addToQueue } from './queue.js'
 
-export const delWhatsappClient = async (token)=>{
+export const delWhatsappClient = async (token) => {
   delete whatsappClients[token]
 }
 
@@ -56,7 +56,7 @@ export const getWhatsappClient = async (token, config) => {
     const isIgnoreMessage = (payload) => {
       return ignoreDefault(payload) || ignoreSelfMessage(payload) || ignoreGroupMessage(payload)
     }
-    const sock = await connect(token, isIgnoreMessage, formatChatId)
+    const sock = await connect(token, config, isIgnoreMessage, formatChatId)
     const whatsappClient = new WhatsappClient(token, sock)
     whatsappClients[token] = whatsappClient
   }
@@ -68,18 +68,25 @@ class WhatsappClient {
   constructor(config, sock) {
     this.config = config
     this.sock = sock
+    if (!config.identify_sender_on_message) {
+      this.formatMessageSender = _ => ''
+    } else {
+      this.formatMessageSender = message => {
+        const senderName = message.sender.available_name || message.sender.senderName
+        return `*${senderName}*:\n}`
+      }
+    }
   }
 
   async sendMessage(payload) {
     const phone = payload.conversation.meta.sender.phone_number.replace('+', '')
     const message = payload.conversation.messages[0]
-    const senderName = message.sender.available_name || message.sender.senderName
     for (const contact of contactToArray(phone)) {
-      const text = `*${senderName}*:\n${message.content || ''}`
+      const text = `${this.formatMessageSender(message)}${message.content || ''}`
       const params = [contact]
       if (message.attachments) {
         const attachment = message.attachments[0]
-        const dataUrl = `${this.config.base_url}/${attachment.data_url.substring(attachment.data_url.indexOf('/rails/') + 1)}`;
+        const dataUrl = `${config.base_url}/${attachment.data_url.substring(attachment.data_url.indexOf('/rails/') + 1)}`;
         const fileType = attachment.file_type === 'file' ? 'document' : attachment.file_type
         const mimeType = mime.lookup(dataUrl)
         const object = { caption: text, mimeType }
@@ -95,7 +102,7 @@ class WhatsappClient {
   }
 }
 
-const connect = async (token, isIgnoreMessage, formatChatId) => {
+const connect = async (token, config, isIgnoreMessage, formatChatId) => {
   try {
     const queue = await getQueue()
     const onQrCode = async qrCode => {

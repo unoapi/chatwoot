@@ -26,7 +26,8 @@ curl --location --request POST 'http://localhost:8888/connect/6e50e19a-37d4-4085
   "account_id": "2",
   "inbox_id": "3",
   "ignore_group_messages": true,
-  "ignore_self_messages": true
+  "ignore_self_messages": true,
+  "identify_sender_on_message": true
 }'
 
 Todo List

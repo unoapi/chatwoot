@@ -24,12 +24,6 @@ export const getChatwootClient = (token, config) => {
 class ChatWootClient {
   constructor(config) {
     this.config = config
-    this.mobile_name = this.config.mobile_name
-    this.mobile_number = this.config.mobile_number
-    this.sender = {
-      pushname: this.mobile_name,
-      id: this.mobile_number,
-    }
     this.account_id = this.config.account_id
     this.inbox_id = this.config.inbox_id
     this.api = axios.create({
@@ -165,7 +159,7 @@ class ChatWootClient {
       payload.phone = idToNumber(payload.isGroup ? participant : remoteJid)
       const contact = await this.createContact(payload)
       const conversation = await this.createConversation(contact, payload.chatId || remoteJid)
-      const url = `api/v1/accounts/${this.account_id}/conversations/${conversation.id}/messages`
+      const url = `api/v1/accounts/${this.config.account_id}/conversations/${conversation.id}/messages`
       const messageType = Object.keys(payload.message)[0]
       const chatwootMessageType = fromMe ? 'template' : 'incoming'
       switch (messageType) {

@@ -179,7 +179,7 @@ const connect = async (token, config, isIgnoreMessage, formatChatId) => {
           console.warn('connection closed due to ', lastDisconnect.error, ', reconnecting ', shouldReconnect, 'token', token)
           if (shouldReconnect) {
             await onConnecionChange('Whatsapp connection is changed, try reconnecting!')
-            return connect(token, onQrCode, onConnecionChange, onMessage)
+            return connect(token, config, onQrCode, onConnecionChange, onMessage)
           }
 
           const isUnauthorized = lastDisconnect.error.output.statusCode === DisconnectReason.loggedOut

@@ -31,6 +31,8 @@ curl --location --request POST 'http://localhost:8888/connect/6e50e19a-37d4-4085
 
 Todo List
 * group messages
+* save whasapp message id
+* mark message as read
 * copy messages sended trougth whatssap at chatwoot ok
 * bots
 * facebook messenger ok

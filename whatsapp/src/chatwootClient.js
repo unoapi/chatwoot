@@ -312,7 +312,7 @@ class ChatWootClient {
     }
   }
 
-  async findConversation(conversationId) {
+  async findCachedConversation(conversationId) {
     console.debug(`Find conversation with id ${conversationId}`)
     try {
       let data
@@ -339,15 +339,34 @@ class ChatWootClient {
     }
   }
 
+  async findConversation(contact) {
+    try {
+      const { data } = await this.api.get(
+        `api/v1/accounts/${this.config.account_id}/conversations?inbox_id=${this.config.inbox_id}&status=all`
+      )
+      return data.data.payload.find((e) => e.meta.sender.id == contact.id && e.status != 'resolved')
+    } catch (e) {
+      console.error('error on find conversation', e)
+      throw e
+    }
+  }
+
   async createConversation(contact, sourceId) {
     const redisClient = await redisConnect()
     const conversationId = await getAndCacheConversationId(redisClient, sourceId)
     if (conversationId) {
-      const conversation = await this.findConversation(conversationId)
+      const conversation = await this.findCachedConversation(conversationId)
       if (conversation) {
         await redisDisconnect(redisClient)
         return conversation
       }
+    }
+    const conversation = await this.findConversation(contact)
+    if (conversation) {
+      console.debug(`Found conversation with contact id ${contact.id}`)
+      await setAndCacheConversationId(redisClient, sourceId, conversation.id)
+      await redisDisconnect(redisClient)
+      return conversation
     }
     const body = {
       source_id: sourceId,

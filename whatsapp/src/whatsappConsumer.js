@@ -1,31 +1,8 @@
-import { contactToArray } from './utils.js'
 import { getAndCacheConfig } from './redis.js'
-import listener from './listener.js'
-import mime from 'mime-types'
+import { getWhatsappClient } from './whatsappClient.js'
 
 export default async (token, content) => {
-  const phone = content.conversation.meta.sender.phone_number.replace('+', '')
-  const message = content.conversation.messages[0]
-  const senderName = message.sender.available_name || message.sender.senderName
   const config = await getAndCacheConfig(token)
-  const whatsappClient = await listener(token, config)
-  console.log(token, content, phone)
-  for (const contato of contactToArray(phone)) {
-    const text = `*${senderName}*:\n${message.content || ''}`
-    const params = [contato]
-    if (message.attachments) {
-      const attachment = message.attachments[0]
-      const dataUrl = `${config.base_url}/${attachment.data_url.substring(attachment.data_url.indexOf('/rails/') + 1)}`;
-      const fileType = attachment.file_type === 'file' ? 'document' : attachment.file_type
-      const mimeType = mime.lookup(dataUrl)
-      const object = { caption: text, mimeType }
-      object[fileType] = { url: dataUrl }
-      params.push(object)
-    } else {
-      params.push({ text })
-    }
-    params.push({ detectLinks: false })
-    console.debug('message to send to whatsapp', ...params)
-    await whatsappClient.sendMessage(...params)
-  }
+  const whatsappClient = await getWhatsappClient(token, config)
+  await whatsappClient.sendMessage(content)
 }

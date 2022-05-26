@@ -2,22 +2,153 @@ import saveStateRedis from './saveState.js'
 import baileys, { DisconnectReason } from '@adiwajshing/baileys'
 const makeWASocket = baileys.default
 import { whatsappClients } from './session.js'
-import { idToNumber, numberToId } from './utils.js'
+import { idToNumber, numberToId, contactToArray } from './utils.js'
 import QRCode from 'qrcode'
+import mime from 'mime-types'
+import { getQueue, chatwoot, addToQueue } from './queue.js'
 
-export const getWhatsappClient = async (token, onQrCode, onConnecionChange, onMessage) => {
+export const delWhatsappClient = async (token)=>{
+  delete whatsappClients[token]
+}
+
+export const getWhatsappClient = async (token, config) => {
   if (whatsappClients[token] && Object.keys(whatsappClients[token]).length > 0) {
     console.info('Whatsapp client already exist for token', token)
   } else {
-    const whatsappClient = await connect(token, onQrCode, onConnecionChange, onMessage)
+    console.info('Create new Whatsapp client for token', token)
+
+    let ignoreSelfMessage = (payload) => {
+      const { key: { fromMe } } = payload
+      return fromMe
+    }
+
+    let ignoreGroupMessage = (payload) => {
+      const { key: { remoteJid } } = payload
+      return remoteJid.indexOf('@g.us') > 0
+    }
+
+    let ignoreDefault = (payload) => {
+      const { key: { remoteJid } } = payload
+      return !payload.message || remoteJid.indexOf('@broadcast') > 0
+    }
+
+    let formatChatId = (payload) => {
+      const { key: { remoteJid } } = payload
+      return remoteJid
+    }
+
+    if (!config.ignore_group_messages) {
+      formatChatId = (payload) => {
+        const { key: { remoteJid, participant } } = payload
+        if (remoteJid.indexOf('@g.us') > 0) {
+          return `${remoteJid}#${participant}`
+        } else {
+          return remoteJid
+        }
+      }
+      ignoreGroupMessage = _ => false
+    }
+
+    if (!config.ignore_self_messages) {
+      ignoreSelfMessage = _ => false
+    }
+
+    const isIgnoreMessage = (payload) => {
+      return ignoreDefault(payload) || ignoreSelfMessage(payload) || ignoreGroupMessage(payload)
+    }
+    const sock = await connect(token, isIgnoreMessage, formatChatId)
+    const whatsappClient = new WhatsappClient(token, sock)
     whatsappClients[token] = whatsappClient
   }
   return whatsappClients[token]
 }
 
-const connect = async (token, onQrCode, onConnecionChange, onMessage) => {
+
+class WhatsappClient {
+  constructor(config, sock) {
+    this.config = config
+    this.sock = sock
+  }
+
+  async sendMessage(payload) {
+    const phone = payload.conversation.meta.sender.phone_number.replace('+', '')
+    const message = payload.conversation.messages[0]
+    const senderName = message.sender.available_name || message.sender.senderName
+    for (const contact of contactToArray(phone)) {
+      const text = `*${senderName}*:\n${message.content || ''}`
+      const params = [contact]
+      if (message.attachments) {
+        const attachment = message.attachments[0]
+        const dataUrl = `${this.config.base_url}/${attachment.data_url.substring(attachment.data_url.indexOf('/rails/') + 1)}`;
+        const fileType = attachment.file_type === 'file' ? 'document' : attachment.file_type
+        const mimeType = mime.lookup(dataUrl)
+        const object = { caption: text, mimeType }
+        object[fileType] = { url: dataUrl }
+        params.push(object)
+      } else {
+        params.push({ text })
+      }
+      params.push({ detectLinks: false })
+      console.debug('message to send to whatsapp', ...params)
+      await this.sock.sendMessage(...params)
+    }
+  }
+}
+
+const connect = async (token, isIgnoreMessage, formatChatId) => {
   try {
-    console.info('Create new Whatsapp client for token', token)
+    const queue = await getQueue()
+    const onQrCode = async qrCode => {
+      const id = numberToId(config.mobile_number)
+      await addToQueue(queue, chatwoot, {
+        token,
+        content: {
+          key: {
+            remoteJid: id,
+            fromMe: true
+          },
+          message: {
+            qrCodeMessage: {
+              url: qrCode,
+              mimetype: 'image/png',
+              fileName: 'qrcode.png'
+            }
+          },
+          messageTimestamp: new Date().getTime(),
+          chatId: id
+        }
+      })
+    }
+    const onConnecionChange = async message => {
+      const id = numberToId(config.mobile_number)
+      await addToQueue(queue, chatwoot, {
+        token,
+        content: {
+          key: {
+            remoteJid: id,
+            fromMe: true
+          },
+          message: {
+            conversation: message
+          },
+          messageTimestamp: new Date().getTime(),
+          chatId: id
+        }
+      })
+    }
+    const onMessage = async ({ messages = [] } = messages) => {
+      console.debug(`${messages.length} new message(s) received from Whatsapp`)
+      for (var i = 0, j = messages.length; i < j; i++) {
+        const payload = messages[i]
+        console.debug('whatsapp message', payload)
+        if (isIgnoreMessage(payload)) {
+          console.debug('ignore message')
+          continue
+        }
+        payload.chatId = formatChatId(payload)
+        await addToQueue(queue, chatwoot, { token, content: payload })
+      }
+    }
     const { state, saveState, clearState } = await saveStateRedis(token)
     return new Promise((resolve) => {
       console.info('Connecting token', token)

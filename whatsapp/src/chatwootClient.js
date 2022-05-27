@@ -369,11 +369,30 @@ class ChatWootClient {
   }
 
   async findConversation(contact) {
+    console.debug(`Find conversation with id account id ${this.config.account_id}, inbox id ${this.config.inbox_id} and contact id ${contact.id}`)
     try {
-      const { data } = await this.api.get(
-        `api/v1/accounts/${this.config.account_id}/conversations?inbox_id=${this.config.inbox_id}&status=all`
+      const { data } = await this.api.post(
+        `api/v1/accounts/${this.config.account_id}/conversations/filter`,
+        {
+          payload: [
+                {
+                  attribute_key: 'inbox_id',
+                  filter_operator: 'equal_to',
+                  values: [parseInt(this.config.inbox_id)],
+                  query_operator: 'AND'
+                },
+                {
+                  attribute_key: 'contact_id',
+                  filter_operator: 'equal_to',
+                  values: [contact.id],
+                  // query_operator: 'AND'
+                }
+          ]
+        }
       )
-      return data.data.payload.find((e) => e.meta.sender.id == contact.id && e.status != 'resolved')
+      const conversation = data.payload[0]
+      console.debug(`Found conversation ${conversation.id} with contact id ${contact.id}`)
+      return conversation
     } catch (e) {
       console.error('error on find conversation', e)
       throw e
@@ -392,7 +411,6 @@ class ChatWootClient {
     }
     const conversation = await this.findConversation(contact)
     if (conversation) {
-      console.debug(`Found conversation with contact id ${contact.id}`)
       await setAndCacheConversationId(redisClient, sourceId, conversation.id)
       await redisDisconnect(redisClient)
       return conversation

@@ -34,7 +34,7 @@ Todo List
 * group messages
 * save whasapp message id
 * mark message as read
-* copy messages sended trougth whatssap at chatwoot ok
+* copy messages sended from whatsaap connected at chatwoot
 * bots
 * facebook messenger ok
 * instagram direct

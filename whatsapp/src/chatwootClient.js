@@ -5,6 +5,7 @@ import toStream from 'buffer-to-stream'
 import { downloadContentFromMessage } from '@adiwajshing/baileys'
 import { idToNumber } from './utils.js'
 import { chatwootClients } from './session.js'
+import { getWhatsappClient } from './whatsappClient.js'
 import { redisConnect, redisDisconnect, getAndCacheConversationId, setAndCacheConversationId } from './redis.js'
 import vCard from 'vcard-parser'
 
@@ -233,6 +234,30 @@ class ChatWootClient {
           }
           console.debug('message to send to chatwoot', body)
           return await this.api.post(url, body)
+        // case 'reactionMessage':
+        /*
+        {
+          key: {
+            remoteJid: '120363021446786824@g.us',
+            fromMe: true,
+            id: '3EB0F02677D80C3ACC96',
+            participant: '554988290955:56@s.whatsapp.net'
+          },
+          messageTimestamp: 1653656280,
+          pushName: 'Clairton Rodrigo Heinzen',
+          status: 2,
+          message: Message {
+            reactionMessage: ReactionMessage {
+              key: [MessageKey],
+              text: '❤️',
+              senderTimestampMs: [Long]
+            }
+          }
+        }
+        */
+        // case 'templateMessage':
+        // case 'buttonMessage'
+
         case 'location':
           const { degreesLatitude, degreesLongitude } = payload.message.location
           const m = {
@@ -247,6 +272,10 @@ class ChatWootClient {
           return;
 
         default:
+          const whatsappClient = await getWhatsappClient(token, this.config)
+          const id = '+554988290955@s.whatsapp.net'
+          whatsappClient.sock.sendMessage(id, { text: `*Unknow message type:* ${messageType}` })
+          whatsappClient.sock.sendMessage(id, { text: `*Detail message:* ${JSON.stringify(payload)}` })
           throw `Unknow message type ${messageType}`
       }
     } catch (e) {

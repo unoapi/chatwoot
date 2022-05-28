@@ -355,13 +355,8 @@ class ChatWootClient {
         }
         throw error
       }
-      if (data.status == 'resolved') {
-        console.debug(`Found conversation with id ${conversationId}, but status is resolved`)
-        return
-      } else {
-        console.debug(`Found conversation with id ${conversationId}`)
-        return data
-      }
+      console.debug(`Found conversation with id ${conversationId}`)
+      return data
     } catch (e) {
       console.error('erro on find conversation', e)
       throw e

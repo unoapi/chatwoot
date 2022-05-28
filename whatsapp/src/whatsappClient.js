@@ -201,7 +201,7 @@ const connect = async (token, config, isIgnoreMessage, formatChatId) => {
           try {
             await sock.sendMessage(id, { text: `Success Whatsapp connected in Chatwoot` })
           } catch (error) {
-            console.warn('Error on welcome message', e)
+            console.warn('Error on welcome message', error)
           }
           resolve(sock)
         } else if (qr) {

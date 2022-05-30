@@ -11,7 +11,6 @@ services:
       - redis
       - worker
       - relay
-      - whatsapp
     volumes:
       - ./bin/w3b.sh:/bin/w3b.sh
     environment:
@@ -31,23 +30,19 @@ services:
       MAILER_INBOUND_EMAIL_DOMAIN: excellence.odo.br
       RAILS_INBOUND_EMAIL_SERVICE: relay
       RAILS_INBOUND_EMAIL_PASSWORD: abcde
-      CHATWOOT_PREPARE: 'true'
+      CHATWOOT_PREPARE: 'false'
       SECRET_KEY_BASE: qdjwoqroiqwihqwoeqwokdnqwdncuneuf82183219381ob
       ACTIVE_STORAGE_SERVICE: local
     ports:
       - 3000:3000
 
   worker:
-    build:
-      dockerfile: worker.Dockerfile
+    container_name: worker
+    image: registry.gitlab.com/clairton/chatwoot-worker:1.0.2
     depends_on:
       - postgres
       - redis
-      - whatsapp
-      - minio
-    volumes:
-      - ./bin/email_relay_job.rb:/app/app/jobs/email_relay_job.rb
-      - ./bin/worker.sh:/bin/worker.sh
+      - whatsapp-channel
     environment:
       POSTGRES_HOST: postgres
       POSTGRES_USERNAME: postgres
@@ -72,15 +67,13 @@ services:
       SMTP_USERNAME: minhaodontoexcellence@gmail.com
       SMTP_PASSWORD: kzqmahbryevylilf
       ACTIVE_STORAGE_SERVICE: local
-      CHATWOOT_WHATSAPP_SERVER_AUTH_TOKEN: ksjhdfiasfu
-      CHATWOOT_WHATSAPP_URL: http://whatsapp:8888
+      WHATSAPP_CHANNEL_SERVER_AUTH_TOKEN: ksjhdfiasfu
+      WHATSAPP_CHANNEL_SERVER_AUTH_HEADER_NAME: whatsapp-channel-server-auth-token
+      WHATSAPP_CHANNEL_URL: http://whatsapp-channel:8888
 
   relay:
-    build:
-      dockerfile: relay.Dockerfile
-    volumes:
-      - ./config/mailboxes.yml:/app/mailboxes.yml
-      - ./bin/relay.sh:/bin/relay.sh
+    container_name: relay
+    image: registry.gitlab.com/clairton/chatwoot-relay:1.0.1
     environment:
       IMAP_SSL: 'true'
       IMAP_HOST: imap.gmail.com
@@ -89,40 +82,42 @@ services:
       IMAP_USER: minhaodontoexcellence@gmail.com
       REDIS_URL: redis://:123456@redis:6379
 
-  whatsapp:
-    container_name: whatsapp
-    volumes:
-      - ./whatsapp:/app
-    build: 
-      context: ./whatsapp
-      dockerfile: Dockerfile
-    command: yarn dev
+  whatsapp-channel:
+    container_name: whatsapp-channel
+    image: registry.gitlab.com/clairton/whatsapp-channel:0.2.3
     environment:
       REDIS_URL: redis://:123456@redis:6379
       PORT: 8888
-      CHATWOOT_WHATSAPP_SERVER_AUTH_TOKEN: ksjhdfiasfu
-      QUEUE_CHATWOOT_RETRY: 5
-      QUEUE_WHATSAPP_RETRY: 5
-      QUEUE_CHATWOOT_NAME: chatwoot
-      QUEUE_WHATSAPP_NAME: whatsapp
+      WHATSAPP_CHANNEL_SERVER_AUTH_HEADER_NAME: whatsapp-channel-server-auth-token
+      WHATSAPP_CHANNEL_SERVER_AUTH_TOKEN: ksjhdfiasfu
+      WHATSAPP_CHANNEL_URL: http://whatsapp-channel:8888
+      WHATSAPP_API_SERVER_AUTH_HEADER_NAME: whatsapp-api-server-auth-token
+      WHATSAPP_API_SERVER_AUTH_TOKEN: abc123
+      WHATSAPP_API_URL: http://whatsapp-api:9999
+      QUEUE_RETRY_LIMIT: 5
+      QUEUE_RETRY_DELAY: 5
+      QUEUE_NAME: chatwoot
+      CHATWOOT_URL: http://w3b:3000
+      CHATWOOT_SERVER_AUTH_TOKEN: MTCUyyShYSfaZg1Wqr1Wr2KB
     ports:
       - 8888:8888
     depends_on:
       - redis
-
-  minio:
-    hostname: minio
-    container_name: minio
-    image: quay.io/minio/minio:latest
-    command: server /data --console-address ":9001"
-    volumes:
-      - ./data/storage:/data
+      - whatsapp-api
+  
+  whatsapp-api:
+    container_name: whatsapp-api
+    image: registry.gitlab.com/clairton/whatsapp-api:0.2.2
     environment:
-      MINIO_ROOT_USER: minio
-      MINIO_ROOT_PASSWORD: minio123
+      PORT: 9999
+      POSTBACK_URL: http://whatsapp-channel:8888/whatsapp-webhook
+      POSTBACK_SERVER_AUTH_TOKEN: ksjhdfiasfu
+      WHATSAPP_API_SERVER_AUTH_TOKEN: abc123
+      REDIS_URL: redis://:123456@redis:6379
     ports:
-      - 9000:9000
-      - 9001:9001
+      - 9999:9999
+    depends_on:
+      - redis
 
   postgres:
     image: postgres:14-alpine
@@ -130,6 +125,7 @@ services:
       - 5432:5432
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
+    command: ['postgres', '-c', 'log_statement=all', '-c', 'log_destination=stderr']
     environment:
       POSTGRES_DB: chatwoot
       POSTGRES_USER: postgres

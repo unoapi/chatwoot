@@ -2,29 +2,6 @@ stages:
   - build
   - deploy
 
-build_worker:
-  stage: build
-  image: docker:stable-git
-  services:
-    - docker:dind
-  variables:
-    DOCKER_DRIVER: overlay2
-  artifacts:
-    paths:
-      - image_worker.txt
-  script:
-    - sh ./scripts/build.sh worker $HEROKU_TOKEN
-  only:
-    - tags
-
-deploy_worker:
-  stage: deploy
-  image: alpine:latest
-  script:
-    - sh ./scripts/deploy.sh worker worker $HEROKU_TOKEN
-  only:
-    - tags
-
 build_w3b:
   stage: build
   image: docker:stable-git
@@ -45,52 +22,5 @@ deploy_w3b:
   image: alpine:latest
   script:
     - sh ./scripts/deploy.sh w3b web $HEROKU_TOKEN
-  only:
-    - tags
-
-build_relay:
-  stage: build
-  image: docker:stable-git
-  services:
-    - docker:dind
-  variables:
-    DOCKER_DRIVER: overlay2
-  artifacts:
-    paths:
-      - image_relay.txt
-  script:
-    - sh ./scripts/build.sh relay $HEROKU_TOKEN
-  only:
-    - tags
-
-deploy_relay:
-  stage: deploy
-  image: alpine:latest
-  script:
-    - sh ./scripts/deploy.sh relay worker $HEROKU_TOKEN
-  only:
-    - tags
-
-build_whatsapp:
-  stage: build
-  image: docker:stable-git
-  services:
-    - docker:dind
-  variables:
-    DOCKER_DRIVER: overlay2
-  artifacts:
-    paths:
-      - image_whatsapp.txt
-  script:
-    - sh ./scripts/build.sh whatsapp $HEROKU_TOKEN
-  only:
-    - tags
-
-deploy_whatsapp:
-  stage: deploy
-  image: alpine:latest
-  script:
-    - sh ./scripts/deploy.sh whatsapp web $HEROKU_TOKEN
-
   only:
     - tags

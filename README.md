@@ -16,7 +16,7 @@ Integrate with ChatWoot token, inbox id and account id
 
 curl --location --request POST 'http://localhost:8888/connect/6e50e19a-37d4-4085-be7b-82c478e4dd0e' \
 --header 'Content-Type: application/json' \
---header 'chatwoot-whatsapp-server-auth-token: $CHATWOOT_WHATSAPP_SERVER_AUTH_TOKEN'
+--header 'whatsapp-channel-server-auth-token: $WHATSAPP_CHANNEL_SERVER_AUTH_TOKEN'
 --data-raw '{
   "auto_connect": true,
   "mobile_name": "Me",
@@ -39,4 +39,4 @@ Todo List
 * facebook messenger ok
 * instagram direct
 * qrcode connect user friendly
-* security webhook ok -> add env CHATWOOT_WHATSAPP_SERVER_AUTH_TOKEN in worker and whatsapp to auth server to server
+* security webhook ok -> add env WHATSAPP_CHANNEL_SERVER_AUTH_TOKEN in worker and whatsapp to auth server to server

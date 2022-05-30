@@ -1,6 +1,2 @@
 data/*
-.env
 .DS_Store
-mail_room/*
-whatsapp/node_modules/*
-whatsapp/dist/*

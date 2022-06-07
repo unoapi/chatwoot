@@ -4,6 +4,7 @@ services:
   w3b:
     hostname: w3b
     container_name: w3b
+    image: registry.gitlab.com/clairton/chatwoot-w3b:latest
     build:
       dockerfile: w3b.Dockerfile
     depends_on:
@@ -13,7 +14,9 @@ services:
       - relay
     volumes:
       - ./bin/w3b.sh:/bin/w3b.sh
+    env_file: aws.env
     environment:
+      ENABLE_RACK_ATTACK: 'false'
       PORT: 3000
       POSTGRES_HOST: postgres
       POSTGRES_USERNAME: postgres
@@ -84,7 +87,8 @@ services:
 
   whatsapp-channel:
     container_name: whatsapp-channel
-    image: registry.gitlab.com/clairton/whatsapp-channel:0.3.1
+    image: registry.gitlab.com/clairton/whatsapp-channel:latest
+    env_file: aws.env
     environment:
       REDIS_URL: redis://:123456@redis:6379
       PORT: 8888
@@ -107,7 +111,8 @@ services:
   
   whatsapp-api:
     container_name: whatsapp-api
-    image: registry.gitlab.com/clairton/whatsapp-api:0.3.0
+    image: registry.gitlab.com/clairton/whatsapp-api:latest
+    env_file: aws.env
     environment:
       PORT: 9999
       POSTBACK_URL: http://whatsapp-channel:8888/whatsapp-webhook

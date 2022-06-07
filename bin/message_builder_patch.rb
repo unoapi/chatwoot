@@ -23,7 +23,6 @@ end
 
 ActiveSupport::Reloader.to_prepare do
   puts "add monkey patch message_builder_patch.........."
-  # Message.include AddExternalSourceIdsWhatsappToMessage
   Messages::MessageBuilder.include(MessageBuilderPatch)
   puts "monkey patch message_builder_patch successfull!"
 end

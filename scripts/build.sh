@@ -8,8 +8,12 @@ docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
 docker build -f $SERVICE.Dockerfile -t $CONTAINER_IMAGE .
 docker push $CONTAINER_IMAGE
 docker login --username=_ --password=$TOKEN registry.heroku.com
-export HEROKU_IMAGE="registry.heroku.com/chatwoot-${SERVICE}:${TAG_NAME}"
+export BASE_HEROKU_IMAGE="registry.heroku.com/chatwoot-${SERVICE}:${TAG_NAME}"
+export LATEST_HEROKU_IMAGE="${BASE_HEROKU_IMAGE}:latest"
+export HEROKU_IMAGE="${BASE_HEROKU_IMAGE}:${TAG_NAME}"
 docker tag $CONTAINER_IMAGE $HEROKU_IMAGE
+docker tag $CONTAINER_IMAGE $LATEST_HEROKU_IMAGE
 docker push $HEROKU_IMAGE
+docker push $LATEST_HEROKU_IMAGE
 export IMAGE_ID=`docker inspect $HEROKU_IMAGE --format={{.Id}}`
 echo $IMAGE_ID > "image_${SERVICE}.txt"

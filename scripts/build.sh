@@ -12,7 +12,7 @@ docker push $CONTAINER_IMAGE
 docker tag $CONTAINER_IMAGE $LATEST_CONTAINER_IMAGE
 docker push $LATEST_CONTAINER_IMAGE
 echo "$TOKEN" | docker login --username=_ registry.heroku.com --password-stdin
-export HEROKU_IMAGE="registry.heroku.com/${SERVICE}:${TAG_NAME}"
+export HEROKU_IMAGE="registry.heroku.com/chatwoot-${SERVICE}:${TAG_NAME}"
 docker tag $CONTAINER_IMAGE $HEROKU_IMAGE
 docker push $HEROKU_IMAGE
 export IMAGE_ID=`docker inspect $HEROKU_IMAGE --format={{.Id}}`

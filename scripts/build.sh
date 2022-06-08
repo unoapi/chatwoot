@@ -3,17 +3,17 @@ SERVICE=$1
 TOKEN=$2
 
 export TAG_NAME="$(git describe --abbrev=0 --tags | cut -d"v" -f2)"
-export CONTAINER_IMAGE="registry.gitlab.com/clairton/chatwoot/${SERVICE}:${TAG_NAME}"
-docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
+export BASE_CONTAINER_IMAGE="registry.gitlab.com/clairton/${SERVICE}"
+export CONTAINER_IMAGE="${BASE_CONTAINER_IMAGE}:${TAG_NAME}"
+export LATEST_CONTAINER_IMAGE="${BASE_CONTAINER_IMAGE}:latest"
+echo "$CI_JOB_TOKEN" | docker login --username=gitlab-ci-token registry.gitlab.com --password-stdin
 docker build -f $SERVICE.Dockerfile -t $CONTAINER_IMAGE .
 docker push $CONTAINER_IMAGE
-docker login --username=_ --password=$TOKEN registry.heroku.com
-export BASE_HEROKU_IMAGE="registry.heroku.com/chatwoot-${SERVICE}:${TAG_NAME}"
-export LATEST_HEROKU_IMAGE="${BASE_HEROKU_IMAGE}:latest"
-export HEROKU_IMAGE="${BASE_HEROKU_IMAGE}:${TAG_NAME}"
+docker tag $CONTAINER_IMAGE $LATEST_CONTAINER_IMAGE
+docker push $LATEST_CONTAINER_IMAGE
+echo "$TOKEN" | docker login --username=_ registry.heroku.com --password-stdin
+export HEROKU_IMAGE="registry.heroku.com/${SERVICE}:${TAG_NAME}"
 docker tag $CONTAINER_IMAGE $HEROKU_IMAGE
-docker tag $CONTAINER_IMAGE $LATEST_HEROKU_IMAGE
 docker push $HEROKU_IMAGE
-docker push $LATEST_HEROKU_IMAGE
 export IMAGE_ID=`docker inspect $HEROKU_IMAGE --format={{.Id}}`
 echo $IMAGE_ID > "image_${SERVICE}.txt"

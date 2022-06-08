@@ -4,7 +4,7 @@ services:
   w3b:
     hostname: w3b
     container_name: w3b
-    image: registry.gitlab.com/clairton/chatwoot-w3b:latest
+    image: registry.gitlab.com/clairton/chatwoot/w3b:latest
     build:
       dockerfile: w3b.Dockerfile
     depends_on:

@@ -3,7 +3,7 @@ SERVICE=$1
 TOKEN=$2
 
 export TAG_NAME="$(git describe --abbrev=0 --tags | cut -d"v" -f2)"
-export BASE_CONTAINER_IMAGE="registry.gitlab.com/clairton/${SERVICE}"
+export BASE_CONTAINER_IMAGE="registry.gitlab.com/clairton/chatwoot/${SERVICE}"
 export CONTAINER_IMAGE="${BASE_CONTAINER_IMAGE}:${TAG_NAME}"
 export LATEST_CONTAINER_IMAGE="${BASE_CONTAINER_IMAGE}:latest"
 echo "$CI_JOB_TOKEN" | docker login --username=gitlab-ci-token registry.gitlab.com --password-stdin

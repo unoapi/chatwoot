@@ -5,7 +5,7 @@ module AddExternalSourceIdsWhatsappToMessage
     
     base.class_eval do
       puts ">>>>>>>>>>>>>>>>>>> overrided external_source_ids adding :whastapp"
-      store_accessor :external_source_ids, :whastapp
+      store_accessor :external_source_ids, :whastapp, prefix: :external_source_id
     end    
   end
 end

@@ -12,7 +12,6 @@ services:
       - redis
       - worker
       - relay
-      - minio
     volumes:
       - ./bin/w3b.sh:/bin/w3b.sh
     env_file: aws.env
@@ -36,23 +35,17 @@ services:
       RAILS_INBOUND_EMAIL_PASSWORD: abcde
       CHATWOOT_PREPARE: 'false'
       SECRET_KEY_BASE: qdjwoqroiqwihqwoeqwokdnqwdncuneuf82183219381ob
-      ACTIVE_STORAGE_SERVICE: s3_compatible
-      STORAGE_BUCKET_NAME: chatwoot-rails
-      STORAGE_ACCESS_KEY_ID: qwerty
-      STORAGE_SECRET_ACCESS_KEY: abcdef123456
-      STORAGE_REGION: us-east-1
-      STORAGE_ENDPOINT: http://minio:9000
     ports:
       - 3000:3000
 
   worker:
     container_name: worker
-    image: registry.gitlab.com/clairton/chatwoot-worker:1.0.2
+    image: registry.gitlab.com/clairton/chatwoot-worker:latest
     depends_on:
       - postgres
       - redis
       - whatsapp-channel
-      - minio
+    env_file: aws.env
     environment:
       POSTGRES_HOST: postgres
       POSTGRES_USERNAME: postgres
@@ -77,14 +70,7 @@ services:
       SMTP_USERNAME: minhaodontoexcellence@gmail.com
       SMTP_PASSWORD: kzqmahbryevylilf
       WHATSAPP_CHANNEL_SERVER_AUTH_TOKEN: ksjhdfiasfu
-      WHATSAPP_CHANNEL_SERVER_AUTH_HEADER_NAME: whatsapp-channel-server-auth-token
       WHATSAPP_CHANNEL_URL: http://whatsapp-channel:8888
-      ACTIVE_STORAGE_SERVICE: s3_compatible
-      STORAGE_BUCKET_NAME: chatwoot-rails
-      STORAGE_ACCESS_KEY_ID: qwerty
-      STORAGE_SECRET_ACCESS_KEY: abcdef123456
-      STORAGE_REGION: us-east-1
-      STORAGE_ENDPOINT: http://minio:9000
 
   relay:
     container_name: relay
@@ -104,10 +90,8 @@ services:
     environment:
       REDIS_URL: redis://:123456@redis:6379
       PORT: 8888
-      WHATSAPP_CHANNEL_SERVER_AUTH_HEADER_NAME: whatsapp-channel-server-auth-token
       WHATSAPP_CHANNEL_SERVER_AUTH_TOKEN: ksjhdfiasfu
       WHATSAPP_CHANNEL_URL: http://whatsapp-channel:8888
-      WHATSAPP_API_SERVER_AUTH_HEADER_NAME: whatsapp-api-server-auth-token
       WHATSAPP_API_SERVER_AUTH_TOKEN: abc123
       WHATSAPP_API_URL: http://whatsapp-api:9999
       QUEUE_RETRY_LIMIT: 5
@@ -115,16 +99,9 @@ services:
       QUEUE_NAME: chatwoot
       CHATWOOT_URL: http://w3b:3000
       CHATWOOT_SERVER_AUTH_TOKEN: MTCUyyShYSfaZg1Wqr1Wr2KB
-      AWS_ACCESS_KEY_ID: qwerty
-      AWS_SECRET_ACCESS_KEY: abcdef123456
-      AWS_REGION: us-east-1
-      AWS_S3_BUCKET: chatwoot-rails
-      S3_BUCKET_NAME: chatwoot-rails
-      AWS_S3_ENDPOINT: http://minio:9000/chatwoot-rails
     ports:
       - 8888:8888
     depends_on:
-      - minio
       - redis
       - whatsapp-api
   
@@ -138,16 +115,9 @@ services:
       POSTBACK_SERVER_AUTH_TOKEN: ksjhdfiasfu
       WHATSAPP_API_SERVER_AUTH_TOKEN: abc123
       REDIS_URL: redis://:123456@redis:6379
-      AWS_ACCESS_KEY_ID: qwerty
-      AWS_SECRET_ACCESS_KEY: abcdef123456
-      AWS_REGION: us-east-1
-      AWS_S3_BUCKET: chatwoot-rails
-      S3_BUCKET_NAME: chatwoot-rails
-      AWS_S3_ENDPOINT: http://minio:9000/chatwoot-rails
     ports:
       - 9999:9999
     depends_on:
-      - minio
       - redis
 
   postgres:
@@ -170,22 +140,6 @@ services:
     command: redis-server --appendonly yes --requirepass 123456
     ports:
       - 6379:6379
-
-  minio:
-    image: quay.io/minio/minio:latest
-    command: server /data --console-address :9001
-    expose:
-      - 9000
-      - 9001
-    environment:
-      MINIO_SITE_REGION: us-east-1
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minio123
-      MINIO_ACCESS_KEY: qwerty
-      MINIO_SECRET_KEY: abcdef123456
-    hostname: chatwoot-rails.minio
-    volumes:
-      - chatwoot-storage:/data
 
 volumes:
   chatwoot-storage:

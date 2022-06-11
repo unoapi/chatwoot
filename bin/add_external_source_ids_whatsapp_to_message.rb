@@ -13,5 +13,5 @@ end
 ActiveSupport::Reloader.to_prepare do
   puts "add monkey patch add_external_source_ids_whatsapp_to_message.........."
   Message.include(AddExternalSourceIdsWhatsappToMessage)
-  puts "monkey patch add_external_source_ids_whatsapp_to_message successfull!"
+  puts "monkey patch add_external_source_ids_whatsapp_to_message successful!"
 end

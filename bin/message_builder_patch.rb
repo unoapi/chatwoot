@@ -25,5 +25,5 @@ end
 ActiveSupport::Reloader.to_prepare do
   puts "add monkey patch message_builder_patch.........."
   Messages::MessageBuilder.include(MessageBuilderPatch)
-  puts "monkey patch message_builder_patch successfull!"
+  puts "monkey patch message_builder_patch successful!"
 end

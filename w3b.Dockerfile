@@ -19,4 +19,12 @@ ADD bin/message_builder_patch.rb /app/lib/message_builder_patch.rb
 RUN echo "$(cat /app/lib/message_builder_patch.rb)" >> /app/config/application.rb
 RUN rm /app/lib/message_builder_patch.rb
 
+ADD bin/messages_controller_patch.rb /app/lib/messages_controller_patch.rb
+RUN echo "$(cat /app/lib/messages_controller_patch.rb)" >> /app/config/application.rb
+RUN rm /app/lib/messages_controller_patch.rb
+
+ADD bin/inboxes_controller_patch.rb /app/lib/inboxes_controller_patch.rb
+RUN echo "$(cat /app/lib/inboxes_controller_patch.rb)" >> /app/config/application.rb
+RUN rm /app/lib/inboxes_controller_patch.rb
+
 CMD ["sh", "/bin/w3b.sh"]

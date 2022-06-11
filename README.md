@@ -31,12 +31,18 @@ curl --location --request POST 'http://localhost:8888/connect/6e50e19a-37d4-4085
 }'
 
 Todo List
-* group messages
-* save whasapp message id
-* mark message as read
-* copy messages sended from whatsaap connected at chatwoot
-* bots
-* facebook messenger ok
-* instagram direct
-* qrcode connect user friendly
+* group messages ok
+* save whasapp message id ok
+* copy messages sended from whatsaap connected at chatwoot ok
+* qrcode connect user friendly ok
 * security webhook ok -> add env WHATSAPP_CHANNEL_SERVER_AUTH_TOKEN in worker and whatsapp to auth server to server
+* facebook messenger +/- ok
+* config friendly
+* bots
+* instagram direct
+* mark message as read
+* clean worker on start
+* survey
+* bete notify appointmments and due installment
+* open chat in website to talk with agent
+* auto response for calls

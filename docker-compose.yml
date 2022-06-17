@@ -12,6 +12,7 @@ services:
       - redis
       - worker
       - relay
+      - bot
     volumes:
       - ./bin/w3b.sh:/bin/w3b.sh
     env_file: aws.env
@@ -71,7 +72,9 @@ services:
       SMTP_PASSWORD: kzqmahbryevylilf
       WHATSAPP_CHANNEL_SERVER_AUTH_TOKEN: ksjhdfiasfu
       WHATSAPP_CHANNEL_URL: http://whatsapp-channel:8888
-
+      CHATWOOT_BOOT_URL: http://bot:5555
+      CHATWOOT_BOOT_SERVER_AUTH_HEADER_NAME: chatwoot-boot-server-auth-token
+      CHATWOOT_BOOT_SERVER_AUTH_TOKEN: zxcvbnq
   relay:
     container_name: relay
     image: registry.gitlab.com/clairton/chatwoot-relay:1.0.1
@@ -104,7 +107,7 @@ services:
     depends_on:
       - redis
       - whatsapp-api
-  
+
   whatsapp-api:
     container_name: whatsapp-api
     image: registry.gitlab.com/clairton/whatsapp-api:latest
@@ -120,13 +123,34 @@ services:
     depends_on:
       - redis
 
+  bot:
+    image: registry.gitlab.com/clairton/chatwootbot:latest
+    volumes:
+      - ../chatwoot-bot/:/app
+    command: yarn dev
+    environment:
+      PORT: 5555
+      REDIS_URL: redis://:123456@redis:6379
+      CHATWOOT_SERVER_AUTH_TOKEN: T94LXCtCwmocVJHVsJN8vveL
+    depends_on:
+      - redis
+    ports:
+      - 5555:5555
+
   postgres:
     image: postgres:14-alpine
     ports:
       - 5432:5432
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
-    command: ['postgres', '-c', 'log_statement=all', '-c', 'log_destination=stderr']
+    command:
+      [
+        'postgres',
+        '-c',
+        'log_statement=all',
+        '-c',
+        'log_destination=stderr'
+      ]
     environment:
       POSTGRES_DB: chatwoot
       POSTGRES_USER: postgres

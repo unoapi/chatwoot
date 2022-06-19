@@ -37,8 +37,8 @@ Todo List
 * qrcode connect user friendly ok
 * security webhook ok -> add env WHATSAPP_CHANNEL_SERVER_AUTH_TOKEN in worker and whatsapp to auth server to server
 * facebook messenger +/- ok
+* bots ok
 * config friendly
-* bots
 * instagram direct
 * mark message as read
 * clean worker on start

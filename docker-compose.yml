@@ -72,9 +72,10 @@ services:
       SMTP_PASSWORD: kzqmahbryevylilf
       WHATSAPP_CHANNEL_SERVER_AUTH_TOKEN: ksjhdfiasfu
       WHATSAPP_CHANNEL_URL: http://whatsapp-channel:8888
-      CHATWOOT_BOOT_URL: http://bot:5555
-      CHATWOOT_BOOT_SERVER_AUTH_HEADER_NAME: chatwoot-boot-server-auth-token
-      CHATWOOT_BOOT_SERVER_AUTH_TOKEN: zxcvbnq
+      CHATWOOTBOT_URL: http://bot:5555
+      CHATWOOTBOT_SERVER_AUTH_HEADER_NAME: chatwootbot-server-auth-token
+      CHATWOOTBOT_SERVER_AUTH_TOKEN: zxcvbn
+
   relay:
     container_name: relay
     image: registry.gitlab.com/clairton/chatwoot-relay:1.0.1
@@ -125,9 +126,9 @@ services:
 
   bot:
     image: registry.gitlab.com/clairton/chatwootbot:latest
-    volumes:
-      - ../chatwoot-bot/:/app
-    command: yarn dev
+    # volumes:
+    #   - ../chatwootbot/:/app
+    # command: yarn dev
     environment:
       PORT: 5555
       REDIS_URL: redis://:123456@redis:6379

@@ -38,11 +38,13 @@ Todo List
 * security webhook ok -> add env WHATSAPP_CHANNEL_SERVER_AUTH_TOKEN in worker and whatsapp to auth server to server
 * facebook messenger +/- ok
 * bots ok
+* delete message
+* show not sended message
+* mark message as read
 * config friendly
 * instagram direct
-* mark message as read
-* clean worker on start
 * survey
-* bete notify appointmments and due installment
+* sync message where connection was offline
 * open chat in website to talk with agent
 * auto response for calls
+* bete notify appointmments and due installment

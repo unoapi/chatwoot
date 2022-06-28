@@ -13,7 +13,7 @@ module MessageBuilderPatch
   module InstanceMethods
     def message_params_and_external_values
       message_params = message_params_original()
-      puts ">>>>>>>>>>>>>>>>>>> overrided message_params adding external_source_id_whatsapp: #{@params[:external_source_id_whatsapp]}"
+      puts ">>>>>>>>>>>>>>>>>>> overrided message_params adding external_source_id_whatsapp: #{@params[:external_source_id_whatsapp]} and status: #{@params[:status]}"
       message_params =  message_params.merge({external_source_id_whatsapp: @params[:external_source_id_whatsapp]}) if @params[:external_source_id_whatsapp]
       message_params =  message_params.merge({status: @params[:status]}) if @params[:status]
       puts ">>>>>>>>>>>>>>>>>>> params: #{message_params}"

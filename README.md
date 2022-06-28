@@ -40,6 +40,7 @@ Todo List
 * bots ok
 * delete message
 * show not sended message
+* show invalid whatsapp number
 * mark message as read
 * config friendly
 * instagram direct
@@ -48,3 +49,4 @@ Todo List
 * open chat in website to talk with agent
 * auto response for calls
 * bete notify appointmments and due installment
+* conversation between agents

@@ -113,6 +113,9 @@ services:
     container_name: whatsapp-api
     image: registry.gitlab.com/clairton/whatsapp-api:latest
     env_file: aws.env
+    volumes:
+      - ../whatsapp-api/:/home/whatsapp-api/app
+    command: yarn dev
     environment:
       PORT: 9999
       POSTBACK_URL: http://whatsapp-channel:8888/whatsapp-webhook
@@ -126,9 +129,9 @@ services:
 
   bot:
     image: registry.gitlab.com/clairton/chatwootbot:latest
-    # volumes:
-    #   - ../chatwootbot/:/app
-    # command: yarn dev
+    volumes:
+      - ../chatwootbot/:/app
+    command: yarn dev
     environment:
       PORT: 5555
       REDIS_URL: redis://:123456@redis:6379
@@ -165,6 +168,3 @@ services:
     command: redis-server --appendonly yes --requirepass 123456
     ports:
       - 6379:6379
-
-volumes:
-  chatwoot-storage:

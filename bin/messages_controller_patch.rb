@@ -12,7 +12,7 @@ module MessagesControllerPatch
   module InstanceMethods
     def message_update_params_external_source
       puts ">>>>>>>>>>>>>>>>>>> overrided message_update_params adding external_source_id_whatsapp and external_created_at"
-      update_params = params.permit(:external_source_id_whatsapp, :external_created_at, submitted_values: [:name, :title, :value])
+      update_params = params.permit(:external_source_id_whatsapp, :external_created_at, :status, submitted_values: [:name, :title, :value])
       puts ">>>>>>>>>>>>>>>>>>> overrided updatind data #{update_params}"
       return update_params
     end

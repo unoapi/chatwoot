@@ -42,9 +42,9 @@ Todo List
 * show not sended message ok
 * show invalid whatsapp number ok
 * sync message where connection was offline ok
+* mark message as read ok
 
 * delete message
-* mark message as read
 * config friendly
 * survey
 * open chat in website to talk with agent

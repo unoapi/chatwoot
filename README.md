@@ -43,11 +43,11 @@ Todo List
 * show invalid whatsapp number ok
 * sync message where connection was offline ok
 * mark message as read ok
+* auto response for calls ok
+* open chat in website to talk with agent ok
 
 * delete message
 * config friendly
 * survey
-* open chat in website to talk with agent
-* auto response for calls
 * bete notify appointmments and due installment
 * conversation between agents

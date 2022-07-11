@@ -1,22 +1,27 @@
 version: '3'
 
 services:
-  w3b:
-    hostname: w3b
-    container_name: w3b
-    image: registry.gitlab.com/clairton/chatwoot/w3b:latest
+  web:
+    hostname: web
+    container_name: web
+    image: registry.gitlab.com/clairton/chatwoot/web:latest
     build:
-      dockerfile: w3b.Dockerfile
+      dockerfile: app.Dockerfile
     depends_on:
       - postgres
       - redis
       - worker
       - relay
       - bot
-    volumes:
-      - ./bin/w3b.sh:/bin/w3b.sh
     env_file: aws.env
+    volumes:
+      - ./scripts/heroku-start.sh:/bin/heroku-start
+      - ./bin/add_external_source_ids_whatsapp_to_message.rb:/app/lib/add_external_source_ids_whatsapp_to_message.rb
+      - ./bin/message_builder_patch.rb:/app/lib/message_builder_patch.rb
+      - ./bin/messages_controller_patch.rb:/app/lib/messages_controller_patch.rb
+      - ./bin/inboxes_controller_patch.rb:/app/lib/inboxes_controller_patch.rb
     environment:
+      DYNO: web
       ENABLE_RACK_ATTACK: 'false'
       PORT: 3000
       POSTGRES_HOST: postgres
@@ -41,13 +46,20 @@ services:
 
   worker:
     container_name: worker
-    image: registry.gitlab.com/clairton/chatwoot-worker:latest
+    image: registry.gitlab.com/clairton/chatwoot/worker:latest
+    build:
+      dockerfile: app.Dockerfile
     depends_on:
       - postgres
       - redis
       - whatsapp-channel
     env_file: aws.env
+    volumes:
+      - ./scripts/heroku-start.sh:/bin/heroku-start
+      - ./bin/email_relay_job.rb:/app/app/jobs/email_relay_job.rb
+      - ./bin/request_patch.rb:/app/lib/request_patch.rb
     environment:
+      DYNO: worker
       POSTGRES_HOST: postgres
       POSTGRES_USERNAME: postgres
       POSTGRES_DATABASE: chatwoot
@@ -70,11 +82,7 @@ services:
       SMTP_PORT: 587
       SMTP_USERNAME: minhaodontoexcellence@gmail.com
       SMTP_PASSWORD: kzqmahbryevylilf
-      WHATSAPP_CHANNEL_SERVER_AUTH_TOKEN: ksjhdfiasfu
-      WHATSAPP_CHANNEL_URL: http://whatsapp-channel:8888
-      CHATWOOTBOT_URL: http://bot:5555
-      CHATWOOTBOT_SERVER_AUTH_HEADER_NAME: chatwootbot-server-auth-token
-      CHATWOOTBOT_SERVER_AUTH_TOKEN: zxcvbn
+      WHATSAPP_CHANNEL_URLS: '{"http://bot:5555":{"header_name":"chatwootbot-server-auth-token","header_value":"zxcvbn"},"http://whatsapp-channel:8888":{"header_name":"whatsapp-channel-server-auth-token","header_value":"ksjhdfiasfu"}}'
 
   relay:
     container_name: relay
@@ -91,6 +99,9 @@ services:
     container_name: whatsapp-channel
     image: registry.gitlab.com/clairton/whatsapp-channel:latest
     env_file: aws.env
+    command: yarn dev
+    volumes:
+      - ../whatsapp-channel/:/home/whatsapp-channel/app
     environment:
       REDIS_URL: redis://:123456@redis:6379
       PORT: 8888
@@ -101,7 +112,7 @@ services:
       QUEUE_RETRY_LIMIT: 5
       QUEUE_RETRY_DELAY: 5
       QUEUE_NAME: chatwoot
-      CHATWOOT_URL: http://w3b:3000
+      CHATWOOT_URL: http://web:3000
       CHATWOOT_SERVER_AUTH_TOKEN: MTCUyyShYSfaZg1Wqr1Wr2KB
     ports:
       - 8888:8888

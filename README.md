@@ -21,7 +21,7 @@ curl --location --request POST 'http://localhost:8888/connect/6e50e19a-37d4-4085
   "auto_connect": true,
   "mobile_name": "Me",
   "mobile_number": "+5549988290955",
-  "base_url": "http://w3b:3000",
+  "base_url": "http://web:3000",
   "token": "KLo3Lupshver3GFTks4eRBjh",
   "account_id": "2",
   "inbox_id": "3",

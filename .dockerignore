@@ -1,0 +1,8 @@
+.git
+.gitignore
+.cache
+*.md
+.editorconfig
+.gitlab-ci.yml
+Dockerfile
+api.Dockerfile

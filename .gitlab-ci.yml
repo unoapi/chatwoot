@@ -2,25 +2,39 @@ stages:
   - build
   - deploy
 
-build_w3b:
+build:
   stage: build
-  image: docker:stable-git
   services:
     - docker:dind
   variables:
     DOCKER_DRIVER: overlay2
-  artifacts:
-    paths:
-      - image_w3b.txt
-  script:
-    - sh ./scripts/build.sh w3b $HEROKU_TOKEN
+  image: registry.gitlab.com/clairton/ci/builder:0.1.1
+  script: build app
   only:
     - tags
 
-deploy_w3b:
+deploy_staging:
   stage: deploy
-  image: alpine:latest
+  services:
+    - docker:dind
+  variables:
+    DOCKER_DRIVER: overlay2
+  image: registry.gitlab.com/clairton/ci/deployer:0.1.1
   script:
-    - sh ./scripts/deploy.sh w3b web $HEROKU_TOKEN
+    - deploy-heroku app chatwoot-app-staging web $HEROKU_TOKEN
+    - deploy-heroku app chatwoot-app-staging worker $HEROKU_TOKEN
   only:
-    - tags
+    - develop
+
+deploy_production:
+  stage: deploy
+  services:
+    - docker:dind
+  variables:
+    DOCKER_DRIVER: overlay2
+  image: registry.gitlab.com/clairton/ci/deployer:0.1.1
+  script:
+    - deploy-heroku app chatwoot-w3b web $HEROKU_TOKEN
+    - deploy-heroku app chatwoot-worker worker $HEROKU_TOKEN
+  only:
+    - master

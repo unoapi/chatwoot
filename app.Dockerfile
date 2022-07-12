@@ -1,4 +1,4 @@
-FROM chatwoot/chatwoot:v2.6.0
+FROM chatwoot/chatwoot:develop
 
 RUN gem install bundler
 ENV NODE_ENV production

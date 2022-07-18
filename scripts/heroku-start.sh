@@ -12,4 +12,3 @@ elif  [[ $DYNO == "worker"* ]]; then
   echo "Starting Chatwoot Worker..."
   bundle exec sidekiq -C config/sidekiq.yml
 fi
-

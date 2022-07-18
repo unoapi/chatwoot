@@ -1,5 +1,8 @@
 # https://gist.github.com/bluefuton/5851093
 require 'json'
+require 'uri'
+
+
 
 module RequestPatch
   def self.included(base)
@@ -18,11 +21,17 @@ module RequestPatch
     #     'header_value': ''
     #   }
     # }
-    @urls = JSON.parse(ENV['WHATSAPP_CHANNEL_URLS'] || '{}')
+    
     def make_headers_and_put_headers_authorizarion(user_headers)
-      if @urls[@url]
-        user_headers.store(@urls[@url][:header_name], @urls[@url][:token])
-        puts ">>>>>>>>>>>>>>>>>>> make_headers for #{@urls[@url][:header_name]} with params #{user_headers}"
+      puts ">>>>>>>>>>>>>>>>>>> WHATSAPP_CHANNEL_URLS: #{ENV['WHATSAPP_CHANNEL_URLS']}"
+      @urls = JSON.parse(ENV['WHATSAPP_CHANNEL_URLS'] || '{}').with_indifferent_access
+      puts ">>>>>>>>>>>>>>>>>>> @urls: #{@urls}"
+      uri = URI(@url)
+      key = "#{uri.scheme}://#{uri.host}"
+      puts ">>>>>>>>>>>>>>>>>>> @urls[@url]: #{@urls[key]}"
+      if @urls[key]
+        user_headers.store(@urls[key][:header_name], @urls[key][:header_value])
+        puts ">>>>>>>>>>>>>>>>>>> make_headers for #{@urls[key]} with params #{user_headers}"
       end
       make_headers_original(user_headers)
     end

@@ -33,6 +33,7 @@ ADD bin/request_patch.rb /app/lib/request_patch.rb
 RUN echo "$(cat /app/lib/request_patch.rb)" >> /app/config/application.rb
 RUN rm /app/lib/request_patch.rb
 
+ADD ./bin/CloudWhatsapp.vue /app/app/javascript/dashboard/routes/dashboard/settings/inbox/channels/CloudWhatsapp.vue
 RUN sed -i "s/https\:\/\/graph\.facebook\.com/#{whatsapp_channel\.provider_config\['url'] || 'https\:\/\/graph\.facebook\.com'}/g" /app/app/services/whatsapp/providers/whatsapp_cloud_service.rb
 
 CMD heroku-start

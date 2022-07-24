@@ -2,9 +2,7 @@
 require 'json'
 require 'uri'
 
-
-
-module RequestPatch
+module HTTParty
   def self.included(base)
     base.send(:include, InstanceMethods)
     
@@ -38,6 +36,8 @@ module RequestPatch
   end
 end
 
-puts "add monkey patch request_patch.........."
-RestClient::Request.include(RequestPatch)
-puts "monkey patch request_patch successfull!"
+ActiveSupport::Reloader.to_prepare do
+  puts "add monkey patch http_party.........."
+  RestClient::Request.include(HTTParty)
+  puts "monkey patch http_party successful!"
+end

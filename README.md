@@ -30,6 +30,8 @@ curl --location --request POST 'http://localhost:8888/connect/6e50e19a-37d4-4085
   "identify_sender_on_message": true
 }'
 
+To create bucket `docker compose up minio-mc`
+
 Todo List
 * group messages ok
 * save whasapp message id ok

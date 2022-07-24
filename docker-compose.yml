@@ -2,27 +2,17 @@ version: '3'
 
 services:
   web:
-    hostname: web
-    container_name: web
     image: registry.gitlab.com/clairton/chatwoot/web:latest
     build:
       dockerfile: app.Dockerfile
     depends_on:
-      - postgres
-      - redis
       - worker
-      - relay
-      - bot
-    env_file: aws.env
+    env_file: storage.env
     volumes:
       - ./scripts/heroku-start.sh:/bin/heroku-start
-      - ./bin/add_external_source_ids_whatsapp_to_message.rb:/app/lib/add_external_source_ids_whatsapp_to_message.rb
-      - ./bin/message_builder_patch.rb:/app/lib/message_builder_patch.rb
-      - ./bin/messages_controller_patch.rb:/app/lib/messages_controller_patch.rb
-      - ./bin/inboxes_controller_patch.rb:/app/lib/inboxes_controller_patch.rb
+      - ./bin/CloudWhatsapp.vue:/app/app/javascript/dashboard/routes/dashboard/settings/inbox/channels/CloudWhatsapp.vue
     environment:
       DYNO: web
-      ENABLE_RACK_ATTACK: 'false'
       PORT: 3000
       POSTGRES_HOST: postgres
       POSTGRES_USERNAME: postgres
@@ -45,15 +35,15 @@ services:
       - 3000:3000
 
   worker:
-    container_name: worker
     image: registry.gitlab.com/clairton/chatwoot/worker:latest
     build:
       dockerfile: app.Dockerfile
     depends_on:
       - postgres
       - redis
-      - whatsapp-channel
-    env_file: aws.env
+      - whatsapp-api
+      - minio
+    env_file: storage.env
     volumes:
       - ./scripts/heroku-start.sh:/bin/heroku-start
       - ./bin/email_relay_job.rb:/app/app/jobs/email_relay_job.rb
@@ -85,7 +75,6 @@ services:
       WHATSAPP_CHANNEL_URLS: '{"http://bot:5555":{"header_name":"chatwootbot-server-auth-token","header_value":"zxcvbn"},"http://whatsapp-channel:8888":{"header_name":"whatsapp-channel-server-auth-token","header_value":"ksjhdfiasfu"}}'
 
   relay:
-    container_name: relay
     image: registry.gitlab.com/clairton/chatwoot-relay:1.0.1
     environment:
       IMAP_SSL: 'true'
@@ -96,9 +85,8 @@ services:
       REDIS_URL: redis://:123456@redis:6379
 
   whatsapp-channel:
-    container_name: whatsapp-channel
     image: registry.gitlab.com/clairton/whatsapp-channel:latest
-    env_file: aws.env
+    env_file: storage.env
     command: yarn dev
     volumes:
       - ../whatsapp-channel/:/home/whatsapp-channel/app
@@ -121,14 +109,14 @@ services:
       - whatsapp-api
 
   whatsapp-api:
-    container_name: whatsapp-api
     image: registry.gitlab.com/clairton/whatsapp-api:latest
-    env_file: aws.env
+    env_file: storage.env
     volumes:
       - ../whatsapp-api/:/home/whatsapp-api/app
     command: yarn dev
     environment:
       PORT: 9999
+      MAX_SIZE_BASE64: 100
       POSTBACK_URL: http://whatsapp-channel:8888/whatsapp-webhook
       POSTBACK_SERVER_AUTH_TOKEN: ksjhdfiasfu
       WHATSAPP_API_SERVER_AUTH_TOKEN: abc123
@@ -151,6 +139,29 @@ services:
       - redis
     ports:
       - 5555:5555
+
+  minio:
+    image: minio/minio:latest
+    command: server --console-address ":9001" --address 0.0.0.0:9000 /data
+    expose:
+      - 9000
+      - 9001
+    environment:
+      MINIO_ROOT_USER: my-minio
+      MINIO_ROOT_PASSWORD: 2NVQWHTTT3asdasMgqapGchy6yAMZn
+    volumes:
+      - ./data/minio:/data
+
+  minio-mc:
+    image: minio/mc:latest
+    depends_on:
+    - minio
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc config host rm local;
+      /usr/bin/mc config host add --quiet --api s3v4 local http://minio:9000 my-minio 2NVQWHTTT3asdasMgqapGchy6yAMZn;
+      /usr/bin/mc rb --force local/chatwoot/;
+      /usr/bin/mc mb --quiet local/chatwoot/;"
 
   postgres:
     image: postgres:14-alpine

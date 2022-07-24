@@ -6,3 +6,5 @@
 .gitlab-ci.yml
 Dockerfile
 api.Dockerfile
+nginx.conf
+storage.env

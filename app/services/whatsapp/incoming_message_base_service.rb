@@ -29,13 +29,25 @@ class Whatsapp::IncomingMessageBaseService
     update_message_with_status(@message, status)
   end
 
-  def update_message_with_status(message, status)
-    message.status = status[:status]
-    if status[:status] == 'failed' && status[:errors].present?
-      error = status[:errors]&.first
-      message.external_error = "#{error[:code]}: #{error[:title]}"
+  def update_message_with_status(message, state)
+    ActiveRecord::Base.transaction do
+      create_message_for_failed_status(message, state)
+
+      message.status = state[:status]
+      message.save!
     end
-    message.save!
+  end
+
+  def create_message_for_failed_status(message, state)
+    return if state[:status] != 'failed' || state[:errors]&.empty?
+
+    error = state[:errors]&.first
+    message.external_error = "#{error[:code]}: #{error[:title]}"
+    Message.create!(
+      conversation_id: message.conversation_id, content: "#{error[:code]}: #{error[:title]}",
+      account_id: @inbox.account_id, inbox_id: @inbox.id,
+      message_type: :activity, sender: message.sender, source_id: message.source_id
+    )
   end
 
   def perform_messages

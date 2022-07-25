@@ -2,7 +2,7 @@
 require 'json'
 require 'uri'
 
-module HTTParty
+module RequestPatch
   def self.included(base)
     base.send(:include, InstanceMethods)
     
@@ -26,7 +26,7 @@ module HTTParty
       puts ">>>>>>>>>>>>>>>>>>> @urls: #{@urls}"
       uri = URI(@url)
       key = "#{uri.scheme}://#{uri.host}"
-      puts ">>>>>>>>>>>>>>>>>>> @urls[@url]: #{@urls[key]}"
+      puts ">>>>>>>>>>>>>>>>>>> @urls[#{key}]: #{@urls[key]}"
       if @urls[key]
         user_headers.store(@urls[key][:header_name], @urls[key][:header_value])
         puts ">>>>>>>>>>>>>>>>>>> make_headers for #{@urls[key]} with params #{user_headers}"
@@ -38,6 +38,6 @@ end
 
 ActiveSupport::Reloader.to_prepare do
   puts "add monkey patch http_party.........."
-  RestClient::Request.include(HTTParty)
+  RestClient::Request.include(RequestPatch)
   puts "monkey patch http_party successful!"
 end

@@ -42,6 +42,7 @@ services:
       - postgres
       - redis
       - whatsapp-api
+      - whatsapp-channel
       - minio
     env_file: storage.env
     volumes:
@@ -72,7 +73,7 @@ services:
       SMTP_PORT: 587
       SMTP_USERNAME: minhaodontoexcellence@gmail.com
       SMTP_PASSWORD: kzqmahbryevylilf
-      WHATSAPP_CHANNEL_URLS: '{"http://bot:5555":{"header_name":"chatwootbot-server-auth-token","header_value":"zxcvbn"},"http://whatsapp-channel:8888":{"header_name":"whatsapp-channel-server-auth-token","header_value":"ksjhdfiasfu"}}'
+      WHATSAPP_CHANNEL_URLS: '{"http://bot":{"header_name":"chatwootbot-server-auth-token","header_value":"zxcvbn"},"http://whatsapp-channel":{"header_name":"whatsapp-channel-server-auth-token","header_value":"ksjhdfiasfu"}}'
 
   relay:
     image: registry.gitlab.com/clairton/chatwoot-relay:1.0.1

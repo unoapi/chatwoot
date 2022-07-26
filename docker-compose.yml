@@ -152,6 +152,10 @@ services:
       MINIO_ROOT_PASSWORD: 2NVQWHTTT3asdasMgqapGchy6yAMZn
     volumes:
       - ./data/minio:/data
+    networks:
+      default:
+        aliases:
+          - chatwoot.minio
 
   minio-mc:
     image: minio/mc:latest

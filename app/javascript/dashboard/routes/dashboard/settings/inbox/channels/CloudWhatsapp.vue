@@ -16,6 +16,21 @@
     </div>
 
     <div class="medium-8 columns">
+      <label :class="{ error: $v.url.$error }">
+        {{ $t('INBOX_MGMT.ADD.WHATSAPP.URL.LABEL') }}
+        <input
+          v-model.trim="url"
+          type="text"
+          placeholder="$t('INBOX_MGMT.ADD.WHATSAPP.URL.PLACEHOLDER')"
+          @blur="$v.url.$touch"
+        />
+        <span v-if="$v.url.$error" class="message">
+          {{ $t('INBOX_MGMT.ADD.WHATSAPP.URL.ERROR') }}
+        </span>
+      </label>
+    </div>
+
+    <div class="medium-8 columns">
       <label :class="{ error: $v.phoneNumber.$error }">
         {{ $t('INBOX_MGMT.ADD.WHATSAPP.PHONE_NUMBER.LABEL') }}
         <input
@@ -108,6 +123,7 @@ export default {
       inboxName: '',
       phoneNumber: '',
       apiKey: '',
+      url: 'https://graph.facebook.com',
       phoneNumberId: '',
       businessAccountId: '',
     };
@@ -121,6 +137,7 @@ export default {
     apiKey: { required },
     phoneNumberId: { required, isNumber },
     businessAccountId: { required, isNumber },
+    url: { required },
   },
   methods: {
     async createChannel() {
@@ -142,6 +159,7 @@ export default {
                 api_key: this.apiKey,
                 phone_number_id: this.phoneNumberId,
                 business_account_id: this.businessAccountId,
+                url: this.url,
               },
             },
           }

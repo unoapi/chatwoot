@@ -8,11 +8,13 @@ import WootDropdownItem from 'shared/components/ui/dropdown/DropdownItem';
 import WootDropdownMenu from 'shared/components/ui/dropdown/DropdownMenu';
 import WootDropdownHeader from 'shared/components/ui/dropdown/DropdownHeader';
 import WootDropdownDivider from 'shared/components/ui/dropdown/DropdownDivider';
+import WootSwitch from 'dashboard/components/ui/Switch';
 import i18n from 'dashboard/i18n';
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
 localVue.use(VueI18n);
+localVue.component('woot-switch', WootSwitch);
 localVue.component('woot-button', WootButton);
 localVue.component('woot-dropdown-header', WootDropdownHeader);
 localVue.component('woot-dropdown-menu', WootDropdownMenu);

@@ -3,28 +3,28 @@
     <span class="time" :class="{ delivered: messageRead }">{{
       readableTime
     }}</span>
-    <span v-if="showReadIndicator" class="read-indicator-wrap">
+    <span v-if="showReadIndicator" class="time">
       <fluent-icon
         v-tooltip.top-start="$t('CHAT_LIST.MESSAGE_READ')"
         icon="checkmark-double"
         class="action--icon read-tick read-indicator"
-        size="14"
+        size="16"
       />
     </span>
-    <span v-if="showDeliveredIndicator" class="read-indicator-wrap">
+    <span v-if="showDeliveredIndicator" class="time">
       <fluent-icon
         v-tooltip.top-start="$t('CHAT_LIST.DELIVERED')"
         icon="checkmark-double"
         class="action--icon read-tick"
-        size="14"
+        size="16"
       />
     </span>
-    <span v-if="showSentIndicator" class="read-indicator-wrap">
+    <span v-if="showSentIndicator" class="time">
       <fluent-icon
         v-tooltip.top-start="$t('CHAT_LIST.SENT')"
         icon="checkmark"
         class="action--icon read-tick"
-        size="14"
+        size="16"
       />
     </span>
     <fluent-icon
@@ -208,6 +208,10 @@ export default {
 
 <style lang="scss" scoped>
 @import '~dashboard/assets/scss/woot';
+
+.read-indicator {
+  color: #44ce4b !important;
+}
 
 .right {
   .message-text--metadata {

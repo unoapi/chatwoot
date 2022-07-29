@@ -53,10 +53,12 @@
           :story-sender="storySender"
           :story-id="storyId"
           :is-a-tweet="isATweet"
+          :is-a-whatsapp-channel="isAWhatsAppChannel"
           :has-instagram-story="hasInstagramStory"
           :is-email="isEmailContentType"
           :is-private="data.private"
           :message-type="data.message_type"
+          :message-status="status"
           :readable-time="readableTime"
           :source-id="data.source_id"
           :inbox-id="data.inbox_id"
@@ -149,6 +151,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    isAWhatsAppChannel: {
+      type: Boolean,
+      default: false,
+    },
     hasInstagramStory: {
       type: Boolean,
       default: false,
@@ -218,6 +224,9 @@ export default {
     },
     sender() {
       return this.data.sender || {};
+    },
+    status() {
+      return this.data.status;
     },
     storySender() {
       return this.contentAttributes.story_sender || null;

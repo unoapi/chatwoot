@@ -7,6 +7,9 @@ services:
       dockerfile: app.Dockerfile
     depends_on:
       - worker
+      - redis
+      - postgres
+      - minio
     env_file: storage.env
     volumes:
       - ./scripts/heroku-start.sh:/bin/heroku-start

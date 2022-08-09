@@ -1,4 +1,4 @@
-FROM chatwoot/chatwoot:v2.7.0
+FROM clairton/chatwoot:2.7.1
 
 RUN gem install bundler
 ENV NODE_ENV production
@@ -33,12 +33,6 @@ ADD bin/request_patch.rb /app/lib/request_patch.rb
 RUN echo "$(cat /app/lib/request_patch.rb)" >> /app/config/application.rb
 RUN rm /app/lib/request_patch.rb
 
-ADD ./bin/CloudWhatsapp.vue /app/app/javascript/dashboard/routes/dashboard/settings/inbox/channels/CloudWhatsapp.vue
-RUN sed -i "s/https\:\/\/graph\.facebook\.com/#{whatsapp_channel\.provider_config\['url'] || 'https\:\/\/graph\.facebook\.com'}/g" /app/app/services/whatsapp/providers/whatsapp_cloud_service.rb
-
-ADD ./bin/Message.vue /app/app/javascript/dashboard/components/widgets/conversation/Message.vue
-ADD ./bin/Actions.vue /app/app/javascript/dashboard/components/widgets/conversation/bubble/Actions.vue
 ADD ./bin/inboxMixin.js /app/app/javascript/shared/mixins/inboxMixin.js
-RUN echo "json.status message.status" >> app/views/api/v1/models/_message.json.jbuilder
 
 CMD heroku-start

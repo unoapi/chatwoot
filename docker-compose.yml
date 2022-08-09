@@ -16,6 +16,7 @@ services:
       - ./bin/CloudWhatsapp.vue:/app/app/javascript/dashboard/routes/dashboard/settings/inbox/channels/CloudWhatsapp.vue
     environment:
       DYNO: web
+      ENABLE_RACK_ATTACK: 'false'
       PORT: 3000
       POSTGRES_HOST: postgres
       POSTGRES_USERNAME: postgres

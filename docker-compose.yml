@@ -13,7 +13,7 @@ services:
     env_file: storage.env
     volumes:
       - ./scripts/heroku-start.sh:/bin/heroku-start
-      - ./bin/CloudWhatsapp.vue:/app/app/javascript/dashboard/routes/dashboard/settings/inbox/channels/CloudWhatsapp.vue
+      - ./bin/inboxMixin.js:/app/app/javascript/shared/mixins/inboxMixin.js
     environment:
       DYNO: web
       ENABLE_RACK_ATTACK: 'false'

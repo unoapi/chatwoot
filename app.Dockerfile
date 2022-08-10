@@ -1,4 +1,4 @@
-FROM clairton/chatwoot:2.7.1
+FROM clairton/chatwoot:2.7.2
 
 RUN gem install bundler
 ENV NODE_ENV production

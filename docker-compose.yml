@@ -13,7 +13,6 @@ services:
     env_file: storage.env
     volumes:
       - ./scripts/heroku-start.sh:/bin/heroku-start
-      - ./bin/inboxMixin.js:/app/app/javascript/shared/mixins/inboxMixin.js
     environment:
       DYNO: web
       ENABLE_RACK_ATTACK: 'false'

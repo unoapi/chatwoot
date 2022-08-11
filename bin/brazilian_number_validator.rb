@@ -2,7 +2,7 @@ require 'phonelib'
 
 class BrazilianNumberValidator < ActiveModel::EachValidator
   def validate_each(record, attribute, value)
-    unless value.nil?
+    unless value.blank?
       phone = Phonelib.parse(value)
       length = phone.local_number.scan(/\d/).join('').length
       puts "validate number #{value} with data: country #{phone.country} invalid? #{phone.invalid?} type #{phone.type} local_number #{phone.local_number} and length #{length}"

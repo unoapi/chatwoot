@@ -98,7 +98,8 @@ export default {
     isAWhatsAppChannel() {
       return (
         this.channelType === INBOX_TYPES.WHATSAPP ||
-        this.isATwilioWhatsAppChannel
+        this.isATwilioWhatsAppChannel ||
+        this.inbox?.name?.toLowerCase()?.indexOf('whatsapp') >= 0
       );
     },
   },

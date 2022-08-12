@@ -7,6 +7,9 @@ module MessageBuilderPatch
     base.class_eval do
       alias_method :message_params_original, :message_params
       alias_method :message_params, :message_params_and_external_values
+
+      alias_method :sender_original, :sender
+      alias_method :sender, :sender_group_incoming
     end    
   end 
   
@@ -19,6 +22,22 @@ module MessageBuilderPatch
       message_params =  message_params.merge({status: @params[:status]}) if @params[:status]
       puts ">>>>>>>>>>>>>>>>>>> params: #{message_params}"
       message_params
+    end
+
+    def sender_group_incoming
+      puts ">>>>>>>>>>>>>>>>>>> overrided sender"
+      group_incoming?() ? contact_sender() : sender_original()
+    end
+
+    def contact_sender
+      puts ">>>>>>>>>>>>>>>>>>> find contact by id #{@params[:sender_id]}"
+      Contact.find_by(id: @params[:sender_id])
+    end
+
+    def group_incoming?
+      mt = message_type()
+      puts ">>>>>>>>>>>>>>>>>>> verify #{mt} is 'incoming' and #{@conversation.contact.email} contains '@g.us'"
+      mt == 'incoming' && @conversation.contact.email.present? && @conversation.contact.email.contains('@g.us')
     end
   end
 end

@@ -37,7 +37,7 @@ module MessageBuilderPatch
     def group_incoming?
       mt = message_type()
       puts ">>>>>>>>>>>>>>>>>>> verify #{mt} is 'incoming' and #{@conversation.contact.email} contains '@g.us'"
-      mt == 'incoming' && @conversation.contact.email.present? && @conversation.contact.email.contains('@g.us')
+      mt == 'incoming' && @conversation.contact.email.present? && @conversation.contact.email.include?('@g.us')
     end
   end
 end

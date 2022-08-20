@@ -89,7 +89,6 @@
         :selected-tweet="selectedTweet"
         :popout-reply-box.sync="isPopoutReplyBox"
         @click="showPopoutReplyBox"
-        @scrollToMessage="scrollToBottom"
       />
     </div>
   </div>

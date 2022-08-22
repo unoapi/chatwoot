@@ -1,4 +1,4 @@
-FROM clairton/chatwoot:2.7.4
+FROM clairton/chatwoot:2.8.2
 
 RUN gem install bundler
 RUN echo "gem 'phonelib'" >> Gemfile

@@ -1,4 +1,4 @@
-FROM clairton/chatwoot:2.8.2
+FROM clairton/chatwoot:2.8.3
 
 RUN gem install bundler
 RUN echo "gem 'phonelib'" >> Gemfile
@@ -15,9 +15,9 @@ ENV SECRET_KEY_BASE abc
 
 ADD scripts/heroku-start.sh /bin/heroku-start
 
-ADD bin/add_external_source_ids_whatsapp_to_message.rb /app/lib/add_external_source_ids_whatsapp_to_message.rb
-RUN echo "$(cat /app/lib/add_external_source_ids_whatsapp_to_message.rb)" >> /app/config/application.rb
-RUN rm /app/lib/add_external_source_ids_whatsapp_to_message.rb
+ADD bin/message_patch.rb /app/lib/message_patch.rb
+RUN echo "$(cat /app/lib/message_patch.rb)" >> /app/config/application.rb
+RUN rm /app/lib/message_patch.rb
 
 ADD bin/message_builder_patch.rb /app/lib/message_builder_patch.rb
 RUN echo "$(cat /app/lib/message_builder_patch.rb)" >> /app/config/application.rb

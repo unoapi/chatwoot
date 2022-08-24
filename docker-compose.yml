@@ -129,6 +129,7 @@ services:
       - 9999:9999
     depends_on:
       - redis
+      - minio
 
   bot:
     image: registry.gitlab.com/clairton/chatwootbot:latest

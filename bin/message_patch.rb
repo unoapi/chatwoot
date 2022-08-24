@@ -1,6 +1,6 @@
 # # https://medium.com/parallel-thinking/monkey-patching-active-record-models-6fe9f8b1afe9
 
-module AddExternalSourceIdsWhatsappToMessage
+module MessagePatch
   def self.included(base)
     
     base.class_eval do
@@ -11,7 +11,7 @@ module AddExternalSourceIdsWhatsappToMessage
 end
 
 ActiveSupport::Reloader.to_prepare do
-  puts "add monkey patch add_external_source_ids_whatsapp_to_message.........."
-  Message.include(AddExternalSourceIdsWhatsappToMessage)
-  puts "monkey patch add_external_source_ids_whatsapp_to_message successful!"
+  puts "add monkey patch message_patch.........."
+  Message.include(MessagePatch)
+  puts "monkey patch message_patch successful!"
 end

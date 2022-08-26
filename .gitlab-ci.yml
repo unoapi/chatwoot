@@ -35,6 +35,6 @@ deploy_production:
   image: registry.gitlab.com/clairton/ci/deployer:0.1.1
   script:
     - deploy-heroku app chatwoot-w3b web $HEROKU_TOKEN
-    - deploy-heroku app chatwoot-worker worker $HEROKU_TOKEN
+    - deploy-heroku app chatwoot-w3b worker $HEROKU_TOKEN
   only:
     - master

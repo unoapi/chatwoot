@@ -15,6 +15,8 @@ module MessageBuilderPatch
   
   module InstanceMethods
     def message_params_and_external_values
+      puts ">>>>>>>>>>>>>>>>>>> verify '#{@params[:status]}' not exist #{@message_type} is 'outgoing' and #{@params[:action]} is 'create'"
+      @params[:status] = :progress if !@params[:status] && @message_type == 'outgoing' &&  @params[:action] == 'create'
       message_params = message_params_original()
       puts ">>>>>>>>>>>>>>>>>>> overrided message_params adding source_id: #{@params[:source_id]} and external_source_id_whatsapp: #{@params[:external_source_id_whatsapp]} and status: #{@params[:status]}"
       message_params =  message_params.merge({external_source_id_whatsapp: @params[:external_source_id_whatsapp]}) if @params[:external_source_id_whatsapp]

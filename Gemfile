@@ -141,6 +141,7 @@ gem 'faker'
 gem 'net-imap', require: false
 gem 'net-pop', require: false
 gem 'net-smtp', require: false
+gem 'phonelib'
 
 group :production, :staging do
   # we dont want request timing out in development while using byebug

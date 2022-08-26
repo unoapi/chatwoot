@@ -137,6 +137,8 @@ gem 'stripe'
 ## to populate db with sample data
 gem 'faker'
 
+gem 'phonelib'
+
 group :production, :staging do
   # we dont want request timing out in development while using byebug
   gem 'rack-timeout'

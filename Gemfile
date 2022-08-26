@@ -131,6 +131,8 @@ gem 'pg_search'
 # Subscriptions, Billing
 gem 'stripe'
 
+gem 'phonelib'
+
 group :production, :staging do
   # we dont want request timing out in development while using byebug
   gem 'rack-timeout'

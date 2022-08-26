@@ -15,18 +15,6 @@ ENV SECRET_KEY_BASE abc
 
 ADD scripts/heroku-start.sh /bin/heroku-start
 
-ADD bin/message_patch.rb /app/lib/message_patch.rb
-RUN echo "$(cat /app/lib/message_patch.rb)" >> /app/config/application.rb
-RUN rm /app/lib/message_patch.rb
-
-ADD bin/message_builder_patch.rb /app/lib/message_builder_patch.rb
-RUN echo "$(cat /app/lib/message_builder_patch.rb)" >> /app/config/application.rb
-RUN rm /app/lib/message_builder_patch.rb
-
-ADD bin/messages_controller_patch.rb /app/lib/messages_controller_patch.rb
-RUN echo "$(cat /app/lib/messages_controller_patch.rb)" >> /app/config/application.rb
-RUN rm /app/lib/messages_controller_patch.rb
-
 ADD bin/inboxes_controller_patch.rb /app/lib/inboxes_controller_patch.rb
 RUN echo "$(cat /app/lib/inboxes_controller_patch.rb)" >> /app/config/application.rb
 RUN rm /app/lib/inboxes_controller_patch.rb

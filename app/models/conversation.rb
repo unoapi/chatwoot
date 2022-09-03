@@ -202,6 +202,10 @@ class Conversation < ApplicationRecord
     self.snoozed_until = nil unless snoozed?
   end
 
+  def set_display_id
+    reload
+  end
+
   def validate_additional_attributes
     self.additional_attributes = {} unless additional_attributes.is_a?(Hash)
   end
@@ -224,10 +228,6 @@ class Conversation < ApplicationRecord
 
   def self_assign?(assignee_id)
     assignee_id.present? && Current.user&.id == assignee_id
-  end
-
-  def set_display_id
-    reload
   end
 
   def notify_status_change

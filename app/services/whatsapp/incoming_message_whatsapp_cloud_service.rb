@@ -4,6 +4,30 @@
 class Whatsapp::IncomingMessageWhatsappCloudService < Whatsapp::IncomingMessageBaseService
   private
 
+  def set_contact
+    contact_params = @processed_params[:contacts]&.first
+    return if contact_params.blank?
+
+    if contact_params[:wa_id].include? '@g.us'
+      contact_inbox = ::ContactBuilder.new(
+        source_id: contact_params[:wa_id],
+        inbox: inbox,
+        contact_attributes: { email: contact_params[:wa_id] }
+      ).perform
+      @sender = ::ContactBuilder.new(
+        source_id: contact_params[:from_id],
+        inbox: inbox,
+        contact_attributes: { name: contact_params.dig(:profile, :name), phone_number: "+#{@processed_params[:messages].first[:from]}" }
+      ).perform.contact
+
+      @contact_inbox = contact_inbox
+      @contact = contact_inbox.contact
+      @sender = contact_inbox.contact
+    else
+      super
+    end
+  end
+
   def processed_params
     @processed_params ||= params[:entry].first['changes'].first['value']
   end

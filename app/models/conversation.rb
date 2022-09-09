@@ -189,13 +189,15 @@ class Conversation < ApplicationRecord
   end
 
   def update_last_seen(agent_last_seen_at, assignee)
-    # rubocop:disable Rails/SkipsModelValidations
-    update_column(:agent_last_seen_at, agent_last_seen_at)
-    update_column(:assignee_last_seen_at, agent_last_seen_at) if assignee
-    messages.to_read(agent_last_seen_at).each do |message|
-      message.update_column(:status, :read)
+    ActiveRecord::Base.transaction do
+      # rubocop:disable Rails/SkipsModelValidations
+      update_column(:agent_last_seen_at, agent_last_seen_at)
+      update_column(:assignee_last_seen_at, agent_last_seen_at) if assignee
+      # rubocop:enable Rails/SkipsModelValidations
+      messages.to_read(agent_last_seen_at).each do |message|
+        message.update(status: :read)
+      end
     end
-    # rubocop:enable Rails/SkipsModelValidations
   end
 
   private

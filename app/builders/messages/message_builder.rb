@@ -102,6 +102,15 @@ class Messages::MessageBuilder
     AgentBot.where(account_id: [nil, @conversation.account.id]).find_by(id: @params[:sender_id])
   end
 
+  def status_param
+    @params[:status] = :progress if @params[:status].blank? && @message_type == 'outgoing' && @params[:action] == 'create'  && @conversation.inbox&.whatsapp?
+    @params[:status].present? ? { status: @params[:status] } : {}
+  end
+
+  def source_id_param
+    @params[:source_id].present? ? { source_id: @params[:source_id] } : {}
+  end
+
   def message_params
     {
       account_id: @conversation.account_id,
@@ -114,6 +123,11 @@ class Messages::MessageBuilder
       items: @items,
       in_reply_to: @in_reply_to,
       echo_id: @params[:echo_id]
-    }.merge(external_created_at).merge(automation_rule_id).merge(campaign_id).merge(template_params)
+    }.merge(external_created_at)
+      .merge(automation_rule_id)
+      .merge(campaign_id)
+      .merge(template_params)
+      .merge(status_param)
+      .merge(source_id_param)
   end
 end

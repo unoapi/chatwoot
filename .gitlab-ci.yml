@@ -13,16 +13,17 @@ build:
   only:
     - tags
 
-deploy_staging:
+deploy_dokku:
+  image: dokku/ci-docker-image
   stage: deploy
-  services:
-    - docker:dind
   variables:
-    DOCKER_DRIVER: overlay2
-  image: registry.gitlab.com/clairton/ci/deployer:0.1.1
+    GIT_REMOTE_URL: ssh://root@ssh.dokku.excellence.odo.br/chatwoot
   script:
-    - deploy-heroku app chatwoot-app-staging web $HEROKU_TOKEN
-    - deploy-heroku app chatwoot-app-staging worker $HEROKU_TOKEN
+    - export BASE_CONTAINER_IMAGE="registry.gitlab.com/clairton/chatwoot/app"
+    - export IMAGE_ID=`docker inspect $HEROKU_IMAGE --format={{.Id}}`
+    - export DEPLOY_DOCKER_IMAGE="${BASE_CONTAINER_IMAGE}:${IMAGE_ID}"
+    - echo "deploy image ${DEPLOY_DOCKER_IMAGE}"
+    - dokku-deploy
   only:
     - develop
 

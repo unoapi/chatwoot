@@ -8,12 +8,8 @@ build:
     - docker:dind
   variables:
     DOCKER_DRIVER: overlay2
-  image: registry.gitlab.com/clairton/ci/builder:0.1.2
-  script: 
-    - build app
-  artifacts:
-    paths:
-      - image_digest.txt
+  image: registry.gitlab.com/clairton/ci/builder:0.1.1
+  script: build app
   only:
     - tags
 
@@ -22,15 +18,14 @@ deploy_dokku:
   stage: deploy
   variables:
     GIT_REMOTE_URL: ssh://root@ssh.dokku.excellence.odo.br/chatwoot
-    GIT_PUSH_FLAGS: '--force'
   script:
+    - export TAG_NAME="$(git describe --abbrev=0 --tags | cut -d"v" -f2)"
     - export BASE_CONTAINER_IMAGE="registry.gitlab.com/clairton/chatwoot/app"
-    - export IMAGE_DIGEST=`cat image_digest.txt`
-    - export DEPLOY_DOCKER_IMAGE="${BASE_CONTAINER_IMAGE}:${IMAGE_DIGEST}"
+    - export DEPLOY_DOCKER_IMAGE="${BASE_CONTAINER_IMAGE}:${TAG_NAME}"
     - echo "deploy image ${DEPLOY_DOCKER_IMAGE}"
     - dokku-deploy
   only:
-    - tags
+    - develop
 
 deploy_production:
   stage: deploy

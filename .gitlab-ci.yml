@@ -8,23 +8,29 @@ build:
     - docker:dind
   variables:
     DOCKER_DRIVER: overlay2
-  image: registry.gitlab.com/clairton/ci/builder:0.1.1
-  script: build app
+  image: registry.gitlab.com/clairton/ci/builder:0.1.2
+  script: 
+    - build app
+  artifacts:
+    paths:
+      - image_digest.txt
   only:
     - tags
 
-deploy_staging:
+deploy_dokku:
+  image: dokku/ci-docker-image
   stage: deploy
-  services:
-    - docker:dind
   variables:
-    DOCKER_DRIVER: overlay2
-  image: registry.gitlab.com/clairton/ci/deployer:0.1.1
+    GIT_REMOTE_URL: ssh://root@ssh.dokku.excellence.odo.br/chatwoot
+    GIT_PUSH_FLAGS: '--force'
   script:
-    - deploy-heroku app chatwoot-app-staging web $HEROKU_TOKEN
-    - deploy-heroku app chatwoot-app-staging worker $HEROKU_TOKEN
+    - export BASE_CONTAINER_IMAGE="registry.gitlab.com/clairton/chatwoot/app"
+    - export IMAGE_DIGEST=`cat image_digest.txt`
+    - export DEPLOY_DOCKER_IMAGE="${BASE_CONTAINER_IMAGE}:${IMAGE_DIGEST}"
+    - echo "deploy image ${DEPLOY_DOCKER_IMAGE}"
+    - dokku-deploy
   only:
-    - develop
+    - tags
 
 deploy_production:
   stage: deploy

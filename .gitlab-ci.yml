@@ -38,3 +38,17 @@ deploy_production:
     - deploy-heroku app chatwoot-w3b worker $HEROKU_TOKEN
   only:
     - master
+
+deploy_dokku:
+  image: dokku/ci-docker-image
+  stage: deploy
+  variables:
+    GIT_REMOTE_URL: ssh://root@ssh.dokku.excellence.odo.br/chatwoot
+  script:
+    - export TAG_NAME="$(git describe --abbrev=0 --tags | cut -d"v" -f2)"
+    - export BASE_CONTAINER_IMAGE="registry.gitlab.com/clairton/chatwoot/app"
+    - export DEPLOY_DOCKER_IMAGE="${BASE_CONTAINER_IMAGE}:${TAG_NAME}"
+    - echo "deploy image ${DEPLOY_DOCKER_IMAGE}"
+    - dokku-deploy
+  only:
+    - master

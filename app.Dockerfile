@@ -1,13 +1,9 @@
-FROM clairton/chatwoot:2.8.4
-
-RUN gem install bundler
-RUN echo "" >> Gemfile
-RUN bundle install
+FROM clairton/chatwoot:2.9.1
 
 ENV NODE_ENV production
 ENV RAILS_ENV production
 ENV INSTALLATION_ENV docker
-ENV ACTIVE_STORAGE_SERVICE amazon
+ENV ACTIVE_STORAGE_SERVICE s3_compatible
 ENV RAILS_MAX_THREADS 1
 ENV PORT 3000
 ENV CHATWOOT_PREPARE false

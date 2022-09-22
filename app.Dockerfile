@@ -1,4 +1,4 @@
-FROM clairton/chatwoot:2.9.1
+FROM clairton/chatwoot:2.9.2
 
 ENV NODE_ENV production
 ENV RAILS_ENV production

@@ -40,6 +40,22 @@ class Whatsapp::Providers::WhatsappCloudService < Whatsapp::Providers::BaseServi
     "#{api_base_path}/v13.0/#{media_id}"
   end
 
+  def message_update_payload(message)
+    {
+      messaging_product: 'whatsapp',
+      status: message[:status],
+      message_id: message[:source_id]
+    }
+  end
+
+  def message_update_http_method
+    :post
+  end
+
+  def message_path(_message)
+    messages_path
+  end
+
   private
 
   def api_base_path
@@ -51,13 +67,17 @@ class Whatsapp::Providers::WhatsappCloudService < Whatsapp::Providers::BaseServi
     "#{api_base_path}/v13.0/#{whatsapp_channel.provider_config['phone_number_id']}"
   end
 
+  def messages_path
+    "#{phone_id_path}/messages"
+  end
+
   def business_account_path
     "#{api_base_path}/v14.0/#{whatsapp_channel.provider_config['business_account_id']}"
   end
 
   def send_text_message(phone_number, message)
     response = HTTParty.post(
-      "#{phone_id_path}/messages",
+      messages_path,
       headers: api_headers,
       body: {
         messaging_product: 'whatsapp',

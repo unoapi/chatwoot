@@ -71,7 +71,7 @@ class Whatsapp::IncomingMessageBaseService
       account_id: @inbox.account_id,
       inbox_id: @inbox.id,
       message_type: :incoming,
-      sender: @contact,
+      sender: @sender,
       source_id: @processed_params[:messages].first[:id].to_s
     )
     attach_files
@@ -105,6 +105,7 @@ class Whatsapp::IncomingMessageBaseService
 
     @contact_inbox = contact_inbox
     @contact = contact_inbox.contact
+    @sender = contact_inbox.contact
   end
 
   def conversation_params
@@ -117,10 +118,7 @@ class Whatsapp::IncomingMessageBaseService
   end
 
   def set_conversation
-    @conversation = @contact_inbox.conversations.last
-    return if @conversation
-
-    @conversation = ::Conversation.create!(conversation_params)
+    @conversation = @contact_inbox.conversations.last || ::Conversation.create!(conversation_params)
   end
 
   def message_type

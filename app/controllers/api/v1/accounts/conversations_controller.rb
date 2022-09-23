@@ -76,7 +76,7 @@ class Api::V1::Accounts::ConversationsController < Api::V1::Accounts::BaseContro
 
   def update_last_seen
     # rubocop:disable Rails/SkipsModelValidations
-    @conversation.update_column(:agent_last_seen_at, DateTime.now.utc)
+    @conversation.update_column(:agent_last_seen_at, DateTime.now.utc) && UpdateLastSeenJob.perform_later(@conversation.id, DateTime.now.utc)
     @conversation.update_column(:assignee_last_seen_at, DateTime.now.utc) if assignee?
     # rubocop:enable Rails/SkipsModelValidations
   end

@@ -1,0 +1,40 @@
+stages:
+  - build
+  - deploy
+
+build:
+  stage: build
+  image: docker:stable-git
+  services:
+    - docker:dind
+  variables:
+    DOCKER_DRIVER: overlay2
+  script:
+    - export BASE_CONTAINER_IMAGE="registry.gitlab.com/clairton/chatwoot"
+    - export LATEST_CONTAINER_IMAGE="${BASE_CONTAINER_IMAGE}:latest"
+    - export TAG_NAME="$(git describe --abbrev=0 --tags | cut -d"v" -f2)"
+    - export CONTAINER_IMAGE="${BASE_CONTAINER_IMAGE}:${TAG_NAME}"
+    - echo "$CI_JOB_TOKEN" | docker login --username=gitlab-ci-token registry.gitlab.com --password-stdin
+    - echo "login on registry.gitlab.com"
+    - echo "docker building ${LATEST_CONTAINER_IMAGE}"
+    - docker build -f docker/Dockerfile -t $LATEST_CONTAINER_IMAGE .
+    - docker tag $LATEST_CONTAINER_IMAGE $CONTAINER_IMAGE
+    - docker push $CONTAINER_IMAGE
+    - docker push $LATEST_CONTAINER_IMAGE
+
+  only:
+    - tags
+
+deploy_dokku:
+  image: dokku/ci-docker-image
+  stage: deploy
+  variables:
+    GIT_REMOTE_URL: ssh://root@ssh.dokku.excellence.odo.br/chatwoot
+  script:
+    - export TAG_NAME="$(git describe --abbrev=0 --tags | cut -d"v" -f2)"
+    - export BASE_CONTAINER_IMAGE="registry.gitlab.com/clairton/chatwoot"
+    - export DEPLOY_DOCKER_IMAGE="${BASE_CONTAINER_IMAGE}:${TAG_NAME}"
+    - echo "deploy image ${DEPLOY_DOCKER_IMAGE}"
+    - dokku-deploy
+  only:
+    - production

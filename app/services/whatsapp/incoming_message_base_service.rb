@@ -66,6 +66,7 @@ class Whatsapp::IncomingMessageBaseService
   def create_messages
     return if unprocessable_message_type?(message_type)
 
+<<<<<<< HEAD
     message = @processed_params[:messages].first
     if message_type == 'contacts'
       create_contact_messages(message)
@@ -101,13 +102,11 @@ class Whatsapp::IncomingMessageBaseService
 
     @contact_inbox = contact_inbox
     @contact = contact_inbox.contact
+    @sender = contact_inbox.contact
   end
 
   def set_conversation
-    @conversation = @contact_inbox.conversations.last
-    return if @conversation
-
-    @conversation = ::Conversation.create!(conversation_params)
+    @conversation = @contact_inbox.conversations.last || ::Conversation.create!(conversation_params)
   end
 
   def attach_files
@@ -142,11 +141,11 @@ class Whatsapp::IncomingMessageBaseService
 
   def create_message(message)
     @message = @conversation.messages.build(
-      content: message_content(message),
+      content: message_content(@processed_params[:messages].first),
       account_id: @inbox.account_id,
       inbox_id: @inbox.id,
       message_type: :incoming,
-      sender: @contact,
+      sender: @sender,
       source_id: message[:id].to_s
     )
   end

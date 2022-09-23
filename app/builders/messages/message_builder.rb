@@ -76,7 +76,20 @@ class Messages::MessageBuilder
   end
 
   def sender
-    message_type == 'outgoing' ? (message_sender || @user) : @conversation.contact
+    if group_incoming?
+      contact_sender
+    else
+      message_type == 'outgoing' ? (message_sender || @user) : @conversation.contact
+    end
+  end
+
+  def group_incoming?
+    mt = message_type
+    mt == 'incoming' && @conversation.contact.email.present? && @conversation.contact.email.include?('@g.us')
+  end
+
+  def contact_sender
+    Contact.find_by(id: @params[:sender_id])
   end
 
   def external_created_at

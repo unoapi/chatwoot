@@ -30,6 +30,6 @@
 
 # you can override concurrency based on environment
 production:
-  :concurrency: 10
+  :concurrency: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
 staging:
   :concurrency: 5

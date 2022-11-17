@@ -45,4 +45,15 @@ class Whatsapp::IncomingMessageWhatsappCloudService < Whatsapp::IncomingMessageB
     contact_params = @processed_params[:contacts]&.first
     contact_params.present? && contact_params[:wa_id].include?('@g.us')
   end
+
+  def set_message_type
+    @message_type = outgoing_message_type? ? :outgoing : :incoming
+  end
+
+  def outgoing_message_type?
+    contact_params = @processed_params[:contacts]&.first
+    return if contact_params.blank?
+
+    contact_params[:from_id] == inbox.channel.phone_number.sub('+', '')
+  end
 end

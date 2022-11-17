@@ -6,13 +6,13 @@ class Whatsapp::IncomingMessageBaseService
 
   def perform
     processed_params
-
     perform_statuses
-
     set_contact
+
     return unless @contact
 
     set_conversation
+    set_message_type
 
     perform_messages
   end
@@ -57,7 +57,7 @@ class Whatsapp::IncomingMessageBaseService
       content: message_content(@processed_params[:messages].first),
       account_id: @inbox.account_id,
       inbox_id: @inbox.id,
-      message_type: :incoming,
+      message_type: @message_type,
       sender: @sender,
       source_id: @processed_params[:messages].first[:id].to_s
     )
@@ -99,10 +99,8 @@ class Whatsapp::IncomingMessageBaseService
 
   def conversation_params
     {
-      account_id: @inbox.account_id,
-      inbox_id: @inbox.id,
-      contact_id: @contact.id,
-      contact_inbox_id: @contact_inbox.id
+      account_id: @inbox.account_id, inbox_id: @inbox.id,
+      contact_id: @contact.id, contact_inbox_id: @contact_inbox.id
     }
   end
 
@@ -167,5 +165,9 @@ class Whatsapp::IncomingMessageBaseService
       fallback_title: location_name,
       external_url: location['url']
     )
+  end
+
+  def set_message_type
+    @message_type = :incoming
   end
 end

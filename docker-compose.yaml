@@ -110,6 +110,30 @@ services:
       - 1025:1025
       - 8025:8025
 
+  minio:
+    image: quay.io/minio/minio:latest
+    command: server --address ":9000" --console-address ":9001" /data
+    ports:
+      - 9000:9000
+      - 9001:9001
+    environment:
+      MINIO_SITE_REGION: us-east-1
+      MINIO_ROOT_USER: my-minio
+      MINIO_ROOT_PASSWORD: 2NVQWHTTT3asdasMgqapGchy6yAMZn
+    volumes:
+      - storage:/data
+
+  minio-mc:
+    image: minio/mc:latest
+    depends_on:
+    - minio
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc config host rm local;
+      /usr/bin/mc config host add --quiet --api s3v4 local http://minio:9000 my-minio 2NVQWHTTT3asdasMgqapGchy6yAMZn;
+      /usr/bin/mc rb --force local/chatwoot/;
+      /usr/bin/mc mb --quiet local/chatwoot/;"
+
 volumes:
   postgres:
   redis:
@@ -117,3 +141,4 @@ volumes:
   node_modules:
   cache:
   bundle:
+  storage:

@@ -49,7 +49,20 @@ class Whatsapp::IncomingMessageWhatsappCloudService < Whatsapp::IncomingMessageB
   end
 
   def set_message_type
+    @message_type = :activity
+    return if activity_message_type?
+
     @message_type = outgoing_message_type? ? :outgoing : :incoming
+  end
+
+  def activity_message_type?
+    message = @processed_params[:messages]&.first
+    return if message.blank?
+
+    contact_params = @processed_params[:contacts]&.first
+    return if contact_params.blank?
+
+    message[:from] == inbox.channel.phone_number.sub('+', '') && contact_params[:from_id] == message[:from] && !group_message?
   end
 
   def outgoing_message_type?

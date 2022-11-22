@@ -33,7 +33,11 @@ class Whatsapp::IncomingMessageBaseService
     ActiveRecord::Base.transaction do
       create_message_for_failed_status(message, state)
 
-      message.status = state[:status]
+      if state[:status] == 'deleted'
+        message.assign_attributes(content: I18n.t('conversations.messages.deleted'), content_attributes: { deleted: true })
+      else
+        message.status = state[:status]
+      end
       message.save!
     end
   end
@@ -133,12 +137,8 @@ class Whatsapp::IncomingMessageBaseService
     return if attachment_file.blank?
 
     @message.attachments.new(
-      account_id: @message.account_id,
-      file_type: file_content_type(message_type),
-      file: {
-        io: attachment_file,
-        filename: attachment_file.original_filename,
-        content_type: attachment_file.content_type
+      account_id: @message.account_id, file_type: file_content_type(message_type), file: {
+        io: attachment_file, filename: attachment_file.original_filename, content_type: attachment_file.content_type
       }
     )
   end
@@ -153,9 +153,8 @@ class Whatsapp::IncomingMessageBaseService
     location = @processed_params[:messages].first['location']
     location_name = location['name'] ? "#{location['name']}, #{location['address']}" : ''
     @message.attachments.new(
-      account_id: @message.account_id, file_type: file_content_type(message_type),
-      coordinates_lat: location['latitude'], coordinates_long: location['longitude'],
-      fallback_title: location_name, external_url: location['url']
+      account_id: @message.account_id, file_type: file_content_type(message_type), coordinates_lat: location['latitude'],
+      coordinates_long: location['longitude'], fallback_title: location_name, external_url: location['url']
     )
   end
 

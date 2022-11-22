@@ -33,7 +33,7 @@ class Whatsapp::IncomingMessageBaseService
     ActiveRecord::Base.transaction do
       create_message_for_failed_status(message, state)
 
-      message.status = state[:status]
+      state[:status] == 'deleted' ? message.assign_attributes(content: I18n.t('conversations.messages.deleted'), content_attributes: { deleted: true }) : message.status = state[:status]
       message.save!
     end
   end

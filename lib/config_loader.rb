@@ -61,7 +61,7 @@ class ConfigLoader
   def save_as_new_config(latest)
     config = InstallationConfig.find_or_create_by(name: latest[:name])
     config.value = latest[:value]
-    config.locked = latest[:locked]
+    config.locked = latest[:locked] || true
     config.save!
   end
 

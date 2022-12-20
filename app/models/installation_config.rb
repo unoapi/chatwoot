@@ -42,7 +42,7 @@ class InstallationConfig < ApplicationRecord
   private
 
   def set_lock
-    self.locked = true if locked.nil?
+    self.locked = true if self&.locked&.nil?
   end
 
   def clear_cache

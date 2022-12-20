@@ -43,7 +43,7 @@ class Public::Api::V1::Inboxes::MessagesController < Public::Api::V1::InboxesCon
   end
 
   def message_update_params
-    params.permit(:source_id, :status, submitted_values: [:name, :title, :value])
+    params.permit(submitted_values: [:name, :title, :value])
   end
 
   def permitted_params

@@ -12,7 +12,7 @@ class Whatsapp::IncomingMessageWhatsappCloudService < Whatsapp::IncomingMessageB
       contact_inbox = ::ContactInboxWithContactBuilder.new(
         source_id: contact_params[:wa_id],
         inbox: inbox,
-        contact_attributes: { email: contact_params[:wa_id] }
+        contact_attributes: { email: contact_params[:wa_id], name: contact_params.dig(:profile, :name) }
       ).perform
       @sender = ::ContactInboxWithContactBuilder.new(
         source_id: contact_params[:from_id],

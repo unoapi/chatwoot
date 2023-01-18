@@ -32,6 +32,7 @@ class Whatsapp::IncomingMessageBaseService
     return unless @contact
 
     set_conversation
+    set_message_type
     create_messages
   end
 
@@ -69,8 +70,6 @@ class Whatsapp::IncomingMessageBaseService
 
   def create_messages
     return if unprocessable_message_type?(message_type)
-
-<<<<<<< HEAD
     message = @processed_params[:messages].first
     if message_type == 'contacts'
       create_contact_messages(message)
@@ -140,10 +139,10 @@ class Whatsapp::IncomingMessageBaseService
 
   def create_message(message)
     @message = @conversation.messages.build(
-      content: message_content(@processed_params[:messages].first),
+      content: message_content(message),
       account_id: @inbox.account_id,
       inbox_id: @inbox.id,
-      message_type: :incoming,
+      message_type: @message_type,
       sender: @sender,
       source_id: message[:id].to_s
     )
@@ -160,5 +159,9 @@ class Whatsapp::IncomingMessageBaseService
         fallback_title: phone[:phone].to_s
       )
     end
+  end
+
+  def set_message_type
+    @message_type = :incoming
   end
 end

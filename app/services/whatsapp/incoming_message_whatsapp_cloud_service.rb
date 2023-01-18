@@ -47,4 +47,28 @@ class Whatsapp::IncomingMessageWhatsappCloudService < Whatsapp::IncomingMessageB
     contact_params = @processed_params[:contacts]&.first
     contact_params.present? && contact_params[:wa_id].include?('@g.us')
   end
+
+  def set_message_type
+    @message_type = :activity
+    return if activity_message_type?
+
+    @message_type = outgoing_message_type? ? :outgoing : :incoming
+  end
+
+  def outgoing_message_type?
+    contact_params = @processed_params[:contacts]&.first
+    return if contact_params.blank?
+
+    contact_params[:from_id] == inbox.channel.phone_number.sub('+', '')
+  end
+
+  def activity_message_type?
+    message = @processed_params[:messages]&.first
+    return if message.blank?
+
+    contact_params = @processed_params[:contacts]&.first
+    return if contact_params.blank?
+
+    message[:from] == inbox.channel.phone_number.sub('+', '') && contact_params[:from_id] == message[:from] && !group_message?
+  end
 end

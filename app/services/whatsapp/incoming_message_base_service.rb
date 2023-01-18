@@ -32,6 +32,7 @@ class Whatsapp::IncomingMessageBaseService
     return unless @contact
 
     set_conversation
+    set_message_type
     create_messages
   end
 
@@ -74,7 +75,7 @@ class Whatsapp::IncomingMessageBaseService
       content: message_content(@processed_params[:messages].first),
       account_id: @inbox.account_id,
       inbox_id: @inbox.id,
-      message_type: :incoming,
+      message_type: @message_type,
       sender: @sender,
       source_id: @processed_params[:messages].first[:id].to_s
     )
@@ -156,5 +157,9 @@ class Whatsapp::IncomingMessageBaseService
       account_id: @message.account_id, file_type: file_content_type(message_type), coordinates_lat: location['latitude'],
       coordinates_long: location['longitude'], fallback_title: location_name, external_url: location['url']
     )
+  end
+
+  def set_message_type
+    @message_type = :incoming
   end
 end

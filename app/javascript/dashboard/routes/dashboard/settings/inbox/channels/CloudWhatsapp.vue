@@ -16,21 +16,6 @@
     </div>
 
     <div class="medium-8 columns">
-      <label :class="{ error: $v.url.$error }">
-        {{ $t('INBOX_MGMT.ADD.WHATSAPP.URL.LABEL') }}
-        <input
-          v-model.trim="url"
-          type="text"
-          placeholder="$t('INBOX_MGMT.ADD.WHATSAPP.URL.PLACEHOLDER')"
-          @blur="$v.url.$touch"
-        />
-        <span v-if="$v.url.$error" class="message">
-          {{ $t('INBOX_MGMT.ADD.WHATSAPP.URL.ERROR') }}
-        </span>
-      </label>
-    </div>
-
-    <div class="medium-8 columns">
       <label :class="{ error: $v.phoneNumber.$error }">
         {{ $t('INBOX_MGMT.ADD.WHATSAPP.PHONE_NUMBER.LABEL') }}
         <input
@@ -100,6 +85,26 @@
       </label>
     </div>
 
+    <div class="medium-8 columns">
+      <label :class="{ error: $v.url.$error }">
+        {{ $t('INBOX_MGMT.ADD.WHATSAPP.URL.LABEL') }}
+        <fieldset>
+          <legend>
+            <woot-switch v-model="advanced" size="small" :value="advanced" />
+          </legend>
+          <input
+            v-model.trim="url"
+            :disabled="!advanced"
+            type="text"
+            placeholder="$t('INBOX_MGMT.ADD.WHATSAPP.URL.PLACEHOLDER')"
+          />
+          <span v-if="$v.url.$error" class="message">
+            {{ $t('INBOX_MGMT.ADD.WHATSAPP.URL.ERROR') }}
+          </span>
+        </fieldset>
+      </label>
+    </div>
+
     <div class="medium-12 columns">
       <woot-submit-button
         :loading="uiFlags.isCreating"
@@ -126,6 +131,7 @@ export default {
       url: 'https://graph.facebook.com',
       phoneNumberId: '',
       businessAccountId: '',
+      advanced: false,
     };
   },
   computed: {

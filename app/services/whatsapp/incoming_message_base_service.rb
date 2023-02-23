@@ -28,6 +28,7 @@ class Whatsapp::IncomingMessageBaseService
     # message allready exists so we don't need to process
     return if find_message_by_source_id(@processed_params[:messages].first[:id])
 
+    set_message_type
     set_contact
     return unless @contact
 
@@ -145,7 +146,7 @@ class Whatsapp::IncomingMessageBaseService
       content: message_content(message),
       account_id: @inbox.account_id,
       inbox_id: @inbox.id,
-      message_type: :incoming,
+      message_type: @message_type,
       sender: @contact,
       source_id: message[:id].to_s
     )
@@ -162,5 +163,9 @@ class Whatsapp::IncomingMessageBaseService
         fallback_title: phone[:phone].to_s
       )
     end
+  end
+
+  def set_message_type
+    @message_type = :incoming
   end
 end

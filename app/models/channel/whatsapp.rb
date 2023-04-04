@@ -47,7 +47,7 @@ class Channel::Whatsapp < ApplicationRecord
   end
 
   def messaging_window_enabled?
-    true
+    ActiveModel::Type::Boolean.new.cast(ENV.fetch('WHATSAPP_MESSAGE_WINDOW_ENABLED', 'true'))
   end
 
   delegate :send_message, to: :provider_service

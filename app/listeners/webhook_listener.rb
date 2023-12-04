@@ -108,6 +108,7 @@ class WebhookListener < BaseListener
     WebhookJob.perform_later(
       inbox.channel.message_path(payload),
       inbox.channel.message_update_payload(payload),
+      :account_webhook,
       inbox.channel.message_update_http_method,
       inbox.channel.api_headers
     )

@@ -89,3 +89,5 @@
   enabled: false
 - name: captain_integration
   enabled: false
+- name: hide_all_chats_for_agent
+  enabled: false

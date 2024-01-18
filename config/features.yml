@@ -92,3 +92,5 @@
 - name: custom_roles
   enabled: false
   premium: true
+- name: hide_all_chats_for_agent
+  enabled: false

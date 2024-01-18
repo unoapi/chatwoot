@@ -329,7 +329,18 @@ export default {
       campaigns: 'campaigns/getAllCampaigns',
       labels: 'labels/getLabels',
       selectedConversations: 'bulkActions/getSelectedConversationIds',
+      isFeatureEnabledonAccount: 'accounts/isFeatureEnabledonAccount',
+      currentRole: 'getCurrentRole',
+      accountId: 'getCurrentAccountId',
     }),
+    hideAllChatsForAgents() {
+      return (
+        this.isFeatureEnabledonAccount(
+          this.accountId,
+          'hide_all_chats_for_agent'
+        ) && this.currentRole !== 'administrator'
+      );
+    },
     hasAppliedFilters() {
       return this.appliedFilters.length !== 0;
     },
@@ -364,8 +375,10 @@ export default {
       const ASSIGNEE_TYPE_TAB_KEYS = {
         me: 'mineCount',
         unassigned: 'unAssignedCount',
-        all: 'allCount',
       };
+      if (!this.hideAllChatsForAgents) {
+        ASSIGNEE_TYPE_TAB_KEYS.all = 'allCount';
+      }
       return Object.keys(ASSIGNEE_TYPE_TAB_KEYS).map(key => {
         const count = this.conversationStats[ASSIGNEE_TYPE_TAB_KEYS[key]] || 0;
         return {
@@ -547,6 +560,7 @@ export default {
   },
   mounted() {
     this.setFiltersFromUISettings();
+    this.initializeAccount();
     this.$store.dispatch('setChatStatusFilter', this.activeStatus);
     this.$store.dispatch('setChatSortFilter', this.activeSortBy);
     this.resetAndFetchData();
@@ -560,6 +574,14 @@ export default {
     });
   },
   methods: {
+    async initializeAccount() {
+      try {
+        const { features } = this.getAccount(this.accountId);
+        this.features = features;
+      } catch (error) {
+        // Ignore error
+      }
+    },
     updateVirtualListProps(key, value) {
       this.virtualListExtraProps = {
         ...this.virtualListExtraProps,

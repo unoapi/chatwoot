@@ -41,11 +41,13 @@ jobs:
       - name: set docker tag
         run: |
           echo "DOCKER_TAG=clairton/chatwoot:$GIT_REF" >> $GITHUB_ENV
+          echo "DOCKER_ARM_TAG=clairton/chatwoot-arm:$GIT_REF" >> $GITHUB_ENV
 
       - name: replace docker tag if master
         if: github.ref_name == 'master'
         run: |
           echo "DOCKER_TAG=clairton/chatwoot:latest" >> $GITHUB_ENV
+          echo "DOCKER_ARM_TAG=clairton/chatwoot-arm:latest" >> $GITHUB_ENV
 
       - name: Login to DockerHub
         uses: docker/login-action@v1
@@ -69,4 +71,4 @@ jobs:
           file: docker/Dockerfile
           platforms: linux/arm64
           push: true
-          tags: ${{ env.DOCKER_TAG }}
+          tags: ${{ env.DOCKER_ARM_TAG }}

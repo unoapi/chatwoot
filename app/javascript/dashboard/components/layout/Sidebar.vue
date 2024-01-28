@@ -93,6 +93,7 @@ export default {
       isOnChatwootCloud: 'globalConfig/isOnChatwootCloud',
       labels: 'labels/getLabelsOnSidebar',
       teams: 'teams/getMyTeams',
+      currentRole: 'getCurrentRole',
     }),
     activeCustomView() {
       if (this.activePrimaryMenu.key === 'contacts') {
@@ -124,11 +125,13 @@ export default {
       );
       const menuItems = this.sideMenuConfig.primaryMenu;
       return menuItems.filter(menuItem => {
+        if (menuItem.key === 'contacts' && this.hideContactsForAgents) {
+          return false;
+        }
         const isAvailableForTheUser = hasPermissions(
           routesWithPermissions[menuItem.toStateName],
           userPermissions
         );
-
         if (!isAvailableForTheUser) {
           return false;
         }
@@ -174,6 +177,14 @@ export default {
       // if it is explicitly stated to show and it has secondary menu items to show
       // showSecondarySidebar corresponds to the UI settings, indicating if the user has toggled it
       return this.showSecondarySidebar && this.hasSecondaryMenu;
+    },
+    hideContactsForAgents() {
+      return (
+        this.isFeatureEnabledonAccount(
+          this.accountId,
+          'hide_contacts_for_agent'
+        ) && this.currentRole !== 'administrator'
+      );
     },
   },
 

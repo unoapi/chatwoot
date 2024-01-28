@@ -161,6 +161,15 @@ const hideAllChatsForAgents = computed(() => {
   );
 });
 
+const hideFiltersForAgents = computed(() => {
+  return (
+    isFeatureEnabledonAccount.fn(
+      currentAccountId.value,
+      'hide_filters_for_agent'
+    ) && currentRole.value !== 'administrator'
+  );
+});
+
 const hasAppliedFilters = computed(() => {
   return appliedFilters.value.length !== 0;
 });
@@ -777,7 +786,7 @@ watch(conversationFilters, (newVal, oldVal) => {
     <slot />
     <ChatListHeader
       :page-title="pageTitle"
-      :has-applied-filters="hasAppliedFilters"
+      :has-applied-filters="hasAppliedFilters && !hideFiltersForAgents"
       :has-active-folders="hasActiveFolders"
       :active-status="activeStatus"
       @add-folders="onClickOpenAddFoldersModal"

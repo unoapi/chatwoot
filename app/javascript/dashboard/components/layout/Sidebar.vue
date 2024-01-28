@@ -116,11 +116,17 @@ export default {
       const userPermissions = this.currentUser.permissions;
       const menuItems = this.sideMenuConfig.primaryMenu;
       return menuItems.filter(menuItem => {
+        if (
+          menuItem.key === 'contacts' &&
+          this.currentRole === 'agent' &&
+          this.hideContactsForAgents
+        ) {
+          return false;
+        }
         const isAvailableForTheUser = hasPermissions(
           routesWithPermissions[menuItem.toStateName],
           userPermissions
         );
-
         if (!isAvailableForTheUser) {
           return false;
         }
@@ -155,6 +161,14 @@ export default {
           menuItem => menuItem.key === this.activeSecondaryMenu.parentNav
         ) || {};
       return activePrimaryMenu;
+    },
+    hideContactsForAgents() {
+      return (
+        this.isFeatureEnabledonAccount(
+          this.accountId,
+          'hide_contacts_for_agent'
+        ) && this.currentRole !== 'administrator'
+      );
     },
   },
 

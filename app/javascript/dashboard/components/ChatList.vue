@@ -29,7 +29,9 @@
         </span>
       </div>
       <div class="flex items-center gap-1">
-        <div v-if="hasAppliedFilters && !hasActiveFolders">
+        <div
+          v-if="hasAppliedFilters && !hasActiveFolders && !hideFiltersForAgents"
+        >
           <woot-button
             v-tooltip.top-end="$t('FILTER.CUSTOM_VIEWS.ADD.SAVE_BUTTON')"
             size="tiny"
@@ -343,6 +345,14 @@ export default {
         this.isFeatureEnabledonAccount(
           this.accountId,
           'hide_all_chats_for_agent'
+        ) && this.currentRole !== 'administrator'
+      );
+    },
+    hideFiltersForAgents() {
+      return (
+        this.isFeatureEnabledonAccount(
+          this.accountId,
+          'hide_filters_for_agent'
         ) && this.currentRole !== 'administrator'
       );
     },

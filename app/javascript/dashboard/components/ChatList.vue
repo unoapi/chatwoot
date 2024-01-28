@@ -7,9 +7,10 @@
     ]"
   >
     <slot />
+
     <chat-list-header
       :page-title="pageTitle"
-      :has-applied-filters="hasAppliedFilters"
+      :has-applied-filters="hasAppliedFilters && !hideFiltersForAgents"
       :has-active-folders="hasActiveFolders"
       :active-status="activeStatus"
       @add-folders="onClickOpenAddFoldersModal"
@@ -293,6 +294,14 @@ export default {
         this.isFeatureEnabledonAccount(
           this.accountId,
           'hide_all_chats_for_agent'
+        ) && this.currentRole !== 'administrator'
+      );
+    },
+    hideFiltersForAgents() {
+      return (
+        this.isFeatureEnabledonAccount(
+          this.accountId,
+          'hide_filters_for_agent'
         ) && this.currentRole !== 'administrator'
       );
     },

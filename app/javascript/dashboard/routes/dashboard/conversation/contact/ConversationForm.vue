@@ -303,11 +303,14 @@ export default {
         if (error instanceof ExceptionWithMessage) {
           useAlert(error.data);
         } else {
-          useAlert(this.$t('NEW_CONVERSATION.FORM.ERROR_MESSAGE'));
+          useAlert(
+            this.$t('NEW_CONVERSATION.FORM.ERROR_MESSAGE') +
+              '\n detail:' +
+              (error?.message || error)
+          );
         }
       }
     },
-
     toggleWaTemplate(val) {
       this.whatsappTemplateSelected = val;
     },

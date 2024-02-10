@@ -520,11 +520,14 @@ export default {
         if (error instanceof ExceptionWithMessage) {
           this.showAlert(error.data);
         } else {
-          this.showAlert(this.$t('NEW_CONVERSATION.FORM.ERROR_MESSAGE'));
+          this.showAlert(
+            this.$t('NEW_CONVERSATION.FORM.ERROR_MESSAGE') +
+              '\n detail:' +
+              (error?.message || error)
+          );
         }
       }
     },
-
     toggleWaTemplate(val) {
       this.whatsappTemplateSelected = val;
     },

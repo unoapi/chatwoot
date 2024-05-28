@@ -322,7 +322,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_05_16_003531) do
     t.integer "account_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["notifica_me_id", "notifica_me_type", "notifica_me_token"], name: "index_channel_notifica_me", unique: true
+    t.index ["notifica_me_id", "account_id"], name: "index_channel_notifica_me", unique: true
   end
 
   create_table "channel_sms", force: :cascade do |t|

@@ -3,6 +3,7 @@
 # Table name: inbox_members
 #
 #  id         :integer          not null, primary key
+#  data       :json
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #  inbox_id   :integer          not null
@@ -21,6 +22,9 @@ class InboxMember < ApplicationRecord
 
   belongs_to :user
   belongs_to :inbox
+
+  # [:sip_user, sip_password]
+  store :data, accessors: [:sip_user, :sip_password], coder: JSON
 
   after_create :add_agent_to_round_robin
   after_destroy :remove_agent_from_round_robin

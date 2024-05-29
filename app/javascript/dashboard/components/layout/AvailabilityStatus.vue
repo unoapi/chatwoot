@@ -7,7 +7,7 @@
       class="flex items-baseline"
     >
       <woot-button
-        size="small"
+        size="small" 
         :color-scheme="status.disabled ? '' : 'secondary'"
         :variant="status.disabled ? 'smooth' : 'clear'"
         class-names="status-change--dropdown-button"

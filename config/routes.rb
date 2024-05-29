@@ -158,6 +158,7 @@ Rails.application.routes.draw do
             get :assignable_agents, on: :member
             get :campaigns, on: :member
             get :response_sources, on: :member
+            get :extensions, on: :collection
             get :agent_bot, on: :member
             post :set_agent_bot, on: :member
             delete :avatar, on: :member

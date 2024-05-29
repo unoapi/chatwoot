@@ -1,6 +1,6 @@
 class Api::V1::Accounts::InboxesController < Api::V1::Accounts::BaseController
   include Api::V1::InboxesHelper
-  before_action :fetch_inbox, except: [:index, :create]
+  before_action :fetch_inbox, except: [:index, :create, :extensions]
   before_action :fetch_agent_bot, only: [:set_agent_bot]
   before_action :validate_limit, only: [:create]
   # we are already handling the authorization in fetch inbox
@@ -24,6 +24,22 @@ class Api::V1::Accounts::InboxesController < Api::V1::Accounts::BaseController
   def avatar
     @inbox.avatar.attachment.destroy! if @inbox.avatar.attached?
     head :ok
+  end
+
+  def extensions
+    extensions = []
+    Current.account.sip_channels.each do |channel|
+      channel.inbox.inbox_members.where(user_id: Current.user.id).each do |member|
+        extension = {
+          user: member.sip_user,
+          password: member.sip_password,
+          url: channel.url,
+          name: channel.inbox.name
+        }
+        extensions << extension
+      end
+    end
+    render status: :ok, json: extensions
   end
 
   def create

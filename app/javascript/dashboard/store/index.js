@@ -45,6 +45,7 @@ import userNotificationSettings from './modules/userNotificationSettings';
 import webhooks from './modules/webhooks';
 import draftMessages from './modules/draftMessages';
 import SLAReports from './modules/SLAReports';
+import extension from './modules/extension';
 
 const plugins = [];
 
@@ -95,6 +96,7 @@ export default new Vuex.Store({
     draftMessages,
     sla,
     slaReports: SLAReports,
+    extension,
   },
   plugins,
 });

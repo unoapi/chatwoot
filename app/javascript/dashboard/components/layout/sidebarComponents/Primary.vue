@@ -26,6 +26,7 @@
         :open-in-new-page="true"
         :to="helpDocsURL"
       />
+      <call-extensions @toggle-extensions="toggleExtensions" :show="showExtensions"/>
       <notification-bell @open-notification-panel="openNotificationPanel" />
       <agent-details @toggle-menu="toggleOptions" />
       <options-menu
@@ -43,6 +44,7 @@ import Logo from './Logo.vue';
 import PrimaryNavItem from './PrimaryNavItem.vue';
 import OptionsMenu from './OptionsMenu.vue';
 import AgentDetails from './AgentDetails.vue';
+import CallExtensions from './CallExtensions.vue';
 import NotificationBell from './NotificationBell.vue';
 import wootConstants from 'dashboard/constants/globals';
 import { frontendURL } from 'dashboard/helper/URLHelper';
@@ -55,6 +57,7 @@ export default {
     OptionsMenu,
     AgentDetails,
     NotificationBell,
+    CallExtensions,
   },
   props: {
     isACustomBrandedInstance: {
@@ -86,12 +89,16 @@ export default {
     return {
       helpDocsURL: wootConstants.DOCS_URL,
       showOptionsMenu: false,
+      showExtensions: false,
     };
   },
   methods: {
     frontendURL,
     toggleOptions() {
       this.showOptionsMenu = !this.showOptionsMenu;
+    },
+    toggleExtensions() {
+      this.showExtensions = !this.showExtensions;
     },
     toggleAccountModal() {
       this.$emit('toggle-accounts');

@@ -61,6 +61,7 @@
                 <span v-if="item.channel_type === 'Channel::Api'">
                   {{ globalConfig.apiChannelName || 'API' }}
                 </span>
+                <span v-if="item.channel_type === 'Channel::Sip'">Sip</span>
               </td>
 
               <!-- Action Buttons -->

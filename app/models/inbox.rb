@@ -5,6 +5,7 @@
 # Table name: inboxes
 #
 #  id                            :integer          not null, primary key
+#  allow_agent_to_delete_message :boolean          default(TRUE), not null
 #  allow_messages_after_resolved :boolean          default(TRUE)
 #  auto_assignment_config        :jsonb
 #  business_name                 :string
@@ -122,6 +123,10 @@ class Inbox < ApplicationRecord
 
   def whatsapp?
     channel_type == 'Channel::Whatsapp'
+  end
+
+  def sip?
+    channel_type == 'Channel::Sip'
   end
 
   def assignable_agents

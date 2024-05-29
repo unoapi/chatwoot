@@ -45,6 +45,9 @@ export const getReadableInboxByType = (type, phoneNumber) => {
     case INBOX_TYPES.LINE:
       return 'line';
 
+    case INBOX_TYPES.SIP:
+      return 'sip';
+
     default:
       return 'chat';
   }

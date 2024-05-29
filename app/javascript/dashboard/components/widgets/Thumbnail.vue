@@ -116,6 +116,7 @@ export default {
         'Channel::Line': 'line',
         'Channel::Telegram': 'telegram',
         'Channel::WebWidget': '',
+        'Channel::Sip': 'sip',
       }[this.badge];
     },
     badgeStyle() {

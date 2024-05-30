@@ -8,7 +8,6 @@
       <fluent-icon icon="call" />
     </woot-button>
 
-
     <transition name="menu-slide">
       <div
         v-if="show"
@@ -16,12 +15,9 @@
         :class="{ 'block visible': show }"
         @click="toogleExtensions"
       >
-        {{ extensions }}
-        <ul>
-          <li v-for="extension in extensions">
-            {{ extension.name }}
-          </li>
-        </ul>
+        <div v-for="extension in extensions" :key="extension.uri">
+          <phone :extension="extension" />
+        </div>
       </div>
     </transition>
     <!-- <woot-modal
@@ -35,9 +31,12 @@
 </template>
 <script>
 import { mapGetters } from 'vuex';
+import Phone from '../../ui/Phone.vue';
 
 export default {
-  components: {},
+  components: {
+    Phone,
+  },
   props: {
     show: {
       type: Boolean,

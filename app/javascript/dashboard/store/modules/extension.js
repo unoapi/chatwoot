@@ -35,9 +35,9 @@ export const actions = {
           uri: `sip:${extension.user}`,
           password: extension.password,
         };
-        extension.phone = new JsSIP.UA(configuration);
         extension.status = 'offline';
         extension.call = {};
+        extension.error = '';
         extension.handlers = {
           progress: e => {
             extension.call.event = e;
@@ -63,8 +63,17 @@ export const actions = {
             extension.call.event = e;
             extension.status = 'offline';
           },
+          registered: e => {
+            extension.call.event = e;
+            extension.status = 'online';
+          },
         };
-        alert(JSON.stringify(extension));
+        try {
+          extension.phone = new JsSIP.UA(configuration);
+          extension.phone.start();
+        } catch (e) {
+          extension.error = e;
+        }
         extensions.push(extension);
       }
       commit(types.default.SET_EXTENSIONS, extensions);

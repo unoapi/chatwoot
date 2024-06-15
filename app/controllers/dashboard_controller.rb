@@ -32,7 +32,7 @@ class DashboardController < ActionController::Base
       'LOGOUT_REDIRECT_LINK',
       'DISABLE_USER_PROFILE_UPDATE',
       'DEPLOYMENT_ENV',
-      'CSML_EDITOR_HOST'
+      'CSML_EDITOR_HOST', 'CONVERSATION_STYLE_CSS'
     ).merge(app_config)
   end
 

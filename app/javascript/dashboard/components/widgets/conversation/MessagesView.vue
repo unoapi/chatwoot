@@ -16,6 +16,8 @@ import { mapGetters } from 'vuex';
 
 // mixins
 import inboxMixin, { INBOX_FEATURES } from 'shared/mixins/inboxMixin';
+import aiMixin from 'dashboard/mixins/aiMixin';
+import globalConfigMixin from 'shared/mixins/globalConfigMixin';
 
 // utils
 import { emitter } from 'shared/helpers/mitt';
@@ -41,7 +43,7 @@ export default {
     Banner,
     ConversationLabelSuggestion,
   },
-  mixins: [inboxMixin],
+  mixins: [inboxMixin, aiMixin, globalConfigMixin],
   props: {
     isContactPanelOpen: {
       type: Boolean,
@@ -108,6 +110,7 @@ export default {
       currentChat: 'getSelectedChat',
       listLoadingStatus: 'getAllMessagesLoaded',
       currentAccountId: 'getCurrentAccountId',
+      globalConfig: 'globalConfig/get',
     }),
     isOpen() {
       return this.currentChat?.status === wootConstants.STATUS_TYPE.OPEN;
@@ -476,7 +479,7 @@ export default {
         @click="onToggleContactPanel"
       />
     </div>
-    <ul class="conversation-panel">
+    <ul class="conversation-panel" :style="globalConfig.conversationStyleCss">
       <transition name="slide-up">
         <!-- eslint-disable-next-line vue/require-toggle-inside-transition -->
         <li class="min-h-[4rem]">

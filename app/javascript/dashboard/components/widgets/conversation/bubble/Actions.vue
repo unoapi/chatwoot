@@ -42,7 +42,7 @@
       />
     </span>
     <span v-else-if="showProgressIndicator" class="read-indicator-wrap">
-      <fluent-icon icon="clockwise" class="action--icon" size="14" />
+      <fluent-icon icon="clock" class="action--icon" size="14" />
     </span>
     <fluent-icon
       v-if="isEmail"

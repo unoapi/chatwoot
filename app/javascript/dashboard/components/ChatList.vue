@@ -152,12 +152,14 @@ const intersectionObserverOptions = computed(() => {
   };
 });
 
+const isAdministrator = computed(() => currentRole.value === 'administrator');
+
 const hideAllChatsForAgents = computed(() => {
   return (
     isFeatureEnabledonAccount.fn(
       currentAccountId.value,
       'hide_all_chats_for_agent'
-    ) && currentRole.value !== 'administrator'
+    ) && !isAdministrator.value
   );
 });
 
@@ -166,7 +168,16 @@ const hideFiltersForAgents = computed(() => {
     isFeatureEnabledonAccount.fn(
       currentAccountId.value,
       'hide_filters_for_agent'
-    ) && currentRole.value !== 'administrator'
+    ) && !isAdministrator.value
+  );
+});
+
+const hideUnassignedForAgents = computed(() => {
+  return (
+    isFeatureEnabledonAccount.fn(
+      currentAccountId.value,
+      'hide_unassigned_for_agent'
+    ) && !isAdministrator.value
   );
 });
 
@@ -212,8 +223,11 @@ const assigneeTabItems = computed(() => {
     userPermissions.value,
     item => item.permissions
   ).filter(({ key }) => {
-    if (hideAllChatsForAgents.value) {
-      return key !== 'all';
+    if (hideAllChatsForAgents.value && key === 'all') {
+      return false;
+    }
+    if (hideUnassignedForAgents.value && key === 'unassigned') {
+      return false;
     }
     return true;
   }).map(({ key, count: countKey }) => ({

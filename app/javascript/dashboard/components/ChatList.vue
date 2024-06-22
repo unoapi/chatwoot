@@ -292,18 +292,26 @@ export default {
     }),
     hideAllChatsForAgents() {
       return (
+        this.currentRole !== 'administrator' &&
         this.isFeatureEnabledonAccount(
           this.accountId,
           'hide_all_chats_for_agent'
-        ) && this.currentRole !== 'administrator'
+        )
+      );
+    },
+    hideUnassingnedForAgents() {
+      return (
+        this.currentRole !== 'administrator' &&
+        this.isFeatureEnabledonAccount(
+          this.accountId,
+          'hide_unassigned_for_agent'
+        )
       );
     },
     hideFiltersForAgents() {
       return (
-        this.isFeatureEnabledonAccount(
-          this.accountId,
-          'hide_filters_for_agent'
-        ) && this.currentRole !== 'administrator'
+        this.currentRole !== 'administrator' &&
+        this.isFeatureEnabledonAccount(this.accountId, 'hide_filters_for_agent')
       );
     },
     hasAppliedFilters() {
@@ -332,10 +340,12 @@ export default {
     assigneeTabItems() {
       const ASSIGNEE_TYPE_TAB_KEYS = {
         me: 'mineCount',
-        unassigned: 'unAssignedCount',
       };
       if (!this.hideAllChatsForAgents) {
         ASSIGNEE_TYPE_TAB_KEYS.all = 'allCount';
+      }
+      if (!this.hideUnassingnedForAgents) {
+        ASSIGNEE_TYPE_TAB_KEYS.unassigned = 'unAssignedCount';
       }
       return Object.keys(ASSIGNEE_TYPE_TAB_KEYS).map(key => {
         const count = this.conversationStats[ASSIGNEE_TYPE_TAB_KEYS[key]] || 0;

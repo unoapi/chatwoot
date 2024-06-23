@@ -85,27 +85,7 @@
       </label>
     </div>
 
-    <div class="medium-8 columns">
-      <label :class="{ error: $v.url.$error }">
-        {{ $t('INBOX_MGMT.ADD.WHATSAPP.URL.LABEL') }}
-        <fieldset>
-          <legend>
-            <woot-switch v-model="advanced" size="small" :value="advanced" />
-          </legend>
-          <input
-            v-model.trim="url"
-            :disabled="!advanced"
-            type="text"
-            placeholder="$t('INBOX_MGMT.ADD.WHATSAPP.URL.PLACEHOLDER')"
-          />
-          <span v-if="$v.url.$error" class="message">
-            {{ $t('INBOX_MGMT.ADD.WHATSAPP.URL.ERROR') }}
-          </span>
-        </fieldset>
-      </label>
-    </div>
-
-    <div class="medium-12 columns">
+    <div class="w-full">
       <woot-submit-button
         :loading="uiFlags.isCreating"
         :button-text="$t('INBOX_MGMT.ADD.WHATSAPP.SUBMIT_BUTTON')"
@@ -128,7 +108,6 @@ export default {
       inboxName: '',
       phoneNumber: '',
       apiKey: '',
-      url: 'https://graph.facebook.com',
       phoneNumberId: '',
       businessAccountId: '',
       advanced: false,
@@ -165,7 +144,6 @@ export default {
                 api_key: this.apiKey,
                 phone_number_id: this.phoneNumberId,
                 business_account_id: this.businessAccountId,
-                url: this.url,
               },
             },
           }

@@ -15,6 +15,7 @@ import CollaboratorsPage from './settingsPage/CollaboratorsPage.vue';
 import MicrosoftReauthorize from './channels/microsoft/Reauthorize.vue';
 import WidgetBuilder from './WidgetBuilder.vue';
 import BotConfiguration from './components/BotConfiguration.vue';
+import UnoapiConfiguration from './settingsPage/UnoapiConfiguration.vue';
 import { FEATURE_FLAGS } from '../../../../featureFlags';
 import SenderNameExamplePreview from './components/SenderNameExamplePreview.vue';
 
@@ -32,6 +33,7 @@ export default {
     WidgetBuilder,
     SenderNameExamplePreview,
     MicrosoftReauthorize,
+    UnoapiConfiguration,
   },
   mixins: [inboxMixin],
   setup() {
@@ -82,6 +84,9 @@ export default {
       if (this.isATwilioWhatsAppChannel) {
         return this.$t('INBOX_MGMT.ADD.WHATSAPP.PROVIDERS.TWILIO');
       }
+      if (this.isAUnoapiChannel) {
+        return this.$t('INBOX_MGMT.ADD.WHATSAPP.PROVIDERS.UNOAPI');
+      }
       return '';
     },
     tabs() {
@@ -114,15 +119,26 @@ export default {
         ];
       }
 
+      if (this.isAUnoapiChannel) {
+        visibleToAllChannelTabs = [
+          ...visibleToAllChannelTabs,
+          {
+            key: 'unoApiConfiguration',
+            name: this.$t('INBOX_MGMT.TABS.UNOAPI_CONFIGURATION'),
+          },
+        ];
+      }
+
       if (
-        this.isATwilioChannel ||
-        this.isALineChannel ||
-        this.isAPIInbox ||
-        (this.isAnEmailChannel && !this.inbox.provider) ||
-        this.isAMicrosoftInbox ||
-        this.isAGoogleInbox ||
-        this.isAWhatsAppChannel ||
-        this.isAWebWidgetInbox
+        (this.isATwilioChannel ||
+          this.isALineChannel ||
+          this.isAPIInbox ||
+          (this.isAnEmailChannel && !this.inbox.provider) ||
+          this.isAMicrosoftInbox ||
+          this.isAGoogleInbox ||
+          this.isAWhatsAppChannel ||
+          this.isAWebWidgetInbox) &&
+        !this.isAUnoapiChannel
       ) {
         visibleToAllChannelTabs = [
           ...visibleToAllChannelTabs,
@@ -766,6 +782,9 @@ export default {
     </div>
     <div v-if="selectedTabKey === 'botConfiguration'">
       <BotConfiguration :inbox="inbox" />
+    </div>    
+    <div v-if="selectedTabKey === 'unoApiConfiguration'">
+      <unoapi-configuration :inbox="inbox" />
     </div>
   </div>
 </template>

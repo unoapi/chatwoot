@@ -37,7 +37,8 @@ class AutomationRules::ActionService < ActionService
 
   def send_webhook_event(webhook_url)
     payload = @conversation.webhook_data.merge(event: "automation_event.#{@rule.event_name}")
-    WebhookJob.perform_later(webhook_url[0], payload)
+    url = bind_webhook_url(webhook_url[0], payload)
+    WebhookJob.perform_later(url, payload)
   end
 
   def send_message(message)
@@ -53,5 +54,13 @@ class AutomationRules::ActionService < ActionService
     teams.each do |team|
       TeamNotifications::AutomationNotificationMailer.conversation_creation(@conversation, team, params[0][:message])&.deliver_now
     end
+  end
+
+  def bind_webhook_url(url, payload)
+    # https://unoapi.cloud/<%=@conversation.inbox.channel.phone_number.delete('+')%>/blacklist/type?to=<%=payload[:meta][:sender][:phone_number]%>&ttl=36000&access_token=78wewiuugDIwgfiuggwuigwgYUFFwfiwhfoihwfioho86734GFJgsfgsf
+    ERB.new(url).result(binding)
+  rescue e
+    Rails.logger.error('Error on bind url: ', e)
+    url
   end
 end

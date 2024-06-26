@@ -258,11 +258,11 @@ export default {
       const ASSIGNEE_TYPE_TAB_KEYS = {
         me: 'mineCount',
       };
-      if (!this.hideAllChatsForAgents) {
-        ASSIGNEE_TYPE_TAB_KEYS.all = 'allCount';
-      }
       if (!this.hideUnassingnedForAgents) {
         ASSIGNEE_TYPE_TAB_KEYS.unassigned = 'unAssignedCount';
+      }
+      if (!this.hideAllChatsForAgents) {
+        ASSIGNEE_TYPE_TAB_KEYS.all = 'allCount';
       }
       return Object.keys(ASSIGNEE_TYPE_TAB_KEYS).map(key => {
         const count = this.conversationStats[ASSIGNEE_TYPE_TAB_KEYS[key]] || 0;

@@ -64,7 +64,7 @@ class Campaign < ApplicationRecord
   def one_off_unoapi
     return unless inbox.channel_type == 'Channel::Whatsapp' && inbox&.channel&.provider == 'unoapi'
 
-    Whatsapp::OneoffUnoapiCampaignService.new(campaign: self).perform
+    OneoffUnoapiCampaignJob.perfom_later(id)
   end
 
   def set_display_id

@@ -16,18 +16,24 @@ class Whatsapp::OneoffUnoapiCampaignService
   delegate :inbox, to: :campaign
   delegate :channel, to: :inbox
 
-  def process_audience(audience)
-    Rails.logger.debug { "Process campaign #{campaign.id} and #{audience.length} audience record(s)" }
-    interval = 0.seconds
-    audience.each do |a|
-      interval += rand(1..10).seconds
-      CampaignMessageJob.set(wait_until: DateTime.current + interval.seconds).perform_later(
-        campaign.account_id,
-        campaign.inbox_id,
-        campaign.id,
-        campaign.message,
-        a.symbolize_keys
-      )
+  def process_audience(phone_numbers)
+    phone_numbers.each do |phone_number|
+      contact = Contact.find_by(phone_number: phone_number, account_id: campaign.account_id)
+
+      contact = Contact.create!(phone_number: phone_number, account_id: campaign.account_id) if contact.blank?
+
+      contact_inbox = ContactInboxBuilder.new(
+        contact: contact,
+        inbox: campaign.inbox,
+        source_id: contact.phone_number.delete('+').to_s
+      ).perform
+
+      conversation = ConversationBuilder.new(params: {}, contact_inbox: contact_inbox).perform
+
+      Messages::MessageBuilder.new(nil, conversation, {
+                                     content: campaign.message,
+                                     message_type: :outgoing
+                                   }).perform
     end
   end
 end

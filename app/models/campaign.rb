@@ -64,7 +64,7 @@ class Campaign < ApplicationRecord
   def one_off_unoapi
     return unless inbox.channel_type == 'Channel::Whatsapp' && inbox&.channel&.provider == 'unoapi'
 
-    OneoffUnoapiCampaignJob.perfom_later(id)
+    Whatsapp::OneoffUnoapiCampaignService.perform(campaign: self)
   end
 
   def load_attributes_created_by_db_triggers

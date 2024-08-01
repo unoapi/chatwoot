@@ -328,6 +328,14 @@ class Message < ApplicationRecord
 
     Rails.configuration.dispatcher.dispatch(MESSAGE_UPDATED, Time.zone.now, message: self, performed_by: Current.executed_by,
                                                                             previous_changes: previous_changes)
+
+    if additional_attributes['campaign_id'].present?
+      CampaignMessageUpdateJob.perform_later(
+        additional_attributes['campaign_id'],
+        additional_attributes['audience_id'],
+        status
+      )
+    end
   end
 
   def send_reply

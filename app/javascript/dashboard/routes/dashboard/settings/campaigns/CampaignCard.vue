@@ -41,6 +41,22 @@ export default {
         ? 'secondary'
         : 'success';
     },
+    campaignReport() {
+      const audience = this.campaign.audience;
+      const reports = {
+        total: 0,
+      };
+      // eslint-disable-next-line no-plusplus
+      for (let i = 0; i < audience.length; i++) {
+        const a = audience[i];
+        if (!reports[a.status]) {
+          reports[a.status] = 0;
+        }
+        reports.total += 1;
+        reports[a.status] += 1;
+      }
+      return reports;
+    },
   },
   methods: {
     messageStamp,
@@ -111,6 +127,18 @@ export default {
         class="mb-1 text-xs text-slate-700 dark:text-slate-500"
       >
         {{ messageStamp(new Date(campaign.scheduled_at), 'LLL d, h:mm a') }}
+      </div>      
+      <div
+        v-if="campaign.inbox.channel_type == 'Channel::Whatsapp'"
+        class="mb-1 text-xs text-slate-700 dark:text-slate-500"
+      >
+        {{ campaignReport }}
+      </div>
+      <div
+        v-if="campaign.inbox.channel_type == 'Channel::Whatsapp'"
+        class="mb-1 text-xs text-slate-700 dark:text-slate-500"
+      >
+        {{ campaignReport }}
       </div>
     </div>
   </div>

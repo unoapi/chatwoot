@@ -1,10 +1,14 @@
 <script>
 import { MESSAGE_TYPE } from 'widget/helpers/constants';
 import messageFormatterMixin from 'shared/mixins/messageFormatterMixin';
+import BubbleImageAudioVideo from './bubble/ImageAudioVideo.vue';
 import { ATTACHMENT_ICONS } from 'shared/constants/messages';
 
 export default {
   name: 'MessagePreview',
+  components: {
+    BubbleImageAudioVideo,
+  },
   mixins: [messageFormatterMixin],
   props: {
     message: {
@@ -83,7 +87,9 @@ export default {
         class="-mt-0.5 align-middle inline-block text-slate-600 dark:text-slate-300"
         icon="image"
       />
-      {{ $t('CHAT_LIST.ATTACHMENTS.image.CONTENT') }}
+      <div v-for="attachment in message.attachments" :key="attachment.id">
+        <bubble-image-audio-video :attachment="attachment" />
+      </div>
     </span>
     <span v-else-if="message.content">
       {{ parsedLastMessage }}

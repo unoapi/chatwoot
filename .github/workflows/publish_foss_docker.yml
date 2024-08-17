@@ -57,23 +57,23 @@ jobs:
 
       # https://github.com/docker/buildx/discussions/1382 cache build
       - name: Build and push
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: docker/Dockerfile
           platforms: linux/amd64
           push: true
           tags: ${{ env.DOCKER_TAG }}
-          cache-from: type=registry,ref=image:buildcache-amd64 
-          cache-to: type=registry,ref=image:buildcache-amd64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Build and push arm64
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: docker/Dockerfile
           platforms: linux/arm64
           push: true
           tags: ${{ env.DOCKER_ARM_TAG }}
-          cache-from: type=registry,ref=image:buildcache-arm64
-          cache-to: type=registry,ref=image:buildcache-arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

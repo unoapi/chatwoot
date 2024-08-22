@@ -108,7 +108,6 @@ export default {
       :width="imageWidth"
       :height="imageHeight"
       @click="onClick"
-      @error="onImgError"
       @error="onImgErrorDelay"
     />
     <img
@@ -119,6 +118,7 @@ export default {
       :height="imageHeight"
       @click="onClick"
       @error="onImgError"
+    />
     <video
       v-if="isVideo"
       :src="dataUrl"

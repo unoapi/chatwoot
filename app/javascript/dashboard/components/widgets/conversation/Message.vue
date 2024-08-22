@@ -463,7 +463,9 @@ export default {
   >
     <div :class="wrapClass">
       <div
-        v-if="isFailed !data.source_id && !hasOneDayPassed && !isAnEmailInbox"
+        v-if="
+          isFailed && !data.source_id && !hasOneDayPassed && !isAnEmailInbox
+        "
         class="message-failed--alert"
       >
         <woot-button

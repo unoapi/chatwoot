@@ -80,9 +80,6 @@ export default {
     attachmentIcon() {
       return ATTACHMENT_ICONS[this.lastMessageFileType];
     },
-    attachmentMessageContent() {
-      return `CHAT_LIST.ATTACHMENTS.${this.lastMessageFileType}.CONTENT`;
-    },
     isMessageSticker() {
       return this.message && this.message.content_type === 'sticker';
     },

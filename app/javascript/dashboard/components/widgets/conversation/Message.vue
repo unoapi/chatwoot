@@ -74,8 +74,8 @@ export default {
       default: () => ({}),
     },
     inReplyTo: {
-      type: Object,
-      default: () => ({}),
+      type: Promise,
+      default: Promise.resolve({}),
     },
   },
   setup() {
@@ -90,6 +90,7 @@ export default {
       hasMediaLoadError: false,
       contextMenuPosition: {},
       showBackgroundHighlight: false,
+      inReplyToMessage: {},
     };
   },
   computed: {
@@ -368,10 +369,11 @@ export default {
       this.hasMediaLoadError = false;
     },
   },
-  mounted() {
+  async mounted() {
     this.hasMediaLoadError = false;
     emitter.on(BUS_EVENTS.ON_MESSAGE_LIST_SCROLL, this.closeContextMenu);
     this.setupHighlightTimer();
+    this.inReplyToMessage = await this.inReplyTo;
   },
   unmounted() {
     emitter.off(BUS_EVENTS.ON_MESSAGE_LIST_SCROLL, this.closeContextMenu);
@@ -492,7 +494,8 @@ export default {
         <InstagramStoryReply v-if="storyUrl" :story-url="storyUrl" />
         <BubbleReplyTo
           v-if="inReplyToMessageId && inboxSupportsReplyTo.incoming"
-          :message="inReplyTo"
+          :message="inReplyToMessage"
+          :message-id="inReplyToMessageId"
           :message-type="data.message_type"
           :parent-has-attachments="hasAttachments"
         />

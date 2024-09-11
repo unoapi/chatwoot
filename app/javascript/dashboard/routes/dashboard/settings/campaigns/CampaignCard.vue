@@ -126,12 +126,6 @@ const campaignReport = computed(() => {
         class="w-1/4 mb-1 text-xs text-slate-700 dark:text-slate-500"
       >
         {{ messageStamp(new Date(campaign.scheduled_at), 'LLL d, h:mm a') }}
-      </div>      
-      <div
-        v-if="campaign.inbox.channel_type == 'Channel::Whatsapp'"
-        class="mb-1 text-xs text-slate-700 dark:text-slate-500"
-      >
-        {{ campaignReport }}
       </div>
       <div
         v-if="campaign.inbox.channel_type == 'Channel::Whatsapp'"

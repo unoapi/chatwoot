@@ -2,13 +2,15 @@
 #
 # Table name: channel_notifica_me
 #
-#  id                :bigint           not null, primary key
-#  notifica_me_token :string           not null
-#  notifica_me_type  :string           not null
-#  created_at        :datetime         not null
-#  updated_at        :datetime         not null
-#  account_id        :integer          not null
-#  notifica_me_id    :string           not null
+#  id                             :bigint           not null, primary key
+#  message_templates              :jsonb            not null
+#  message_templates_last_updated :datetime
+#  notifica_me_token              :string           not null
+#  notifica_me_type               :string           not null
+#  created_at                     :datetime         not null
+#  updated_at                     :datetime         not null
+#  account_id                     :integer          not null
+#  notifica_me_id                 :string           not null
 #
 # Indexes
 #
@@ -30,7 +32,26 @@ class Channel::NotificaMe < ApplicationRecord
     'NotificaMe'
   end
 
+  def whatsapp?
+    notifica_me_type == 'whatsapp_business_account'
+  end
+
   def notifica_me_path
-    notifica_me_type == 'whatsapp_business_account' ? 'whatsapp' : notifica_me_type
+    whatsapp? ? 'whatsapp' : notifica_me_type
+  end
+
+  def sync_templates
+    url = "http://hub.notificame.com.br/v1/templates/#{notifica_me_id}"
+    response = HTTParty.get(
+      url,
+      headers: {
+        'X-API-Token' => notifica_me_token,
+        'Content-Type' => 'application/json'
+      },
+      format: :json
+    )
+    templates = response.parsed_response['data'] || {}
+    puts "url >>> #{url} templates >>> #{templates}"
+    update(message_templates: templates, message_templates_last_updated: Time.now.utc) if templates.present?
   end
 end

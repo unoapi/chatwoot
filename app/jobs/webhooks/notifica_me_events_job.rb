@@ -339,9 +339,9 @@ class Webhooks::NotificaMeEventsJob < ApplicationJob
             message_type: :incoming,
             content_type: :text,
             sender: contact_inbox.contact,
-            source_id: message['id']
-            # status: :progress,
-            # created_at: Time.at(message['timestamp'], in: 'UTC')
+            source_id: message['id'],
+            status: :progress,
+            created_at: timestamp
           )
 
           if c['type'] != 'text'
@@ -371,14 +371,18 @@ class Webhooks::NotificaMeEventsJob < ApplicationJob
             else
               attachment_file = Down.download(c['fileUrl'])
             end
+
+            content_type = c['fileMimeType']
+            content_type = 'audio/mp4' if c['type'] == 'audio' && (content_type == 'video/mp4')
+
             if attachment_file.present?
               a = m.attachments.new(
                 account_id: contact_inbox.inbox.account_id,
-                file_type: file_type(c['fileMimeType']),
+                file_type: c['type'],
                 file: {
                   io: attachment_file,
-                  filename: c['fileName'] || 'notificamehub',
-                  content_type: c['fileMimeType']
+                  filename: c['fileName'] || c['type'],
+                  content_type: content_type
                 }
               )
               a.save!

@@ -9,6 +9,12 @@
   help_url: https://chwt.app/hc/fb
 - name: channel_twitter
   enabled: true
+- name: channel_whatsapp
+  enabled: false
+- name: channel_api
+  enabled: false
+- name: channel_notifica_me
+  enabled: false
 - name: ip_lookup
   enabled: false
 - name: disable_branding

@@ -160,6 +160,9 @@ export default {
                 <span v-if="item.channel_type === 'Channel::Api'">
                   {{ globalConfig.apiChannelName || 'API' }}
                 </span>
+                <span v-if="item.channel_type === 'Channel::NotificaMe'">
+                  {{ 'NotificaMe' }}
+                </span>
               </td>
 
               <!-- Action Buttons -->

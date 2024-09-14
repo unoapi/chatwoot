@@ -318,6 +318,18 @@ ActiveRecord::Schema[7.0].define(version: 2024_09_23_215335) do
     t.index ["line_channel_id"], name: "index_channel_line_on_line_channel_id", unique: true
   end
 
+  create_table "channel_notifica_me", force: :cascade do |t|
+    t.string "notifica_me_id", null: false
+    t.string "notifica_me_type", null: false
+    t.string "notifica_me_token", null: false
+    t.integer "account_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.jsonb "message_templates", default: "{}", null: false
+    t.datetime "message_templates_last_updated"
+    t.index ["notifica_me_id", "account_id"], name: "index_channel_notifica_me", unique: true
+  end
+
   create_table "channel_sms", force: :cascade do |t|
     t.integer "account_id", null: false
     t.string "phone_number", null: false
@@ -699,7 +711,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_09_23_215335) do
     t.datetime "updated_at", precision: nil, null: false
     t.boolean "private", default: false, null: false
     t.integer "status", default: 0
-    t.string "source_id"
+    t.string "source_id", limit: 510
     t.integer "content_type", default: 0, null: false
     t.json "content_attributes", default: {}
     t.string "sender_type"

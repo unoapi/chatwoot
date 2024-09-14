@@ -105,6 +105,7 @@ const openDelete = inbox => {
                 />
                 <div
                   v-else
+<<<<<<< HEAD
                   class="w-12 h-12 bg-black-50 dark:bg-black-800 rounded-full p-2 ring ring-opacity-20 dark:ring-opacity-80 ring-black-100 dark:ring-black-900 border border-slate-100 dark:border-slate-700/50 shadow-sm block"
                 >
                   <svg
@@ -113,6 +114,56 @@ const openDelete = inbox => {
                     height="32"
                     viewBox="0 0 24 24"
                     class="opacity-80 p-1"
+=======
+                  class="woot-thumbnail"
+                  src="~dashboard/assets/images/flag.svg"
+                  alt="No Page Image"
+                />
+              </td>
+              <!-- Short Code  -->
+              <td>
+                <span class="agent-name">{{ item.name }}</span>
+                <span v-if="item.channel_type === 'Channel::FacebookPage'">
+                  {{ 'Facebook' }}
+                </span>
+                <span v-if="item.channel_type === 'Channel::WebWidget'">
+                  {{ 'Website' }}
+                </span>
+                <span v-if="item.channel_type === 'Channel::TwitterProfile'">
+                  {{ 'Twitter' }}
+                </span>
+                <span v-if="item.channel_type === 'Channel::TwilioSms'">
+                  {{ twilioChannelName(item) }}
+                </span>
+                <span v-if="item.channel_type === 'Channel::Whatsapp'">
+                  {{ 'Whatsapp' }}
+                </span>
+                <span v-if="item.channel_type === 'Channel::Sms'">
+                  {{ 'Sms' }}
+                </span>
+                <span v-if="item.channel_type === 'Channel::Email'">
+                  {{ 'Email' }}
+                </span>
+                <span v-if="item.channel_type === 'Channel::Telegram'">
+                  {{ 'Telegram' }}
+                </span>
+                <span v-if="item.channel_type === 'Channel::Line'">
+                  {{ 'Line' }}
+                </span>
+                <span v-if="item.channel_type === 'Channel::Api'">
+                  {{ globalConfig.apiChannelName || 'API' }}
+                </span>
+                <span v-if="item.channel_type === 'Channel::NotificaMe'">
+                  {{ 'NotificaMe' }}
+                </span>
+              </td>
+
+              <!-- Action Buttons -->
+              <td>
+                <div class="button-wrapper">
+                  <router-link
+                    :to="accountScopedUrl(`settings/inboxes/${item.id}`)"
+>>>>>>> 0fa84cf1e (add notificame)
                   >
                     <path
                       fill="currentColor"

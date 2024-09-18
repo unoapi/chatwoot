@@ -151,6 +151,12 @@ const campaignListError = computed(() => {
       >
         {{ campaignReport }}
       </div>
+      <div
+        v-if="campaign.inbox.channel_type == 'Channel::Whatsapp'"
+        class="mb-1 text-xs text-slate-700 dark:text-slate-500"
+      >
+        {{ campaignListError }}
+      </div>
     </div>
 
     <div

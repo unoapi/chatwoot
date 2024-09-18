@@ -58,6 +58,13 @@ export default {
       return reports;
     },
   },
+  campaignListError() {
+    const audience = this.campaign.audience || [];
+    return audience
+      .filter(a => a.status === 'error')
+      .map(a => `${a.name}: ${a.phone_number}`)
+      .join('<br/>');
+  },
   methods: {
     messageStamp,
   },
@@ -133,6 +140,12 @@ export default {
         class="mb-1 text-xs text-slate-700 dark:text-slate-500"
       >
         {{ campaignReport }}
+      </div>
+      <div
+        v-if="campaign.inbox.channel_type == 'Channel::Whatsapp'"
+        class="mb-1 text-xs text-slate-700 dark:text-slate-500"
+      >
+        {{ campaignListError }}
       </div>
     </div>
   </div>

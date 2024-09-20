@@ -322,12 +322,7 @@ export default {
       return !this.isOnPrivateNote && this.isAnEmailChannel;
     },
     enableMultipleFileUpload() {
-      return (
-        this.isAnEmailChannel ||
-        this.isAWebWidgetInbox ||
-        this.isAPIInbox ||
-        this.isAWhatsAppChannel
-      );
+      return this.isAnEmailChannel || this.isAWebWidgetInbox || this.isAPIInbox;
     },
     isSignatureEnabledForInbox() {
       return !this.isPrivate && this.sendWithSignature;
@@ -900,6 +895,10 @@ export default {
       });
     },
     attachFile({ blob, file }) {
+      if (!this.enableMultipleFileUpload && this.attachedFiles.length > 0) {
+        useAlert(this.$t('CONVERSATION.REPLYBOX.TIP_ATTACH_SINGLE'));
+        return;
+      }
       const reader = new FileReader();
       reader.readAsDataURL(file.file);
       reader.onloadend = () => {

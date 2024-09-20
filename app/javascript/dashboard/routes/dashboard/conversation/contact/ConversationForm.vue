@@ -167,11 +167,20 @@ export default {
         this.selectedInbox.inbox.channel_type === INBOX_TYPES.WEB
       );
     },
+    isAPIInbox() {
+      return (
+        this.selectedInbox &&
+        this.selectedInbox.inbox.channel_type === INBOX_TYPES.API
+      );
+    },
     isEmailOrWebWidgetInbox() {
       return this.isAnEmailInbox || this.isAnWebWidgetInbox;
     },
     hasWhatsappTemplates() {
       return !!this.selectedInbox.inbox?.message_templates;
+    },
+    enableMultipleFileUpload() {
+      return this.isAnEmailInbox || this.isAnWebWidgetInbox || this.isAPIInbox;
     },
     hasAttachments() {
       return this.attachedFiles.length;
@@ -223,6 +232,10 @@ export default {
       });
     },
     attachFile({ blob, file }) {
+      if (!this.enableMultipleFileUpload && this.attachedFiles.length > 0) {
+        useAlert(this.$t('CONVERSATION.REPLYBOX.TIP_ATTACH_SINGLE'));
+        return;
+      }
       const reader = new FileReader();
       reader.readAsDataURL(file.file);
       reader.onloadend = () => {
@@ -495,7 +508,7 @@ export default {
               input-id="newConversationAttachment"
               :size="4096 * 4096"
               :accept="allowedFileTypes"
-              multiple
+              multiple="enableMultipleFileUpload"
               :drop="true"
               :drop-directory="false"
               :data="{

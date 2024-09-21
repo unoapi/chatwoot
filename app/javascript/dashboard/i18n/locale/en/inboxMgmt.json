@@ -865,7 +865,8 @@
       "EMAIL": "Email",
       "TELEGRAM": "Telegram",
       "LINE": "Line",
-      "API": "API Channel"
+      "API": "API Channel",
+      "NOTIFICA_ME": "NotificaMe"
     }
   }
 }

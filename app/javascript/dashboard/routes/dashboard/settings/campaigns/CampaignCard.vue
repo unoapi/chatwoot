@@ -145,16 +145,30 @@ const campaignListError = computed(() => {
       >
         {{ campaignReport }}
       </div>
-      <div
-        v-if="campaign.inbox.channel_type == 'Channel::Whatsapp'"
-        class="mb-1 text-xs text-slate-700 dark:text-slate-500"
-      >
+    </div>
+
+    <div
+      v-if="campaign.inbox.channel_type == 'Channel::Whatsapp'"
+      class="flex flex-row items-center mt-5 space-x-3"
+    >
+      <div class="mb-1 text-xs text-slate-700 dark:text-slate-500">
+        {{ $t('CAMPAIGN.AUDIENCE.REPORT') }}:
+      </div>
+      <div class="mb-1 text-xs text-slate-700 dark:text-slate-500">
         {{ campaignReport }}
       </div>
-      <div
-        v-if="campaign.inbox.channel_type == 'Channel::Whatsapp'"
-        class="mb-1 text-xs text-slate-700 dark:text-slate-500"
-      >
+    </div>
+
+    <div
+      v-if="
+        campaign.inbox.channel_type == 'Channel::Whatsapp' && campaignListError
+      "
+      class="flex flex-row items-center mt-5 space-x-3"
+    >
+      <div class="mb-1 text-xs text-slate-700 dark:text-slate-500">
+        {{ $t('CAMPAIGN.AUDIENCE.ERROR') }}:
+      </div>
+      <div class="mb-1 text-xs text-slate-700 dark:text-slate-500">
         {{ campaignListError }}
       </div>
     </div>

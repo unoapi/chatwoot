@@ -201,6 +201,15 @@ export default {
       }
       return contactObject;
     },
+<<<<<<< HEAD
+=======
+    onPhoneNumberInputChange(value, code) {
+      this.activeDialCode = code;
+      if (!code && value) {
+        this.phoneNumber = value;
+      }
+    },
+>>>>>>> 4fc2dc143c (feat: show error campaign audience)
     setPhoneCode(code) {
       if (this.phoneNumber !== '' && this.parsePhoneNumber) {
         const dialCode = this.parsePhoneNumber.countryCallingCode;

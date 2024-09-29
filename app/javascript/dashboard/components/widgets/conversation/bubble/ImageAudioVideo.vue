@@ -29,8 +29,11 @@ export default {
   data() {
     return {
       show: false,
-      isImageError: false,
-      isImageErrorDelay: false,
+      isAttachmentError: false,
+      countAttachmentRetry: 0,
+      maxAttachmentRetry: 5,
+      retyAttachmentDelay: 1000,
+      isAttachmentLoading: false,
     };
   },
   computed: {
@@ -76,7 +79,7 @@ export default {
   },
   watch: {
     attachment() {
-      this.isImageError = false;
+      this.isAttachmentError = false;
     },
   },
   methods: {
@@ -90,15 +93,19 @@ export default {
       }
       this.show = true;
     },
-    onImgError() {
-      this.isImageError = true;
+    onAttachmentError() {
+      this.isAttachmentError = true;
       this.$emit('error');
     },
-    onImgErrorDelay() {
+    onAttachmentErrorDelay() {
+      if (this.countAttachmentRetry >= this.maxAttachmentRetry) {
+        return;
+      }
+      this.countAttachmentRetry += 1;
+      this.isAttachmentLoading = true;
       setTimeout(() => {
-        this.isImageErrorDelay = true;
-        this.$emit('error');
-      }, 1000);
+        this.isAttachmentLoading = false;
+      }, this.retyAttachmentDelay * this.countAttachmentRetry);
     },
   },
 };
@@ -107,32 +114,28 @@ export default {
 <template>
   <div class="message-text__wrap" :class="attachmentTypeClasses">
     <img
-      v-if="isImage && !isImageError"
+      v-if="isImage && !isAttachmentLoading"
       class="bg-woot-200 dark:bg-woot-900"
       :src="dataUrl"
       :width="imageWidth"
       :height="imageHeight"
       @click="onClick"
-      @error="onImgErrorDelay"
-    />
-    <img
-      v-else-if="isImageErrorDelay && !isImageError"
-      class="bg-woot-200 dark:bg-woot-900"
-      :src="`${dataUrl}?t=${Date.now()}`"
-      :width="imageWidth"
-      :height="imageHeight"
-      @click="onClick"
-      @error="onImgError"
+      @error="onAttachmentError"
     />
     <video
-      v-if="isVideo"
+      v-if="isVideo && !isAttachmentLoading"
       :src="dataUrl"
       muted
       playsInline
-      @error="onImgError"
+      @error="onAttachmentError"
       @click="onClick"
     />
-    <audio v-else-if="isAudio" controls class="skip-context-menu mb-0.5">
+    <audio
+      v-else-if="isAudio && !isAttachmentLoading"
+      controls
+      class="skip-context-menu mb-0.5"
+      @error="onAttachmentError"
+    >
       <source :src="timeStampURL" />
     </audio>
     <GalleryView
@@ -140,7 +143,7 @@ export default {
       :show.sync="show"
       :attachment="attachment"
       :all-attachments="filteredCurrentChatAttachments"
-      @error="onImgError"
+      @error="onAttachmentError"
       @close="onClose"
     />
   </div>

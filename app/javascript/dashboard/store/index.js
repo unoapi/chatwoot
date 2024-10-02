@@ -45,6 +45,7 @@ import userNotificationSettings from './modules/userNotificationSettings';
 import webhooks from './modules/webhooks';
 import draftMessages from './modules/draftMessages';
 import SLAReports from './modules/SLAReports';
+import webphone from './modules/webphone';
 
 const plugins = [];
 
@@ -95,6 +96,7 @@ export default createStore({
     draftMessages,
     sla,
     slaReports: SLAReports,
+    webphone,
   },
   plugins,
 });

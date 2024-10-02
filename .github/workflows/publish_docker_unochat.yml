@@ -1,4 +1,4 @@
-name: Create and publish a Docker image
+name: Create and publish a Docker Unochat image
 
 on:
   push:
@@ -35,7 +35,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ github.repository }}
 
       - name: Build and push Docker image
         id: push

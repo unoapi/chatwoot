@@ -31,17 +31,20 @@ export default {
       if (key === 'email') {
         return this.enabledFeatures.channel_email;
       }
+      if (key === 'notifica_me') {
+        return this.enabledFeatures.notifica_me;
+      }
+      if (key === 'whatsapp') {
+        return this.enabledFeatures.whatsapp;
+      }
+      if (key === 'website') {
+        return this.enabledFeatures.website;
+      }
+      if (key === 'api') {
+        return this.enabledFeatures.api;
+      }
 
-      return [
-        'website',
-        'twilio',
-        'api',
-        'whatsapp',
-        'sms',
-        'telegram',
-        'line',
-        'notifica_me',
-      ].includes(key);
+      return ['twilio', 'sms', 'telegram', 'line'].includes(key);
     },
   },
   methods: {

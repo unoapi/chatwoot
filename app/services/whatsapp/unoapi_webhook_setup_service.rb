@@ -71,7 +71,35 @@ class Whatsapp::UnoapiWebhookSetupService
   end
 
   # rubocop:disable Metrics/MethodLength
+  
+  # Função que adiciona webhooks sem duplicar
+  def create_webhook(provider_config, phone_number, id_base, url_base)
+    webhooks = provider_config['webhooks']
+
+    # Verifica duplicidade por id e urlAbsolute
+    id_exists = webhooks.any? { |wh| wh['id'] == id_base }
+    url_exists = webhooks.any? { |wh| wh['urlAbsolute'] == url_base }
+
+    return if id_exists || url_exists # Evita duplicidade
+
+    # Adiciona o webhook no provider_config
+    webhooks << {
+      sendNewMessages: provider_config['webhook_send_new_messages'] || true,
+      id: id_base,
+      urlAbsolute: url_base,
+      token: provider_config['webhook_verify_token'],
+      header: 'Authorization'
+    }
+  end
+
+  # Exemplo de configuração para múltiplos webhooks
   def params(provider_config, phone_number)
+    # Webhook padrão
+    create_webhook(provider_config, phone_number, 'default', "#{ENV.fetch('FRONTEND_URL', '')}/webhooks/whatsapp/#{phone_number}")
+
+    # Webhook Typebot
+    # create_webhook(provider_config, phone_number, 'typebot', "#{ENV.fetch('FRONTEND_URL', '')}/webhooks/typebot/#{phone_number}")
+
     {
       ignoreGroupMessages: provider_config['ignore_group_messages'],
       ignoreBroadcastStatuses: provider_config['ignore_broadcast_statuses'],
@@ -84,17 +112,11 @@ class Whatsapp::UnoapiWebhookSetupService
       composingMessage: provider_config['composing_message'],
       rejectCalls: provider_config['reject_calls'],
       messageCallsWebhook: provider_config['message_calls_webhook'],
-      webhooks: [
-        sendNewMessages: provider_config['webhook_send_new_messages'],
-        id: 'default',
-        urlAbsolute: "#{ENV.fetch('FRONTEND_URL', nil)}/webhooks/whatsapp/#{phone_number}",
-        token: provider_config['webhook_verify_token'],
-        header: :Authorization
-      ],
+      webhooks: provider_config['webhooks'],
       sendReactionAsReply: provider_config['send_reaction_as_reply'],
       sendProfilePicture: provider_config['send_profile_picture'],
       authToken: provider_config['api_key'],
-      wavoipToken: provider_config['wavoip_token']
+      useRejectCalls: provider_config['use_reject_calls']
     }
   end
   # rubocop:enable Metrics/MethodLength

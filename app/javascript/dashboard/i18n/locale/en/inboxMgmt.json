@@ -226,6 +226,28 @@
           "PLACEHOLDER": "Please enter an inbox name",
           "ERROR": "This field is required"
         },
+        "TAB_NAME": {
+          "TAB_PARAMS": {
+            "LABEL": "Parameters"
+          },
+          "TAB_WEBHOOK": {
+            "LABEL": "Webhooks",
+            "DESCRIPTION": "List of Available Webhooks - Avoid creating webhooks with the same ID and URL as another existing one.",
+            "ID": "ID",
+            "URL_ABSOLUT": "Absolute URL",
+            "BUTTON": "Send new messages to Webhook",
+            "ACTIONS": "Edit / Delete",
+            "EDIT": "Edit",
+            "DELETE": "Delete",
+            "TOKEN": "Token",
+            "HEADER": "Token Header",
+            "SAVE": "Save",
+            "ADD": "Add",
+            "CANCEL": "Cancel",
+            "DUPLICATE": "URL already exists",
+            "ERROR_DELETE": "It is not possible to remove this webhook"
+          }
+        },
         "SEND_AGENT_NAME": {
           "LABEL": "Send agent name",
           "PLACEHOLDER": "Check to send agent name.",

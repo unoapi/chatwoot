@@ -224,6 +224,28 @@
           "PLACEHOLDER": "Por favor, introduzca un nombre de bandeja de entrada",
           "ERROR": "Este campo es obligatorio"
         },
+        "TAB_NAME": {
+          "TAB_PARAMS": {
+            "LABEL": "Parámetros"
+          },
+          "TAB_WEBHOOK": {
+            "LABEL": "Webhooks",
+            "DESCRIPTION": "Lista de Webhooks Disponibles - Evite crear webhooks con el mismo ID y URL de otro ya existente.",
+            "ID": "ID",
+            "URL_ABSOLUT": "URL Absoluta",
+            "BUTTON": "Enviar nuevos mensajes al Webhook",
+            "ACTIONS": "Editar / Eliminar",
+            "EDIT": "Editar",
+            "DELETE": "Eliminar",
+            "TOKEN": "Token",
+            "HEADER": "Encabezado del Token",
+            "SAVE": "Guardar",
+            "ADD": "Añadir",
+            "CANCEL": "Cancelar",
+            "DUPLICATE": "La URL ya existe",
+            "ERROR_DELETE": "No es posible eliminar este webhook"
+          }
+        },
         "PHONE_NUMBER": {
           "LABEL": "Número de teléfono",
           "PLACEHOLDER": "Por favor, introduzca el número de teléfono desde el que se enviará el mensaje.",

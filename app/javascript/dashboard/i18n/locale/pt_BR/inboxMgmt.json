@@ -220,6 +220,28 @@
           "360_DIALOG": "360Dialog",
           "UNOAPI": "Unoapi"
         },
+        "TAB_NAME": {
+          "TAB_PARAMS": {
+            "LABEL": "Parâmetros"
+          },
+          "TAB_WEBHOOK": {
+            "LABEL": "Webhooks",
+            "DESCRIPTION":"Lista de Webhooks Disponíveis - Evite criar webhooks com o mesmo ID e URL de outro já existente.",
+            "ID": "ID",
+            "URL_ABSOLUT": "URL Absoluta",
+            "BUTTON": "Enviar novas mensagens ao Webhook",
+            "ACTIONS": "Editar / Excluir",
+            "EDIT": "Editar",
+            "DELETE": "Excluir",
+            "TOKEN": "Token",
+            "HEADER": "Cabeçalho do Token",
+            "SAVE": "Salvar",
+            "ADD": "Adicionar",
+            "CANCEL": "Cancelar",
+            "DUPLICATE": "Url já existe",
+            "ERROR_DELETE": "Não é possivel remover esse webhook"
+          }
+        },        
         "SEND_AGENT_NAME": {
           "LABEL": "Enviar nome do agente",
           "PLACEHOLDER": "Selecione para enviar o nome do agente.",

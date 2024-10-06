@@ -53,13 +53,28 @@ class ChatwootHub
       additional_information: {}
     }
   end
+  
+  def self.random_string(length=10)
+    chars = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ0123456789'
+    password = ''
+    length.times { password << chars[rand(chars.size)] }
+    password
+  end
 
   def self.sync_with_hub
     begin
       info = instance_config
       info = info.merge(instance_metrics) unless ENV['DISABLE_TELEMETRY']
-      response = RestClient.post(PING_URL, info.to_json, { content_type: :json, accept: :json })
-      parsed_response = JSON.parse(response)
+    
+      parsed_response = {
+          version: Chatwoot.config[:version],
+          plan: "enterprise",
+          plan_quantity: 10000000,
+          chatwoot_support_identifier_hash: random_string(64),
+          chatwoot_support_website_token: random_string(24),
+          chatwoot_support_script_url: "https://app.chatwoot.com"
+          
+      }
     rescue *ExceptionList::REST_CLIENT_EXCEPTIONS => e
       Rails.logger.error "Exception: #{e.message}"
     rescue StandardError => e

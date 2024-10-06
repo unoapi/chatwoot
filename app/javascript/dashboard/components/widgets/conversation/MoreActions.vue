@@ -70,7 +70,9 @@ export default {
         } else if (error.message === 'Limite de ligações atingido') {
           useAlert(this.$t('WEBPHONE.CALL_LIMIT'));
         } else {
-          useAlert(this.$t('WEBPHONE.ERROR_TO_MADE_CALL'));
+          useAlert(
+            `${this.$t('WEBPHONE.ERROR_TO_MADE_CALL')}: ${error.message}`
+          );
         }
       }
     },

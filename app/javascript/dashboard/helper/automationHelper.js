@@ -10,6 +10,7 @@ import {
   DEFAULT_ACTIONS,
   MESSAGE_CONDITION_VALUES,
   PRIORITY_CONDITION_VALUES,
+  SENDER_TYPE_CONDITION_VALUES,
 } from 'dashboard/constants/automation';
 import filterQueryGenerator from './filterQueryGenerator';
 import actionQueryGenerator from './actionQueryGenerator';
@@ -155,6 +156,7 @@ export const getConditionOptions = ({
     conversation_language: languages,
     country_code: countries,
     message_type: MESSAGE_CONDITION_VALUES,
+    sender_type: SENDER_TYPE_CONDITION_VALUES,
     priority: PRIORITY_CONDITION_VALUES,
   };
 

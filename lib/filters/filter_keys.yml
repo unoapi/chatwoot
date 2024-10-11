@@ -226,6 +226,14 @@ messages:
     filter_operators:
       - "equal_to"
       - "not_equal_to"
+  sender_type:
+    attribute_type: "standard"
+    data_type: "text_case_insensitive"
+    filter_operators:
+      - "equal_to"
+      - "not_equal_to"
+      - "is_present"
+      - "is_not_present"
   content:
     attribute_type: "standard"
     data_type: "text"

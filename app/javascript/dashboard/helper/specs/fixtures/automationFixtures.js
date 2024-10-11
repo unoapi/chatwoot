@@ -647,6 +647,21 @@ export const MESSAGE_CONDITION_VALUES = [
   },
 ];
 
+export const SENDER_TYPE_CONDITION_VALUES = [
+  {
+    id: 'AgentBot',
+    name: 'Bot',
+  },
+  {
+    id: 'Contact',
+    name: 'Contact',
+  },
+  {
+    id: 'User',
+    name: 'User',
+  },
+];
+
 export const automationToSubmit = {
   name: 'Fayaz',
   description: 'Hello',

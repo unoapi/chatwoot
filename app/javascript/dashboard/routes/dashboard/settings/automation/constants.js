@@ -50,6 +50,13 @@ export const AUTOMATIONS = {
         inputType: 'plain_text',
         filterOperators: OPERATOR_TYPES_6,
       },
+      {
+        key: 'sender_type',
+        name: 'Sender Type',
+        attributeI18nKey: 'SENDER_TYPE',
+        inputType: 'search_select',
+        filterOperators: OPERATOR_TYPES_3,
+      },
     ],
     actions: [
       {

@@ -28,9 +28,6 @@ import { emitter } from 'shared/helpers/mitt';
 // stores and apis
 import { mapGetters } from 'vuex';
 
-// stores and apis
-import { mapGetters } from 'vuex';
-
 export default {
   components: {
     BubbleActions,

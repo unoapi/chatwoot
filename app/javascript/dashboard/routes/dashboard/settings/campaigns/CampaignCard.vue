@@ -45,7 +45,7 @@ const colorScheme = computed(() => {
 });
 
 const campaignReport = computed(() => {
-  const audience = this.campaign.audience;
+  const audience = props.campaign.audience;
   const reports = {
     total: 0,
   };
@@ -62,13 +62,13 @@ const campaignReport = computed(() => {
 });
 
 const campaignListError = computed(() => {
-  const audience = this.campaign.audience || [];
+  const audience = props.campaign.audience || [];
   return audience
     .filter(a => a.status === 'error')
     .map(
       a =>
-        `${this.$t('CONTACT_FORM.FORM.NAME.LABEL')}: ${a.name},
-          ${this.$t('CONTACT_FORM.FORM.PHONE_NUMBER.LABEL')}: ${a.phone_number}`
+        `${t('CONTACT_FORM.FORM.NAME.LABEL')}: ${a.name},
+          ${t('CONTACT_FORM.FORM.PHONE_NUMBER.LABEL')}: ${a.phone_number}`
     )
     .join('<br/>');
 });

@@ -45,7 +45,7 @@ const colorScheme = computed(() => {
 });
 
 const campaignReport = computed(() => {
-  const audience = this.campaign.audience;
+  const audience = props.campaign.audience;
   const reports = {
     total: 0,
   };
@@ -59,18 +59,6 @@ const campaignReport = computed(() => {
     reports[a.status] += 1;
   }
   return reports;
-});
-
-const campaignListError = computed(() => {
-  const audience = this.campaign.audience || [];
-  return audience
-    .filter(a => a.status === 'error')
-    .map(
-      a =>
-        `${this.$t('CONTACT_FORM.FORM.NAME.LABEL')}: ${a.name},
-          ${this.$t('CONTACT_FORM.FORM.PHONE_NUMBER.LABEL')}: ${a.phone_number}`
-    )
-    .join('<br/>');
 });
 </script>
 
@@ -150,20 +138,6 @@ const campaignListError = computed(() => {
       </div>
       <div class="mb-1 text-xs text-slate-700 dark:text-slate-500">
         {{ campaignReport }}
-      </div>
-    </div>
-
-    <div
-      v-if="
-        campaign.inbox.channel_type == 'Channel::Whatsapp' && campaignListError
-      "
-      class="flex flex-row items-center mt-5 space-x-3"
-    >
-      <div class="mb-1 text-xs text-slate-700 dark:text-slate-500">
-        {{ $t('CAMPAIGN.AUDIENCE.ERROR') }}:
-      </div>
-      <div class="mb-1 text-xs text-slate-700 dark:text-slate-500">
-        {{ campaignListError }}
       </div>
     </div>
   </div>

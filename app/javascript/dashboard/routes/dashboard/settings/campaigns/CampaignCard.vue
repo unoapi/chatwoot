@@ -72,6 +72,18 @@ const campaignListError = computed(() => {
     )
     .join('<br/>');
 });
+
+const campaignListFailed = computed(() => {
+  const audience = props.campaign.audience || [];
+  return audience
+    .filter(a => a.status === 'failed')
+    .map(
+      a =>
+        `${t('CONTACT_FORM.FORM.NAME.LABEL')}: ${a.name},
+          ${t('CONTACT_FORM.FORM.PHONE_NUMBER.LABEL')}: ${a.phone_number}`
+    )
+    .join('<br/>');
+});
 </script>
 
 <template>
@@ -146,45 +158,19 @@ const campaignListError = computed(() => {
         {{ campaignReport }}
       </div>
     </div>
-
-    <div
-      v-if="campaign.inbox.channel_type == 'Channel::Whatsapp'"
-      class="flex flex-row items-center mt-5 space-x-3"
-    >
-      <div class="mb-1 text-xs text-slate-700 dark:text-slate-500">
-        {{ $t('CAMPAIGN.AUDIENCE.REPORT') }}:
-      </div>
-      <div class="mb-1 text-xs text-slate-700 dark:text-slate-500">
-        {{ campaignReport }}
-      </div>
-    </div>
-
     <div
       v-if="
-        campaign.inbox.channel_type == 'Channel::Whatsapp' && campaignListError
+        campaign.inbox.channel_type == 'Channel::Whatsapp' && campaignListFailed
       "
       class="flex flex-row items-center mt-5 space-x-3"
     >
       <div class="mb-1 text-xs text-slate-700 dark:text-slate-500">
-        {{ $t('CAMPAIGN.AUDIENCE.ERROR') }}:
+        {{ $t('CAMPAIGN.AUDIENCE.FAILED') }}:
       </div>
       <div class="mb-1 text-xs text-slate-700 dark:text-slate-500">
-        {{ campaignListError }}
+        {{ campaignListFailed }}
       </div>
     </div>
-
-    <div
-      v-if="campaign.inbox.channel_type == 'Channel::Whatsapp'"
-      class="flex flex-row items-center mt-5 space-x-3"
-    >
-      <div class="mb-1 text-xs text-slate-700 dark:text-slate-500">
-        {{ $t('CAMPAIGN.AUDIENCE.REPORT') }}:
-      </div>
-      <div class="mb-1 text-xs text-slate-700 dark:text-slate-500">
-        {{ campaignReport }}
-      </div>
-    </div>
-
     <div
       v-if="
         campaign.inbox.channel_type == 'Channel::Whatsapp' && campaignListError

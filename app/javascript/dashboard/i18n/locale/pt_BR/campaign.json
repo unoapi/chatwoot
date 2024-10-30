@@ -122,5 +122,10 @@
       "404": "Não há campanhas recorrentes criadas",
       "INBOXES_NOT_FOUND": "Por favor, crie uma caixa de entrada de website e comece a adicionar campanhas"
     }
+  },
+  "AUDIENCE": {
+    "REPORT": "Relatório",
+    "ERROR": "Erro",
+    "FAILED": "Falhas"
   }
 }

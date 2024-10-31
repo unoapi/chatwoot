@@ -6,18 +6,21 @@ class CampaignMessageJob < ApplicationJob
   def perform(account_id, inbox_id, campaign_id, content, audience)
     contact_inbox = create_contact_inbox(inbox_id, audience)
     conversation = create_conversation(contact_inbox)
-    conversation.messages.create!(
-      content: bind(content, audience),
-      account_id: account_id,
-      content_type: :text,
-      inbox_id: inbox_id,
-      message_type: :outgoing,
-      status: :progress,
-      additional_attributes: {
+    content_type = audience[:content_type] || :text
+    message = conversation.messages.create!(
+      content: bind(content, audience), account_id: account_id, content_type: :text,
+      inbox_id: inbox_id, message_type: :outgoing, status: :progress, additional_attributes: {
         campaign_id: campaign_id,
         audience_id: audience[:audience_id]
       }
     )
+    if content_type != :text && audience[:link] && (attachment_file = Down.download(audience[:link]))
+      message.attachments.create!(
+        account_id: message.account_id, file_type: content_type,
+        file: { io: attachment_file, filename: campaign_id }
+      )
+    end
+    message
   end
 
   private

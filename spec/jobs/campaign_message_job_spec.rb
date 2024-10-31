@@ -65,6 +65,23 @@ RSpec.describe CampaignMessageJob do
       expect(Message.last.content).to eq("hello #{name}")
     end
 
+    it 'with content content type image' do
+      link = 'https://farm4.staticflickr.com/3827/11349066413_99c32dee4a_z_d.jpg'
+      stub_request(:get, link).to_return(status: 200, headers: {})
+      audience2 = { phone_number: Faker::PhoneNumber.cell_phone_in_e164, name: name, content_type: :image, link: link }
+      campaign2 = create(:campaign, { inbox: unoapi_inbox, account: account, audience: [audience2], message: 'hello #name' })
+
+      count = Attachment.count
+      described_class.perform_now(
+        campaign2.account_id,
+        campaign2.inbox_id,
+        campaign2.id,
+        campaign2.message,
+        audience2
+      )
+      expect(Attachment.count).to be count + 1
+    end
+
     it 'update contact with identifier' do
       described_class.perform_now(
         campaign.account_id,

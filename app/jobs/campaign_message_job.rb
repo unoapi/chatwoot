@@ -7,7 +7,9 @@ class CampaignMessageJob < ApplicationJob
     contact_inbox = create_contact_inbox(inbox_id, audience)
     conversation = create_conversation(contact_inbox)
     content_type = audience[:content_type] || :text
-    message = conversation.messages.create!(
+
+
+    message = conversation.messages.build(
       content: bind(content, audience), account_id: account_id, content_type: :text,
       inbox_id: inbox_id, message_type: :outgoing, status: :progress, additional_attributes: {
         campaign_id: campaign_id,
@@ -15,11 +17,12 @@ class CampaignMessageJob < ApplicationJob
       }
     )
     if content_type != :text && audience[:link] && (attachment_file = Down.download(audience[:link]))
-      message.attachments.create!(
+      message.attachments.build(
         account_id: message.account_id, file_type: content_type,
         file: { io: attachment_file, filename: campaign_id }
       )
     end
+    message.save!
     message
   end
 

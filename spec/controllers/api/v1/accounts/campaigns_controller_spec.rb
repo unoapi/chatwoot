@@ -155,7 +155,8 @@ RSpec.describe 'Campaigns API', type: :request do
         unoapi_inbox = create(:inbox, channel: unoapi_channel)
         phone_number = Faker::PhoneNumber.cell_phone_in_e164
         audience = [
-          { phone_number: phone_number, name: Faker::Name.name, identifier: rand(1000...1100), audience_id: '12', content_type: 'text' }
+          { phone_number: phone_number, name: Faker::Name.name, team_id: rand(1000...1100), 
+          identifier: rand(1000...1100), audience_id: '12', content_type: 'text' }
         ]
 
         post "/api/v1/accounts/#{account.id}/campaigns",

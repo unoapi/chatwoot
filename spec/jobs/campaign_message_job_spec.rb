@@ -22,6 +22,7 @@ RSpec.describe CampaignMessageJob do
   let!(:campaign) do
     create(:campaign, inbox: unoapi_inbox, account: account, audience: [audience], message: 'hello #name')
   end
+  let!(:team) { create(:team) }
 
   it 'enqueues the job' do
     expect { job }.to have_enqueued_job(described_class)
@@ -63,6 +64,18 @@ RSpec.describe CampaignMessageJob do
         audience_1
       )
       expect(Message.last.content).to eq("hello #{name}")
+    end
+
+    it 'with team' do
+      audience_1[:team_id] = team.id
+      described_class.perform_now(
+        campaign.account_id,
+        campaign.inbox_id,
+        campaign.id,
+        campaign.message,
+        audience_1
+      )
+      expect(Message.last.conversation.team_id).to eq(team.id)
     end
 
     it 'with content content type image' do

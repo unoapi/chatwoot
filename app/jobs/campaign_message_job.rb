@@ -6,7 +6,7 @@ class CampaignMessageJob < ApplicationJob
   def perform(account_id, inbox_id, campaign_id, content, audience)
     contact_inbox = create_contact_inbox(inbox_id, audience)
     conversation = create_conversation(contact_inbox)
-    content_type = audience[:content_type] || :text
+    content_type = audience[:content_type] || 'text'
 
 
     message = conversation.messages.build(
@@ -16,7 +16,7 @@ class CampaignMessageJob < ApplicationJob
         audience_id: audience[:audience_id]
       }
     )
-    if content_type != :text && audience[:link] && (attachment_file = Down.download(audience[:link]))
+    if content_type != 'text' && audience[:link].present? && (attachment_file = Down.download(audience[:link]))
       message.attachments.build(
         account_id: message.account_id, file_type: content_type,
         file: { io: attachment_file, filename: campaign_id }

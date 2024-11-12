@@ -5,7 +5,7 @@ class CampaignMessageJob < ApplicationJob
 
   def perform(account_id, inbox_id, campaign_id, content, audience)
     contact_inbox = create_contact_inbox(inbox_id, audience)
-    conversation = create_conversation(audience[:team_id], contact_inbox)
+    conversation = create_conversation(contact_inbox)
     content_type = audience[:content_type] || 'text'
 
 
@@ -23,8 +23,8 @@ class CampaignMessageJob < ApplicationJob
       )
     end
     message.save!
-    if audience[:team_id].present? && !message.conversation.team_id.present?
-      message.conversation.team_id = audience[:team_id]
+    if audience[:team_id].present? && !conversation.team_id.present?
+      conversation.update!(team_id: audience[:team_id])
     end
     message
   end
@@ -67,8 +67,8 @@ class CampaignMessageJob < ApplicationJob
     contact_inbox
   end
 
-  def create_conversation(team_id, contact_inbox)
-    conversation = ConversationBuilder.new(params: { status: :resolved, team_id: team_id }, contact_inbox: contact_inbox).perform
+  def create_conversation(contact_inbox)
+    conversation = ConversationBuilder.new(params: { status: :resolved }, contact_inbox: contact_inbox).perform
     raise ActiveRecord::RecordNotFound if conversation.nil?
 
     conversation

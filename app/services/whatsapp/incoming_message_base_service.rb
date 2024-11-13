@@ -55,10 +55,11 @@ class Whatsapp::IncomingMessageBaseService
   end
 
   def update_message_with_status(message, status)
+    statuses = %w(progress sent delivered read failed)
     if status[:status] == 'deleted'
       message.assign_attributes(content: I18n.t('conversations.messages.deleted'), content_attributes: { deleted: true })
-    else
-      message.status = status[:status]
+    elsif statuses.index(status[:status]) > statuses.index(message.status)
+      message.status = status[:status] 
     end
     if status[:status] == 'failed' && status[:errors].present?
       error = status[:errors]&.first

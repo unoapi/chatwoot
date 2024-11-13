@@ -423,7 +423,7 @@ class Message < ApplicationRecord
   end
 
   def number_of_permitted_attachments
-    conversation.inbox&.channel&.whatsapp? ? 2 : NUMBER_OF_PERMITTED_ATTACHMENTS
+    conversation.inbox&.whatsapp? ? 2 : NUMBER_OF_PERMITTED_ATTACHMENTS
   end
 
   def set_conversation_activity

@@ -417,7 +417,11 @@ class Message < ApplicationRecord
   end
 
   def validate_attachments_limit(_attachment)
-    errors.add(:attachments, message: 'exceeded maximum allowed') if attachments.size >= NUMBER_OF_PERMITTED_ATTACHMENTS
+    errors.add(:attachments, message: 'exceeded maximum allowed') if attachments.size >= number_of_permitted_attachments
+  end
+
+  def number_of_permitted_attachments
+    conversation.inbox&.channel&.whatsapp? ? 2 : NUMBER_OF_PERMITTED_ATTACHMENTS
   end
 
   def set_conversation_activity

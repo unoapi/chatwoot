@@ -344,7 +344,7 @@ class Message < ApplicationRecord
     # active storage attaches the file only after commit
     return ::SendReplyJob.perform_later(id) if attachments.blank?
 
-    ::SendReplyJob.set(wait: ENV.fetch('SEND_REPLY_ATTACHMENT_DELAY', '2').to_i.seconds).perform_later(id)
+    ::SendReplyJob.set(wait: ENV.fetch('SEND_REPLY_ATTACHMENT_DELAY', 2).seconds).perform_later(id)
   end
 
   def reopen_conversation

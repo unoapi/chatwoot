@@ -205,10 +205,18 @@ class Conversation < ApplicationRecord
 
   private
 
-  def execute_after_update_commit_callbacks
+  def execute_after_update_commit_callbacks(retry_count = 1)
     notify_status_change
     create_activity
     notify_conversation_updation
+  rescue ActiveRecord::RecordNotFound => e
+    if retry_count < 5
+      Rails.logger.warn("Retry execute_after_update_commit_callbacks count #{retry_count}")
+      sleep(0.5)
+      execute_after_update_commit_callbacks(retry_count + 1)
+    else
+      Rails.logger.error("Error execute_after_update_commit_callbacks: #{e.message}")
+    end
   end
 
   def ensure_snooze_until_reset
@@ -234,8 +242,16 @@ class Conversation < ApplicationRecord
     self.status = :pending if inbox.active_bot?
   end
 
-  def notify_conversation_creation
+  def notify_conversation_creation(retry_count = 1)
     dispatcher_dispatch(CONVERSATION_CREATED)
+  rescue ActiveRecord::RecordNotFound => e
+    if retry_count < 5
+      Rails.logger.warn("Retry notify_conversation_creation count #{retry_count}")
+      sleep(0.5)
+      notify_conversation_creation(retry_count + 1)
+    else
+      Rails.logger.error("Error notify_conversation_creation: #{e.message}")
+    end
   end
 
   def notify_conversation_updation
@@ -260,13 +276,21 @@ class Conversation < ApplicationRecord
     assignee_id.present? && Current.user&.id == assignee_id
   end
 
-  def load_attributes_created_by_db_triggers
+  def load_attributes_created_by_db_triggers(retry_count = 1)
     # Display id is set via a trigger in the database
     # So we need to specifically fetch it after the record is created
     # We can't use reload because it will clear the previous changes, which we need for the dispatcher
     obj_from_db = self.class.find(id)
     self[:display_id] = obj_from_db[:display_id]
     self[:uuid] = obj_from_db[:uuid]
+  rescue ActiveRecord::RecordNotFound => e
+    if retry_count < 5
+      Rails.logger.warn("Retry load_attributes_created_by_db_triggers count #{retry_count}")
+      sleep(0.5)
+      load_attributes_created_by_db_triggers(retry_count + 1)
+    else
+      Rails.logger.error("Error load_attributes_created_by_db_triggers: #{e.message}")
+    end
   end
 
   def notify_status_change

@@ -105,6 +105,9 @@ export default {
       return '';
     },
     customViews() {
+      if (!this.activeCustomView) {
+        return [];
+      }
       return this.$store.getters['customViews/getCustomViewsByFilterType'](
         this.activeCustomView
       );

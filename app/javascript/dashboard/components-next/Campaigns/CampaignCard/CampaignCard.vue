@@ -42,6 +42,10 @@ const props = defineProps({
     type: Number,
     default: 0,
   },
+  audience: {
+    type: Array,
+    default: null,
+  },
 });
 
 const emit = defineEmits(['edit', 'delete']);
@@ -78,6 +82,35 @@ const inboxName = computed(() => props.inbox?.name || '');
 const inboxIcon = computed(() => {
   const { phone_number: phoneNumber, channel_type: type } = props.inbox;
   return getInboxIconByType(type, phoneNumber);
+});
+
+const audienceError = computed(() => {
+  const audience = props.audience || [];
+  return audience
+    .filter(a => ['error', 'failed'].includes(a.status))
+    .map(
+      a =>
+        `${t('CONTACT_FORM.FORM.NAME.LABEL')}: ${a.name},
+          ${t('CONTACT_FORM.FORM.PHONE_NUMBER.LABEL')}: ${a.phone_number}`
+    )
+    .join('<br/>');
+});
+
+const audienceReport = computed(() => {
+  const audience = props.audience;
+  const reports = {
+    total: 0,
+  };
+  // eslint-disable-next-line no-plusplus
+  for (let i = 0; i < audience.length; i++) {
+    const a = audience[i];
+    if (!reports[a.status]) {
+      reports[a.status] = 0;
+    }
+    reports.total += 1;
+    reports[a.status] += 1;
+  }
+  return reports;
 });
 </script>
 
@@ -116,6 +149,10 @@ const inboxIcon = computed(() => {
             :scheduled-at="scheduledAt"
           />
         </div>
+        <div class="text-sm text-n-slate-11 line-clamp-1 [&>p]:mb-0 h-6">
+          {{ audienceReport }}
+        </div>
+        <div class="flex flex-col items-start gap-2" v-html="audienceError" />
       </div>
     </template>
     <template #footer>

@@ -17,6 +17,7 @@ import {
   getConversationDashboardRoute,
 } from '../../../../helper/routeHelpers';
 import { emitter } from 'shared/helpers/mitt';
+import { parsePhoneNumber } from 'libphonenumber-js';
 
 export default {
   components: {
@@ -166,6 +167,9 @@ export default {
     openMergeModal() {
       this.showMergeModal = true;
     },
+    nationalNumber(value) {
+      return parsePhoneNumber(value).nationalNumber;
+    },
   },
 };
 </script>
@@ -243,6 +247,7 @@ export default {
             emoji="📞"
             :title="$t('CONTACT_PANEL.PHONE_NUMBER')"
             show-copy
+            :part-to-copy="nationalNumber(contact.phone_number)"
           />
           <ContactInfoRow
             v-if="contact.identifier"

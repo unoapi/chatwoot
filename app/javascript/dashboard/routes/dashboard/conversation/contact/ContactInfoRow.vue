@@ -28,11 +28,20 @@ export default {
       type: Boolean,
       default: false,
     },
+    partToCopy: {
+      type: String,
+      default: '',
+    },
   },
   methods: {
     async onCopy(e) {
       e.preventDefault();
       await copyTextToClipboard(this.value);
+      useAlert(this.$t('CONTACT_PANEL.COPY_SUCCESSFUL'));
+    },
+    async onPartToCopy(e) {
+      e.preventDefault();
+      await copyTextToClipboard(this.partToCopy);
       useAlert(this.$t('CONTACT_PANEL.COPY_SUCCESSFUL'));
     },
   },
@@ -72,6 +81,17 @@ export default {
         icon="clipboard"
         class-names="p-0"
         @click="onCopy"
+      />
+
+      <woot-button
+        v-if="partToCopy"
+        type="submit"
+        variant="clear"
+        size="tiny"
+        color-scheme="primary"
+        icon="clipboard"
+        class-names="p-0"
+        @click="onPartToCopy"
       />
     </a>
 

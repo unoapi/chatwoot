@@ -18,6 +18,7 @@ import {
 } from '../../../../helper/routeHelpers';
 import { emitter } from 'shared/helpers/mitt';
 import { parsePhoneNumber } from 'libphonenumber-js';
+import { copyTextToClipboard } from 'shared/helpers/clipboard';
 
 export default {
   components: {
@@ -168,7 +169,12 @@ export default {
       this.showMergeModal = true;
     },
     nationalNumber(value) {
-      return parsePhoneNumber(value).nationalNumber;
+      return `0${parsePhoneNumber(value).nationalNumber}`;
+    },
+    async onCopyName(e) {
+      e.preventDefault();
+      await copyTextToClipboard(this.contact.name);
+      useAlert(this.$t('CONTACT_PANEL.COPY_SUCCESSFUL'));
     },
   },
 };
@@ -225,6 +231,16 @@ export default {
                 color-scheme="secondary"
               />
             </a>
+
+            <woot-button
+              type="submit"
+              variant="clear"
+              size="tiny"
+              color-scheme="secondary"
+              icon="clipboard"
+              class-names="p-0"
+              @click="onCopyName"
+            />
           </div>
         </div>
 

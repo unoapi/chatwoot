@@ -4,8 +4,6 @@ class BrazilianNumberValidator < ActiveModel::EachValidator
 
     phone = value.delete('+')
 
-    puts "value #{value} phone #{phone} attribute #{attribute} record #{record}"
-
     return if phone[0, 2] != '55'
 
     local = phone[2, phone.length - 1]

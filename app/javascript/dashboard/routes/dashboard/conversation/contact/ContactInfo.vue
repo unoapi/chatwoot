@@ -169,7 +169,7 @@ export default {
       this.showMergeModal = true;
     },
     nationalNumber(value) {
-      return `0${parsePhoneNumber(value).nationalNumber}`;
+      return value && `0${parsePhoneNumber(value).nationalNumber}`;
     },
     async onCopyName(e) {
       e.preventDefault();
@@ -257,6 +257,7 @@ export default {
             show-copy
           />
           <ContactInfoRow
+            v-if="contact.phone_number"
             :href="contact.phone_number ? `tel:${contact.phone_number}` : ''"
             :value="contact.phone_number"
             icon="call"

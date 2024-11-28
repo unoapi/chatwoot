@@ -59,8 +59,8 @@ class AutomationRules::ActionService < ActionService
   def bind_webhook_url(url, payload)
     # https://unoapi.cloud/<%=@conversation.inbox.channel.phone_number.delete('+')%>/blacklist/type?to=<%=payload[:meta][:sender][:phone_number]%>&ttl=36000&access_token=78wewiuugDIwgfiuggwuigwgYUFFwfiwhfoihwfioho86734GFJgsfgsf
     ERB.new(url).result(binding)
-  rescue e
-    Rails.logger.error('Error on bind url: ', e)
+  rescue RuntimeError => e
+    Rails.logger.error("Error on bind url: #{e}")
     url
   end
 end

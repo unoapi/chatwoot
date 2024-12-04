@@ -397,7 +397,7 @@ function setFiltersFromUISettings() {
   activeSortBy.value =
     Object.keys(wootConstants.SORT_BY_TYPE).find(
       sortField => sortField === orderBy
-    ) || wootConstants.SORT_BY_TYPE.LAST_ACTIVITY_AT_DESC;
+    ) || wootConstants.SORT_BY_TYPE.LAST_ACTIVITY_AT_ASC;
 }
 
 function emitConversationLoaded() {

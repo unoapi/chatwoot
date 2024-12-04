@@ -97,7 +97,7 @@ const audienceError = computed(() => {
 });
 
 const audienceReport = computed(() => {
-  const audience = props.audience;
+  const audience = props.audience || [];
   const reports = {
     total: 0,
   };

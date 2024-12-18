@@ -12,6 +12,7 @@ on:
       - uno
     tags:
       - v*
+# pull_request:
   workflow_dispatch:
 
 jobs:
@@ -40,8 +41,10 @@ jobs:
 
       - name: set docker tag
         run: |
-          echo "DOCKER_TAG=clairton/chatwoot:$GIT_REF" >> $GITHUB_ENV
-          echo "DOCKER_ARM_TAG=clairton/chatwoot-arm:$GIT_REF" >> $GITHUB_ENV
+          # Replace forward slashes with hyphens in the ref name
+          SANITIZED_REF=$(echo "$GIT_REF" | sed 's/\//-/g')
+          echo "DOCKER_TAG=clairton/chatwoot:$SANITIZED_REF" >> $GITHUB_ENV
+          echo "DOCKER_ARM_TAG=clairton/chatwoot-arm:$SANITIZED_REF" >> $GITHUB_ENV
 
       - name: replace docker tag if master
         if: github.ref_name == 'master'
@@ -50,6 +53,7 @@ jobs:
           echo "DOCKER_ARM_TAG=clairton/chatwoot-arm:latest" >> $GITHUB_ENV
 
       - name: Login to DockerHub
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -61,8 +65,8 @@ jobs:
         with:
           context: .
           file: docker/Dockerfile
-          platforms: linux/amd64
-          push: true
+          platforms: linux/amd64, linux/arm64
+          push: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
           tags: ${{ env.DOCKER_TAG }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

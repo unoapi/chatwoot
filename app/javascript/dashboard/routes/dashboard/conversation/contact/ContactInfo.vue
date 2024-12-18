@@ -9,7 +9,6 @@ import SocialIcons from './SocialIcons.vue';
 import EditContact from './EditContact.vue';
 import NewConversation from './NewConversation.vue';
 import ContactMergeModal from 'dashboard/modules/contact/ContactMergeModal.vue';
-import { getCountryFlag } from 'dashboard/helper/flag';
 import { BUS_EVENTS } from 'shared/constants/busEvents';
 import {
   isAConversationRoute,
@@ -129,8 +128,12 @@ export default {
     },
     findCountryFlag(countryCode, cityAndCountry) {
       try {
-        const countryFlag = countryCode ? getCountryFlag(countryCode) : '🌎';
-        return `${cityAndCountry} ${countryFlag}`;
+        if (!countryCode) {
+          return `${cityAndCountry} 🌎`;
+        }
+
+        const code = countryCode?.toLowerCase();
+        return `${cityAndCountry} <span class="fi fi-${code} size-3.5"></span>`;
       } catch (error) {
         return '';
       }
@@ -181,7 +184,7 @@ export default {
 </script>
 
 <template>
-  <div class="relative items-center w-full p-4 bg-white dark:bg-slate-900">
+  <div class="relative items-center w-full p-4">
     <div class="flex flex-col w-full gap-2 text-left rtl:text-right">
       <div class="flex flex-row justify-between">
         <Thumbnail

@@ -138,7 +138,7 @@
   },
   "engines": {
     "node": ">= 20.x",
-    "pnpm": "9.x"
+    "pnpm": "10.x"
   },
   "husky": {
     "hooks": {

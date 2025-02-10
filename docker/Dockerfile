@@ -117,7 +117,7 @@ RUN apk update && apk add --no-cache \
 RUN if [ "$RAILS_ENV" != "production" ]; then \
   apk add --no-cache nodejs=20.15.1-r0; \
   # Install pnpm and configure environment
-  wget -qO- https://get.pnpm.io/install.sh | env ENV="$HOME/.shrc" SHELL="$(which sh)" PNPM_VERSION="9.15.5" sh - \
+  wget -qO- https://get.pnpm.io/install.sh | env PNPM_VERSION="9.15.5" ENV="$HOME/.shrc" SHELL="$(which sh)" sh - \
   && source /root/.shrc \
   && pnpm --version; \
   fi

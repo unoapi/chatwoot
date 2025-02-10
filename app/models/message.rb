@@ -192,7 +192,7 @@ class Message < ApplicationRecord
       id: id,
       inbox: inbox.webhook_data,
       message_type: message_type,
-      status: status,
+      status: deleted ? 'deleted' : status,
       private: private,
       sender: sender.try(:webhook_data),
       source_id: source_id
